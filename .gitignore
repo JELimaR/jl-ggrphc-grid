@@ -1,0 +1,13 @@
+.npmignore
+
+.vscode/*
+node_modules/*
+dist/*
+data/*
+azgaarData/*.json
+
+.replit
+
+package-lock.json
+
+*.png

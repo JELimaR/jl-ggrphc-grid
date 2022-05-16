@@ -1,0 +1,35 @@
+import JPoint from "../../Geom/JPoint";
+
+export default (): JPoint[][] => {
+    return [
+        [new JPoint(130, -60)],
+        [new JPoint(138, -60)],
+        [new JPoint(133, -57)],
+        [new JPoint(138, -55)],
+        [new JPoint(143, -55)],
+        [new JPoint(136, -54)],
+        [new JPoint(146, -53)],
+        [new JPoint(143, -51)],
+        [new JPoint(140, -39)],
+        [new JPoint(146, -37)],
+        [new JPoint(140, -33)],
+        [new JPoint(148, -32)],
+        [new JPoint(156, -31)],
+        [new JPoint(135, -30)],
+        [new JPoint(140, -30), new JPoint(138, -29.5)],
+        [new JPoint(152, -29.5)],
+        [new JPoint(147, -28)],
+        [new JPoint(141, -17.5)],
+        [new JPoint(160, -10)],
+        [new JPoint(145.5, -9.5)],
+        [new JPoint(160, -8)],
+        [new JPoint(162, -2)],
+        [new JPoint(130.5, -0.35)],
+        [new JPoint(155.3, 5.6)],
+        [new JPoint(140, 9)],
+        [new JPoint(145.5, 11)],
+        [new JPoint(140, 15)],
+        [new JPoint(131.5, 18)],
+        [new JPoint(152.5, 18.5)],
+    ]
+}
