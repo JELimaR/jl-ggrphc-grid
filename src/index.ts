@@ -36,7 +36,7 @@ import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
 const tam: number = 3600;
 let SIZE: JVector = new JVector({ x: tam, y: tam / 2 });
 
-const azgaarFolder: string[] = ['Mordaia100'];
+const azgaarFolder: string[] = ['Girvryia100', 'Horaland100', 'Mordaia100'];
 
 PNGDrawsDataManager.configPath(__dirname + `/../pngdraws`);
 DataInformationFilesManager.configPath(__dirname + `/../data`);
@@ -124,16 +124,20 @@ let minArea = Infinity;
 let idMin = 0;
 let maxArea = 0;
 let idMax = 0;
+let totalLandArea = 0;
 
 jhm.diagram.forEachCell((cell: JCell) => {
-	const area = cell.area;
-	if (area > maxArea) {
-		maxArea = area;
-		idMax = cell.id;
-	}
-	if (area < minArea) {
-		minArea = area;
-		idMin = cell.id;
+	if (cell.info.isLand) {
+		const area = cell.area;
+		if (area > maxArea) {
+			maxArea = area;
+			idMax = cell.id;
+		}
+		if (area < minArea) {
+			minArea = area;
+			idMin = cell.id;
+		}
+		totalLandArea += area;
 	}
 })
 
@@ -141,6 +145,7 @@ console.log('min area:', minArea)
 console.log('cell min area:', jhm.diagram.getCellById(idMin))
 console.log('max area:', maxArea)
 console.log('cell max area:', jhm.diagram.getCellById(idMax))
+console.log('total area', totalLandArea)
 
 
 console.timeEnd('all')

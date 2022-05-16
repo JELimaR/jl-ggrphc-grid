@@ -1,15 +1,15 @@
 
 export interface AzgaarFullData {
-    info:      Info;
-    settings:  Settings;
-    coords:    Coords;
-    cells:     Cells;
-    biomes:    Biomes;
-    notes:     Note[];
-    nameBases: NameBasis[];
+    info:      AzgaarInfo;
+    settings:  AzgaarSettings;
+    coords:    AzgaarCoords;
+    cells:     AzgaarCells;
+    biomes:    AzgaarBiomes;
+    notes:     AzgaarNote[];
+    nameBases: AzgaarNameBasis[];
 }
 
-export interface Biomes {
+export interface AzgaarBiomes {
     i:            number[];
     name:         string[];
     color:        string[];
@@ -24,22 +24,22 @@ export interface Biomes {
     urban:        number[];
 }
 
-export interface Cells {
-    cells:     Cell[];
-    features:  Array<FeatureClass | number>;
-    cultures:  Culture[];
-    burgs:     Burg[];
-    states:    State[];
+export interface AzgaarCells {
+    cells:     AzgaarCell[];
+    features:  Array<AzgaarFeatureClass | number>;
+    cultures:  AzgaarCulture[];
+    burgs:     AzgaarBurg[];
+    states:    AzgaarState[];
     provinces: number[];
-    religions: Religion[];
-    rivers:    River[];
-    markers:   Marker[];
+    religions: AzgaarReligion[];
+    rivers:    AzgaarRiver[];
+    markers:   AzgaarMarker[];
 }
 
-export interface Burg {
+export interface AzgaarBurg {
 }
 
-export interface Cell {
+export interface AzgaarCell {
     i:         number;
     v:         number[];
     c:         number[];
@@ -66,7 +66,7 @@ export interface Cell {
     province:  number;
 }
 
-export interface Culture {
+export interface AzgaarCulture {
     name:          string;
     i:             number;
     base:          number;
@@ -79,7 +79,7 @@ export interface Culture {
     code?:         string;
 }
 
-export interface FeatureClass {
+export interface AzgaarFeatureClass {
     i:            number;
     land:         boolean;
     border:       boolean;
@@ -99,7 +99,7 @@ export interface FeatureClass {
     name?:        string;
 }
 
-export interface Marker {
+export interface AzgaarMarker {
     icon: string;
     type: string;
     dy?:  number;
@@ -110,7 +110,7 @@ export interface Marker {
     i:    number;
 }
 
-export interface Religion {
+export interface AzgaarReligion {
     i:        number;
     name:     string;
     color?:   string;
@@ -123,7 +123,7 @@ export interface Religion {
     code?:    string;
 }
 
-export interface River {
+export interface AzgaarRiver {
     i:           number;
     source:      number;
     mouth:       number;
@@ -136,15 +136,15 @@ export interface River {
     cells:       number[];
     basin:       number;
     name:        string;
-    type:        Type;
+    type:        AzgaarRiverType;
 }
 
-export enum Type {
+export enum AzgaarRiverType {
     Fork = "Fork",
     River = "River",
 }
 
-export interface State {
+export interface AzgaarState {
     i:         number;
     name:      string;
     urban:     number;
@@ -157,7 +157,7 @@ export interface State {
     provinces: any[];
 }
 
-export interface Coords {
+export interface AzgaarCoords {
     latT: number;
     latN: number;
     latS: number;
@@ -166,7 +166,7 @@ export interface Coords {
     lonE: number;
 }
 
-export interface Info {
+export interface AzgaarInfo {
     version:     string;
     description: string;
     exportedAt:  Date;
@@ -175,7 +175,7 @@ export interface Info {
     mapId:       number;
 }
 
-export interface NameBasis {
+export interface AzgaarNameBasis {
     name: string;
     i:    number;
     min:  number;
@@ -185,13 +185,13 @@ export interface NameBasis {
     b:    string;
 }
 
-export interface Note {
+export interface AzgaarNote {
     id:     string;
     name:   string;
     legend: string;
 }
 
-export interface Settings {
+export interface AzgaarSettings {
     distanceUnit:       string;
     distanceScale:      string;
     areaUnit:           string;
@@ -211,7 +211,7 @@ export interface Settings {
     temperatureEquator: string;
     temperaturePole:    string;
     prec:               string;
-    options:            Options;
+    options:            AzgaarOptions;
     mapName:            string;
     hideLabels:         boolean;
     stylePreset:        string;
@@ -219,7 +219,7 @@ export interface Settings {
     urbanDensity:       number;
 }
 
-export interface Options {
+export interface AzgaarOptions {
     pinNotes:        boolean;
     showMFCGMap:     boolean;
     winds:           number[];
@@ -227,10 +227,10 @@ export interface Options {
     year:            number;
     era:             string;
     eraShort:        string;
-    military:        Military[];
+    military:        AzgaarMilitary[];
 }
 
-export interface Military {
+export interface AzgaarMilitary {
     icon:     string;
     name:     string;
     rural:    number;

@@ -1,7 +1,7 @@
 
 import { Site } from 'voronoijs';
 import fs from 'fs';
-import {AzgaarFullData, Cell} from './FullDataTypes';
+import {AzgaarFullData, AzgaarCell} from './FullDataTypes';
 // import {AzgaarPackData} from './PackDataTypes'
 // import {AzgaarGridData} from './GridDataTypes'
 
@@ -10,7 +10,7 @@ export default class AzgaarReaderData {
 
 	private _dirPath: string = '';
 	private _fullData: AzgaarFullData | undefined;
-	private _cellsMap: Map<number, Cell> = new Map<number, Cell>();
+	private _cellsMap: Map<number, AzgaarCell> = new Map<number, AzgaarCell>();
 
 	private constructor() {  }
 
@@ -25,7 +25,7 @@ export default class AzgaarReaderData {
 		this.instance._dirPath = path;
 		// fs.mkdirSync(path, {recursive: true});
 		this.instance._fullData = this.readData();
-		this.instance._fullData.cells.cells.forEach((cell: Cell) => {
+		this.instance._fullData.cells.cells.forEach((cell: AzgaarCell) => {
 			this._instance._cellsMap.set(cell.i, cell);
 		})
 	}
@@ -51,12 +51,12 @@ export default class AzgaarReaderData {
 		return out;
 	}
 
-	heighNeighbourMedia(cell: Cell): number {
+	heighNeighbourMedia(cell: AzgaarCell): number {
 		// const cell = this._fullData!.cells.cells.find((cell: any) => cell.i == id);
 		let out:number = 0;
 
 		cell!.c.forEach((nid: number) => {
-			const ncell = this._cellsMap.get(nid) as Cell;
+			const ncell = this._cellsMap.get(nid) as AzgaarCell;
 			out += ncell!.h;
 		})
 
@@ -67,7 +67,7 @@ export default class AzgaarReaderData {
 		let out: {id: number, x: number, y: number, h: number}[] = [];
 		// AzgaarReaderData.azgaarData.forEach((cell: any) => {
 		console.log(this._fullData!.cells.cells.length)
-		this._fullData!.cells.cells.forEach((cell: Cell, indx: number) => {
+		this._fullData!.cells.cells.forEach((cell: AzgaarCell, indx: number) => {
 			//const fc: number | FeatureClass | undefined = this._data!.cells.features.find((fc: any) => fc.i == cell.i)
 			//if (!fc) throw new Error('')
 			//if (typeof fc === 'number') throw new Error('')
