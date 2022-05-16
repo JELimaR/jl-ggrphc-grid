@@ -4,7 +4,7 @@
 node_modules/*
 dist/*
 data/*
-AzgaarData/*.json
+AzgaarData/*
 
 .replit
 
