@@ -1,6 +1,6 @@
 import { Voronoi, BoundingBox, Site, Cell, Diagram } from 'voronoijs';
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
-import GenerateMapVoronoiSites from './GenerateMapVoronoiSites';
+// import GenerateMapVoronoiSites from './GenerateMapVoronoiSites';
 const dataInfoManager = DataInformationFilesManager._instance;
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 

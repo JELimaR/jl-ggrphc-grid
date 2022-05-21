@@ -1,20 +1,20 @@
 import JGrid, { JGridPoint } from "../Geom/JGrid";
-import * as TempFunctions from './JTempFunctions';
+import * as TempFunctions from '../Climate/JTempFunctions';
 
-interface ITempDataGrid {
+interface IHeightDataGrid {
 	heigh: number;
 }
 
 export default class JHeightGrid {
 	_grid: JGrid;
-	_heighData: ITempDataGrid[][] = [];
+	_heighData: IHeightDataGrid[][] = [];
 	constructor(grid: JGrid) {
 		this._grid = grid;
 	}
 
 	setHeightData() {
 		this._grid._points.forEach((col: JGridPoint[], colIdx: number) => {
-			let dataCol: ITempDataGrid[] = []
+			let dataCol: IHeightDataGrid[] = []
 			col.forEach((gp: JGridPoint, rowIdx: number) => {
 				if (gp._cell.info.cellHeight.heightType !== 'deepocean') {
 					dataCol.push({

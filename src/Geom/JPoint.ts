@@ -1,5 +1,6 @@
 import * as turf from '@turf/turf'
 import { Vertex } from 'voronoijs';
+import Coord from './Coord';
 
 export default class JPoint {
 	private _x: number;
@@ -44,6 +45,12 @@ export default class JPoint {
 	static fromVertex(v: Vertex): JPoint {
 		return new JPoint(v.x, v.y);
 	}
+
+	static pointToCoord(p: JPoint): JPoint { // o modificamos el JPoint
+		const coord: Coord = new Coord(p.y, p.x);
+		return new JPoint(coord.lon, coord.lat)
+	}
+
 
 	private toTurfPoint(): turf.Feature<turf.Point> {
 		return turf.point( [this._x, this._y] );

@@ -3,11 +3,13 @@ import JDiagram from './Voronoi/JDiagram';
 import JHeightMap from './heightmap/JHeightMap';
 import JTempMap from './heightmap/JTempMap';
 import JGrid from './Geom/JGrid';
+import { ICellContainer } from './JWorldMap';
+import JCell from './Voronoi/JCell';
 
-export default class JWorld {
+export default class JWorld implements ICellContainer {
 	
 	private _diagram: JDiagram;
-	//private _grid: JGrid;
+	private _grid: JGrid;
 	private _heightMap: JHeightMap | undefined;
 	private _temperatureMap: JTempMap | undefined;
 	
@@ -19,12 +21,15 @@ export default class JWorld {
 		console.timeEnd('voronoi');
 		console.log('init grid');
 		console.time('grid');
-		//this._grid = new JGrid(GRAN, this._diagram);
+		this._grid = new JGrid(GRAN, this._diagram);
 		console.timeEnd('grid');
 	}
 
 	get diagram(): JDiagram { return this._diagram }
-	//get grid(): JGrid { return this._grid }
+	get grid(): JGrid { return this._grid }
+	forEachCell(func: (cell: JCell)=>void) {
+		this.diagram.forEachCell(func);
+	}
 
 	generateHeightMap(): JHeightMap {
 		if (!this._heightMap)

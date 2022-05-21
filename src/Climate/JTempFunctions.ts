@@ -117,30 +117,7 @@ export const calculateTempMaxPerLat = (lat: number): number => {
 	return Math.max(...tempPerDay.map((itpd: ITempPerDay) => itpd.tempLat));
 }
 
-// const generateGridTempLatArr = (gridgran: number) => {
-//   let daysArr: IDay[] = [];
-//   let rotDayArr: number[] = [];
 
-//   for (let d = 1; d <= 378; d++) {
-//     daysArr.push({
-//       d,
-//       m: (Math.floor((d - 1) / 63) * 2 + 1) + (((d - 1) % 63) > 31 ? 1 : 0)
-//     })
-//     rotDayArr.push(
-//       MAXROT * Math.sin((d - 95.5) / 378 * 2 * Math.PI)
-//     )
-//   }
-
-//   let grid: JPoint[] = generateGrid(gridgran);
-
-//   // const colorScale = chroma.scale('Spectral').domain([1, 0]);
-//   let out = [];
-//   daysArr.forEach((idm: IDay) => {
-//     grid.forEach((gp: JPoint) => {
-//       let tmpValue = Math.cos((gp.y - rotDayArr[idm.d]) * Math.PI / 180);
-//       out.push()
-//     })
-//   })
-
-// }
-
+export const parametertoRealTemp = (tv: number): number => {
+	return tv * 70 - 42;
+}

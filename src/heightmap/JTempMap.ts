@@ -5,7 +5,7 @@ import JCell from "../Voronoi/JCell";
 import JCellTemp, { IJCellTempInfo } from '../CellInformation/JCellTemp';
 import JHeightMap from './JHeightMap';
 import JRegionMap, { JIslandMap } from '../RegionMap/JRegionMap';
-import * as TempFunctions from './JTempFunctions';
+import * as TempFunctions from '../Climate/JTempFunctions';
 import * as turf from '@turf/turf';
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 const dataInfoManager = DataInformationFilesManager.instance;
@@ -68,9 +68,9 @@ export default class JTempMap extends JWMap {
 				let tarr: number[] = [];
 				ict.tempLatMonth.forEach((mt: number) => {
 					let tv: number = ict.tempLatMed + (ict.tempLatMed - mt) * cap[cell.id]!;
-					tv = tv * 50 - 23;
+					tv = TempFunctions.parametertoRealTemp(tv);
 					if (cell.info.isLand)
-						tv -= 6.5 * (Math.round((cell.info.height - 0.2) * 10) / 10) * 6 / 0.8;
+						tv -= 6.5 * cell.info.cellHeight.heightInMeters/1000;
 
 					tarr.push(tv);
 				})
@@ -94,13 +94,18 @@ export default class JTempMap extends JWMap {
 
 	calculateCapCell(h: JHeightMap): number[] {
 		let capOut: number[] = [];
+		const distWind: number = 1000;
 		// const islands: JIslandMap[] = h.islands;
 		this.forEachCell((cell: JCell) => {
-			let captotal: number = 0//10 * (cell.isLand ? 1.0 : 0.25);
+			let captotal: number = 0//10 * (cell.isLand ? 1.0 : 0.44);
+			let areaTotal: number = 0;
 
-			const neigs: JCell[] = this.diagram.getNeighborsInWindow(cell, 5);
+			// const neigs: JCell[] = this.diagram.getNeighborsInWindow(cell, 20);
+			const neigs: JCell[] = this.diagram.getNeighborsInRadius(cell, distWind);
 			neigs.forEach((nw: JCell) => {
-				captotal += nw.info.isLand ? 1.0 : 0.25;
+				const d: number = distWind*1.2 - JPoint.geogDistance(nw.center, cell.center);
+				captotal += (nw.info.isLand ? 1.0 : 0.44) * d;
+				areaTotal += d;
 			});
 			/*
 			if (!cell.isLand) {
@@ -113,7 +118,7 @@ export default class JTempMap extends JWMap {
 			}
 			*/
 			// this._tempCellCap.set(cell.id, captotal / (neigs.length + 0));
-			capOut[cell.id] = captotal / (neigs.length + 0);
+			capOut[cell.id] = captotal / (areaTotal) * 0.75 + 0.25 * (cell.info.isLand ? 1.0 : 0.44);
 			if (cell.id % 1000 == 0) console.log(`van ${cell.id}: neigh: ${neigs.length}`)
 		})
 		console.log('cap cells calculada');
@@ -161,12 +166,4 @@ export default class JTempMap extends JWMap {
 		
 	}
 
-}
-
-let grid: JPoint[] = [];
-const gridgran: number = 5;
-for (let i = -180; i <= 180; i += gridgran) {
-	for (let j = -90; j <= 90; j += gridgran) {
-		grid.push(new JPoint(i, j));
-	}
 }

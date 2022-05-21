@@ -1,4 +1,4 @@
-import { Site } from 'voronoijs';
+/*import { Site } from 'voronoijs';
 import * as turf from '@turf/turf';
 
 import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
@@ -68,3 +68,4 @@ export default class GenerateMapVoronoiSites {
 		return [xx, yy];
 	}
 }
+*/

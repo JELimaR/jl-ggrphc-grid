@@ -21,7 +21,7 @@ import chroma from 'chroma-js';
 import JHeightMap from './heightmap/JHeightMap';
 import JTempMap from './heightmap/JTempMap';
 import JClimateGrid from './heightmap/JClimateGrid'
-import * as JTempFunctions from './heightmap/JTempFunctions';
+import * as JTempFunctions from './Climate/JTempFunctions';
 
 import * as turf from '@turf/turf';
 
@@ -36,13 +36,28 @@ import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
 const tam: number = 3600;
 let SIZE: JVector = new JVector({ x: tam, y: tam / 2 });
 
-const azgaarFolder: string[] = ['Girvryia100', 'Horaland100', 'Mordaia100'];
+const azgaarFolder: string[] = [
+	'Latiyia30',
+	'Boreland30',
+	'Bakhoga40',
+	'Betia40',
+	'Vilesland40',
+	'Braia100',
+	'Toia100',
+	'Vabeaia100'
+];
+const folderSelected: string = azgaarFolder[4];
+
+console.log('folder:', folderSelected)
+
+let colorScale: chroma.Scale;
+let color: string;
 
 PNGDrawsDataManager.configPath(__dirname + `/../pngdraws`);
-DataInformationFilesManager.configPath(__dirname + `/../data`);
-AzgaarReaderData.configPath(__dirname + `/../AzgaarData/${azgaarFolder[0]}`);
+DataInformationFilesManager.configPath(__dirname + `/../data/${folderSelected}`);
+AzgaarReaderData.configPath(__dirname + `/../AzgaarData/${folderSelected}`);
 
-let dm: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img`);
+let dm: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}`);
 dm.setZoom(0) // 5
 dm.setCenterpan(new JPoint(0, 0));
 // navigate
@@ -57,10 +72,11 @@ console.log(dm.getPointsBuffCenterLimits());
 const TOTAL: number = 10;
 const GRAN: number = 0.5;
 const world: JWorld = new JWorld(TOTAL, GRAN);
-let jhm: JHeightMap = world.generateHeightMap();
+/*let jhm: JHeightMap = */world.generateHeightMap();
+/*let jtm: JTempMap = */world.generateTemperatureMap();
 
 console.log()
-jhm.diagram.forEachCell((cell: JCell) => {
+world.diagram.forEachCell((cell: JCell) => {
 	// console.log(cell.id)
 })
 
@@ -93,59 +109,85 @@ hgd._heightData.forEach((data: {
 })
 */
 
-const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1,0]);
+colorScale = chroma.scale('Spectral').domain([1,0]);
 //console.log(AzgaarReaderData.instance.sites())
 
-dm.drawCellMap(jhm, (cell: JCell): IDrawEntry => {
-
-	const cellH = cell.info.cellHeight;
-
-	// const stringColor = /*(cellH.heightType !== 'land') ? colorScale(cellH.height).hex() /*: '#FFFFFFFF'
-	const value = Math.round(cellH.height*20)/20;
-	const stringColor = colorScale(value).hex()
-		
-	return {
-		strokeColor: stringColor,
-		fillColor: stringColor
-	}
-	
-})
+dm.drawCellMap(world, JCellToDrawEntryFunctions.heigh(1))
 dm.drawMeridianAndParallels()
 dm.saveDrawFile('hhh.png')
 
 dm.drawFondo();
-dm.drawCellMap(jhm, JCellToDrawEntryFunctions.heighLand(1))
+dm.drawCellMap(world, JCellToDrawEntryFunctions.heighLand(1))
 dm.drawMeridianAndParallels()
 dm.saveDrawFile('hhh2.png')
 
 
-// diagram info
-let minArea = Infinity;
-let idMin = 0;
-let maxArea = 0;
-let idMax = 0;
-let totalLandArea = 0;
+/*******************************************************/
 
-jhm.diagram.forEachCell((cell: JCell) => {
-	if (cell.info.isLand) {
-		const area = cell.area;
-		if (area > maxArea) {
-			maxArea = area;
-			idMax = cell.id;
-		}
-		if (area < minArea) {
-			minArea = area;
-			idMin = cell.id;
-		}
-		totalLandArea += area;
-	}
+const tempStep = 2;
+colorScale = chroma.scale('Spectral').domain([30, -30]);
+let meds: number[] = [];
+// temp med
+dm.clear();
+dm.drawCellMap(world, (c: JCell): IDrawEntry => {
+ 	let tarr: number[] = c.info.tempMonthArr;
+ 	let val: number = 0;
+ 	tarr.forEach((t: number) => val += t / 12)
+
+	//val = tarr[7]
+
+// 	meds.push(val);
+
+ 	color = colorScale(tempStep * Math.round(val / tempStep)).hex();
+
+ 	return {
+ 		fillColor: color,
+ 		strokeColor: color
+ 	}
 })
 
-console.log('min area:', minArea)
-console.log('cell min area:', jhm.diagram.getCellById(idMin))
-console.log('max area:', maxArea)
-console.log('cell max area:', jhm.diagram.getCellById(idMax))
-console.log('total area', totalLandArea)
+dm.drawMeridianAndParallels();
+dm.saveDrawFile(`tempMapMed.png`);
 
+/*********************************************/
+
+const cell1: JCell = world.diagram.getCellFromPoint2(new JPoint(0,0));
+//console.log(cell.info)
+console.log('center', cell1.center)
+console.log('temp media', cell1.info.tempMedia)
+console.log('temp mensual', cell1.info.tempMonthArr)
+
+const cell2: JCell = world.diagram.getCellFromPoint2(new JPoint(-120,0));
+//console.log(cell.info)
+console.log('center', cell2.center)
+console.log('temp media', cell2.info.tempMedia)
+console.log('temp mensual', cell2.info.tempMonthArr)
+
+/****************************************************/
+
+// grid
+// nuevo
+dm.clear()
+let tempGrid = new JClimateGrid(world.grid);
+
+tempGrid._grid._points.forEach((col: JGridPoint[], cidx: number) => {
+	col.forEach((gp: JGridPoint, ridx: number) => {
+		if (gp._cell.info.isLand) {
+			let tempValue: number;
+			tempValue = tempGrid._tempData[cidx][ridx].tempMed;
+			meds.push(tempValue)
+			tempValue = tempStep * Math.round(tempValue / tempStep);
+			color = colorScale(tempValue).hex();
+			dm.drawDot(
+				gp._point, {
+				fillColor: color,
+				strokeColor: color
+			}, GRAN
+			);
+		}
+	})
+})
+dm.drawMeridianAndParallels();
+dm.saveDrawFile(`tempGridMed.png`);
 
 console.timeEnd('all')

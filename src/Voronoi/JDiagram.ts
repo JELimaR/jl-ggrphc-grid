@@ -139,7 +139,43 @@ export default class JDiagram {
 		}
 	}
 
-	getNeighborsInWindow(cell: JCell, grades: number): JCell[] {
+	getCellFromPoint2(p: JPoint): JCell {
+		let out: JCell | undefined;
+		let founded: boolean = false;
+		let i: number = 0;
+		while (!founded && i < this._cells.size) {
+			if (turf.booleanPointInPolygon(turf.point(p.toTurfPosition()), this._cells.get(i)!.toTurfPolygonSimple())) {
+				out = this._cells.get(i);
+				founded = true;
+			}
+			i++;
+		}
+		if (out)
+			return out;
+		else {
+			throw new Error('no se encontro cell');
+		}
+	}
+
+	getCellFromCenter(p: JPoint): JCell {
+		let out: JCell | undefined;
+		let founded: boolean = false;
+		let i: number = 0;
+		while (!founded && i < this._cells.size) {
+			out = this._cells.get(i)!;
+			if (JPoint.equal(p, out.center)) {
+				founded = true;
+			}
+			i++;
+		}
+		if (out)
+			return out;
+		else {
+			throw new Error('no se encontro cell');
+		}
+	}
+
+	getNeighborsInWindow(cell: JCell, grades: number): JCell[] { // mejorar esta funcion
 		this.forEachCell((cell: JCell) => cell.dismark())
 		let out: JCell[] = [];
 		const center: JPoint = cell.center;
@@ -178,7 +214,39 @@ export default class JDiagram {
 		return out;
 	}
 
-	getCellsInSegment(ini: JPoint, end: JPoint): JCell[] {
+	getNeighborsInRadius(cell: JCell, radius: number): JCell[] { // mejorar esta funcion
+		this.forEachCell((cell: JCell) => cell.dismark())
+		let out: JCell[] = [];
+		const center: JPoint = cell.center;
+
+		let qeue: Map<number, JCell> = new Map<number, JCell>();
+		qeue.set(cell.id, cell);		
+		
+		while (qeue.size > 0) {
+			let elem: JCell = qeue.entries().next().value[1];
+			qeue.delete(elem.id)
+			
+			if (JPoint.geogDistance(elem.center, center) < radius) {
+			// if (elem.center.x <= center.x + grades && elem.center.x >= center.x - grades &&
+			// 	elem.center.y <= center.y + grades && elem.center.y >= center.y - grades ) {
+				out.push(elem);
+				elem.mark();
+				this.getNeighbors(elem).forEach((neighElem: JCell) => {
+					if (!neighElem.isMarked()) {
+						qeue.set(neighElem.id, neighElem);
+					}
+				})
+			}			
+		}
+
+
+		this.forEachCell((cell: JCell) => cell.dismark())
+		//console.log(cell.id, 'out', out.length)
+
+		return out;
+	}
+
+	getCellsInSegment(ini: JPoint, end: JPoint): JCell[] { // mejorar
 		let out: JCell[] = [];
 		const iniCell: JCell = this.getCellFromPoint(ini);
 		const endCell: JCell = this.getCellFromPoint(end);

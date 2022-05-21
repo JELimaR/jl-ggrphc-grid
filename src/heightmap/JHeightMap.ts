@@ -26,37 +26,36 @@ export default class JHeightMap extends JWMap {
 		console.log('calculate and setting height');
 		console.time('set height info');
 
-		let loadedInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(cellsMap.size); // cambiar por heightinfo
-		if (loadedInfo.length == 0) {
+		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(cellsMap.size);
+		const isLoaded: boolean = loadedHeightInfo.length !== 0;
+		if (!isLoaded) {
 			ard.hs().forEach((elem: { id: number, x: number, y: number, h: number }) => {
-
-				const cellId = this.diagram.getCellFromPoint(new JPoint(elem.x, elem.y)).id;
-				loadedInfo[cellId] = {
-					id: 0,
+				const cellId = this.diagram.getCellFromCenter(new JPoint(elem.x, elem.y)).id;
+				loadedHeightInfo[cellId] = {
+					id: cellId,
 					prevHeight: 0,
 					height: elem.h,
 					heightType: elem.h > 0.2 ? 'land' : 'ocean',
-				}
+				};
 			})
 		}
 		cellsMap.forEach((cell: JCell) => {
-			const hinf: IJCellHeightInfo | undefined = loadedInfo[cell.site.id];
+			const hinf: IJCellHeightInfo | undefined = loadedHeightInfo[cell.site.id];
 			cell.info.setHeightInfo(hinf);
 		})
 
 		console.timeEnd('set height info');
 		// guardar info
-		if (loadedInfo.length === 0) {
-			this.smoothHeight();
+		if (!isLoaded) {
 			dataInfoManager.saveCellsHeigth(cellsMap, cellsMap.size);
 		}
 
 		/*
 		 * islands
 		 */
-		/*console.log('calculate and setting island')
+		console.log('calculate and setting island')
 		console.time('set Islands');
-		let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.cells.size);
+		/*let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.cells.size);
 		if (regionInfoArr.length > 0) {
 			regionInfoArr.forEach((iii: IJIslandInfo, i: number) => {
 				this._islands.push(

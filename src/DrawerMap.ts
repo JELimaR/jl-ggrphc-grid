@@ -338,8 +338,6 @@ export default class DrawerMap {
 	/**/
 	drawDot(p: JPoint, ent: IDrawEntry, w: number): void {
 
-		//p = this._panzoom.convertPointToDrawer(p)
-
 		let list: JPoint[] = [];
 
 		list.push(new JPoint(p.x-w/2,p.y-w/2));
@@ -348,5 +346,10 @@ export default class DrawerMap {
 		list.push(new JPoint(p.x-w/2,p.y+w/2));
 
 		this.draw(list, ent);
+	}
+
+	/**/
+	clear() {
+		this.context.clearRect(0, 0, this._cnvs.width, this._cnvs.height);
 	}
 }
