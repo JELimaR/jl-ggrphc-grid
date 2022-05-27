@@ -1,16 +1,5 @@
 import JPoint from "../Geom/JPoint";
 
-
-// const generateGrid = (gridgran: number): JPoint[] => { // esta funcion debe ir en geom
-//   let grid: JPoint[] = [];
-//   for (let i = -180; i <= 180; i += gridgran) {
-//     for (let j = -90; j <= 90; j += gridgran) {
-//       grid.push(new JPoint(i, j));
-//     }
-//   }
-//   return grid;
-// }
-
 const MAXROT: number = 23;
 const BOLTZMAN: number = 5.67 * Math.pow(10, -8);
 

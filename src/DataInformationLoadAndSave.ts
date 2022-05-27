@@ -10,6 +10,7 @@ import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
 // import { IJCellInformation } from './CellInformation/JCellInformation';
 import { IJCellHeightInfo } from './CellInformation/JCellHeight';
 import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
+import { IPressureDataGrid } from './heightmap/JPressureGrid';
 
 export default class DataInformationFilesManager {
 	static _instance: DataInformationFilesManager;
@@ -29,6 +30,12 @@ export default class DataInformationFilesManager {
 		this.instance._dirPath = path;
 		fs.mkdirSync(this.instance._dirPath, {recursive: true});
 	}
+
+	/**********************************************************************************
+	 **********************************************************************************
+   *					ELIMINAR VARIABLE DE ENTRADA: tam DE TODAS LAS FUNCIONES							*
+	 **********************************************************************************
+	 **********************************************************************************/
 
 	// voronoi diagram
 	/*
@@ -187,6 +194,24 @@ export default class DataInformationFilesManager {
 		mapCells.forEach( (cell: JCell) => {
 			data[cell.id] = cell.info.getTempInfo()!;
 		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+
+	// 
+	loadGridPressure(): IPressureDataGrid[][] {
+		let out: IPressureDataGrid[][] = [];
+		try {
+			let pathName: string = `${this._dirPath}/CellsInfo/pressure.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+			
+		}
+		return out;
+	}
+
+	saveGridPressure(data: IPressureDataGrid[][]): void {
+		fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
+		let pathName: string = `${this._dirPath}/CellsInfo/pressure.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 

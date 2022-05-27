@@ -1,4 +1,5 @@
 import * as turf from '@turf/turf'
+
 import { Vertex } from 'voronoijs';
 import Coord from './Coord';
 
@@ -13,18 +14,45 @@ export default class JPoint {
 
 	get x() { return this._x }
 	get y() { return this._y }
-
-	static add(a: JPoint, b: JPoint ): JPoint {
-		return new JPoint( a._x + b._x, a._y + b._y );
+	get mod(): number { return Math.sqrt( this.x*this.x + this.y*this.y ); }
+	get angle(): number {
+		let out: number = 0;
+		if (this.x !== 0) {
+			out = Math.atan(this.y/this.x);
+		}
+		return out;
 	}
 
-	private scale(k: number): JPoint {
+	add(b: JPoint ): JPoint {
+		return new JPoint( this._x + b._x, this._y + b._y );
+	}
+
+	sub(b: JPoint ): JPoint {
+		return new JPoint( this._x - b._x, this._y - b._y );
+	}
+
+	scale(k: number): JPoint {
 		return new JPoint( this._x * k, this._y * k);
 	}
 
-	private translate( dir: JVector ) {
-		this._x = dir.x + this._x;
-		this._y = dir.y + this._y;
+	translate( dir: JPoint ): JPoint {
+		return this.add(dir);
+	}
+
+	normalize(): JPoint {
+		let out: JPoint = new JPoint(0,0);
+		if (this.mod > 0) {
+			out = new JPoint(this.x/this.mod, this.y/this.mod);
+		}
+		return out;
+	}
+
+	rightPerp(): JPoint {
+		return new JPoint(this._y, -this._x);
+	}
+
+	leftPerp(): JPoint {
+		return new JPoint(-this._y, this._x);
 	}
 
 	static equal(a: JPoint, b: JPoint): boolean {
@@ -38,6 +66,30 @@ export default class JPoint {
 		return Math.sqrt( Math.pow(a._x-b._x, 2) + Math.pow(a._y-b._y, 2) );
 	}
 
+	static distance2(a: JPoint, b: JPoint): number {
+		const amas = new JPoint(a.x+360, a.y)
+		const amen = new JPoint(a.x-360, a.y)
+		return Math.min(
+			JPoint.distance(amas,b),
+			JPoint.distance(amen,b),
+			JPoint.distance(a,b)
+		);
+	}
+
+	point2(b: JPoint): JPoint {
+		let out: JPoint = b;
+		let dist: number = JPoint.distance(this, b);
+		
+		const bmas = new JPoint(b._x+360, b._y)
+		const bmen = new JPoint(b._x-360, b._y)
+
+		if (JPoint.distance(this, bmas) < dist) out = bmas;
+		if (JPoint.distance(this, bmen) < dist) out = bmen;
+
+
+		return out;		
+	}
+
 	static fromTurfPosition(position: turf.Position): JPoint {
 		return new JPoint(position[0], position[1]);
 	}
@@ -48,7 +100,7 @@ export default class JPoint {
 
 	static pointToCoord(p: JPoint): JPoint { // o modificamos el JPoint
 		const coord: Coord = new Coord(p.y, p.x);
-		return new JPoint(coord.lon, coord.lat)
+		return coord.toPoint();
 	}
 
 
@@ -63,6 +115,17 @@ export default class JPoint {
 	static geogDistance(a: JPoint, b: JPoint): number {
 		return turf.distance( a.toTurfPoint(), b.toTurfPoint(), {units: 'kilometers'} );
 	}
+
+	static greatCircle(start: JPoint, ended: JPoint): JPoint[] {
+		let greatCircle = turf.greatCircle(start.toTurfPoint(), ended.toTurfPoint(), {
+			npoints: Math.round(JPoint.geogDistance(start, ended)/50) //10
+		});
+		return greatCircle.geometry.coordinates.map((tp: any) => new JPoint(tp[0], tp[1]));
+	}
+
+	scalarprod( b: JPoint ): number {
+		return this._x*b.x+this._y*b.y;
+	}
 }
 
 export class JVector extends JPoint {
@@ -75,23 +138,5 @@ export class JVector extends JPoint {
 		// this._beg = JSON.parse( JSON.stringify(begins) );
 	}
 
-	static scalarprod( a: JVector, b: JVector ): number {
-		return a.x*b.x+a.y*b.y;
-	}
 
-	static angleDif( a: JVector, b: JVector): number {
-		return (a.angle - b.angle) % 2*Math.PI
-	}
-
-	get mod(): number { return Math.sqrt( this.x*this.x + this.y*this.y ); }
-
-	get angle(): number {
-		let out: number = 0;
-
-		if (this.x !== 0) {
-			out = Math.atan(this.y/this.x);
-		}
-
-		return out;
-	}
 }

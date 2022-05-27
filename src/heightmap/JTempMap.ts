@@ -103,8 +103,8 @@ export default class JTempMap extends JWMap {
 			// const neigs: JCell[] = this.diagram.getNeighborsInWindow(cell, 20);
 			const neigs: JCell[] = this.diagram.getNeighborsInRadius(cell, distWind);
 			neigs.forEach((nw: JCell) => {
-				const d: number = distWind*1.2 - JPoint.geogDistance(nw.center, cell.center);
-				captotal += (nw.info.isLand ? 1.0 : 0.44) * d;
+				const d: number = distWind*1.01 - JPoint.geogDistance(nw.center, cell.center);
+				captotal += (nw.info.isLand ? 1.0 : 0.44**2) * d;
 				areaTotal += d;
 			});
 			/*

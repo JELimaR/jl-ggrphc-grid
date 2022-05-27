@@ -18,6 +18,15 @@ export class JGridPoint {
 		this._cell = cell;
 	}
 
+	getPïxelArea(): number {
+		const grad2radConst = Math.PI/180;
+		
+		let out = WRADIUS * (GRAN * grad2radConst);
+		out *= WRADIUS * Math.cos(this._point.y * grad2radConst) * (GRAN * grad2radConst);
+		
+		return out;
+	}
+
 	getInterface(): IJGridPointInfo {
 		return {
 			point: {x: this._point.x, y: this._point.y},
@@ -78,14 +87,26 @@ export default class JGrid {
 		if (Math.abs(p.x) > 180 || Math.abs(p.y) > 90)
 			throw new Error(`el punto: ${p.toTurfPosition()} se encuentra fuera de rango`)
 		return {
-			c: Math.round((p.x+180)/this._granularity),
-			r: Math.round((p.y+90)/this._granularity)
+			c: inRange(Math.round((p.x+180)/this._granularity), 0, this.colsNumber-1),
+			r: inRange(Math.round((p.y+90)/this._granularity), 0, this.rowsNumber-1)
 		}
 	}
 	
 	getGridPoint(p: JPoint): JGridPoint {
 		const INDXS = this.getGridPointIndexes(p);
 		return this._points[INDXS.c][INDXS.r];
+	}
+
+	getGridPointsInWindow(point: JPoint, windKm: number): JGridPoint[] {
+		let out: JGridPoint[] = [];
+
+		this.getGridPointsInWindowGrade(point, windKm/30).forEach((gp: JGridPoint) => {
+			if (JPoint.geogDistance(point, gp._point) < windKm) {
+				out.push(gp);
+			}
+		})
+		
+		return out;
 	}
 
 	getIndexsInWindow(index: number, window: number): number[] {
@@ -97,7 +118,9 @@ export default class JGrid {
 	}
 
 	// obtener puntos en una ventana (en principio se cortan los bordes)
-	getGridPointsInWindow(point: JPoint, windowGrades: number): JGridPoint[] {
+	getGridPointsInWindowGrade(point: JPoint, windowGrades: number): JGridPoint[] {
+		const cWindow = (windowGrades > 360) ? 360 : windowGrades;
+		const rWindow = (windowGrades > 180) ? 180 : windowGrades;
 		let out: JGridPoint[] = [];
 		const INDXS = this.getGridPointIndexes(point);
 
@@ -114,18 +137,45 @@ export default class JGrid {
 			ridxs.forEach((r: number) => {
 				if (r < 0) {
 					r = -r;
-					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)-1
+					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)
 				}
 				if (r >= this.rowsNumber) {
 					r = this.rowsNumber - (r - this.rowsNumber + 1);
-					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)-1
+					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)
 				}	
-				
+				if ( !this._points[c] ) console.log('c', c)
 				const p: JGridPoint = this._points[c][r];
 				out.push(p)
 			})			
 		})
 		return out;
 	}
+
+	//dada una lista de puntos de recorrido horizontal, (un punto para cada columna), se devuelve el recorrido "suavzado"
+	soft(points: JPoint[]): JGridPoint[] {
+		return points.map((p: JPoint, idx: number) => {
+			let val: number = 0, cant = 0;
+			let arr: number[] = [];
+			const stepCantMed: number = Math.round(10 / this._granularity);
+			for (let j = -stepCantMed; j <= stepCantMed; j++) arr.push(idx + j)
+			arr.forEach((n: number) => {
+				if (n >= 0 && n < this.colsNumber) {
+					val += points[n].y;
+					cant++;
+				}
+			})
+			return this.getGridPoint(
+				new JPoint(p.x, this._granularity * Math.round(val / cant / this._granularity))
+			);
+		})
+	}
 }
 
+const inRange = (value: number, minimo: number, maximo: number): number => {
+	let out = value;
+
+	if (out > maximo) out = maximo;
+	if (out < minimo) out = minimo;
+	
+	return out;
+}
