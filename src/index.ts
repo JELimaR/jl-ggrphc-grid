@@ -46,9 +46,11 @@ const azgaarFolder: string[] = [
 	'Vilesland40',
 	'Braia100',
 	'Toia100',
-	'Vabeaia100'
+	'Vabeaia100',
+	'Mont100',
+	'Itri100'
 ];
-const folderSelected: string = azgaarFolder[4];
+const folderSelected: string = azgaarFolder[8];
 
 console.log('folder:', folderSelected)
 
