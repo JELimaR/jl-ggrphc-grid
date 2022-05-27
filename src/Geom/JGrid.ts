@@ -114,13 +114,13 @@ export default class JGrid {
 			ridxs.forEach((r: number) => {
 				if (r < 0) {
 					r = -r;
-					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)-1
+					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)//-1
 				}
 				if (r >= this.rowsNumber) {
 					r = this.rowsNumber - (r - this.rowsNumber + 1);
-					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)-1
+					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)//-1
 				}	
-				
+				// console.log('c',c)
 				const p: JGridPoint = this._points[c][r];
 				out.push(p)
 			})			

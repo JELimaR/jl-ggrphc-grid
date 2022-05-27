@@ -44,9 +44,11 @@ const azgaarFolder: string[] = [
 	'Vilesland40',
 	'Braia100',
 	'Toia100',
-	'Vabeaia100'
+	'Vabeaia100',
+	'Mont100',
+	'Itri100'
 ];
-const folderSelected: string = azgaarFolder[4];
+const folderSelected: string = azgaarFolder[8];
 
 console.log('folder:', folderSelected)
 
@@ -124,7 +126,7 @@ dm.saveDrawFile('hhh2.png')
 
 /*******************************************************/
 
-const tempStep = 2;
+const tempStep = 5;
 colorScale = chroma.scale('Spectral').domain([30, -30]);
 let meds: number[] = [];
 // temp med
@@ -134,7 +136,7 @@ dm.drawCellMap(world, (c: JCell): IDrawEntry => {
  	let val: number = 0;
  	tarr.forEach((t: number) => val += t / 12)
 
-	//val = tarr[7]
+	val = tarr[6]
 
 // 	meds.push(val);
 
@@ -174,7 +176,7 @@ tempGrid._grid._points.forEach((col: JGridPoint[], cidx: number) => {
 	col.forEach((gp: JGridPoint, ridx: number) => {
 		if (gp._cell.info.isLand) {
 			let tempValue: number;
-			tempValue = tempGrid._tempData[cidx][ridx].tempMed;
+			tempValue = tempGrid._tempData[cidx][ridx].tempMonth[6];
 			meds.push(tempValue)
 			tempValue = tempStep * Math.round(tempValue / tempStep);
 			color = colorScale(tempValue).hex();

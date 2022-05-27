@@ -94,7 +94,7 @@ export default class JTempMap extends JWMap {
 
 	calculateCapCell(h: JHeightMap): number[] {
 		let capOut: number[] = [];
-		const distWind: number = 1000;
+		const distWind: number = 500;
 		// const islands: JIslandMap[] = h.islands;
 		this.forEachCell((cell: JCell) => {
 			let captotal: number = 0//10 * (cell.isLand ? 1.0 : 0.44);
