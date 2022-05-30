@@ -1,12 +1,12 @@
 import JCell from '../Voronoi/JCell';
 import JDiagram from '../Voronoi/JDiagram';
 import JPoint from './JPoint';
-import {WRADIUS, GRAN} from './constants'
+import { WRADIUS, GRAN } from './constants'
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 const dataInfoManager = DataInformationFilesManager.instance;
 
 export interface IJGridPointInfo {
-	point: {x: number, y: number};
+	point: { x: number, y: number };
 	cellId: number;
 }
 
@@ -19,17 +19,17 @@ export class JGridPoint {
 	}
 
 	getPïxelArea(): number {
-		const grad2radConst = Math.PI/180;
-		
+		const grad2radConst = Math.PI / 180;
+
 		let out = WRADIUS * (GRAN * grad2radConst);
 		out *= WRADIUS * Math.cos(this._point.y * grad2radConst) * (GRAN * grad2radConst);
-		
+
 		return out;
 	}
 
 	getInterface(): IJGridPointInfo {
 		return {
-			point: {x: this._point.x, y: this._point.y},
+			point: { x: this._point.x, y: this._point.y },
 			cellId: this._cell.id
 		}
 	}
@@ -38,11 +38,11 @@ export class JGridPoint {
 export default class JGrid {
 	/*private*/ _points: JGridPoint[][];
 	/*private*/ _granularity: number;
-	
+
 	constructor(gran: number, diagram: JDiagram) {
 		this._granularity = gran;
 		const loadedData = dataInfoManager.loadGridPoints(this._granularity, diagram.cells.size);
-		if (loadedData.length === 0) {		
+		if (loadedData.length === 0) {
 			this._points = this.createGridPoints(diagram);
 			dataInfoManager.saveGridPoints(this._points, this._granularity, diagram.cells.size)
 		} else {
@@ -59,12 +59,12 @@ export default class JGrid {
 		for (let i = -180; i < 180; i += this._granularity) {
 			console.log('x value:', i);
 			let col: JGridPoint[] = [];
-		  for (let j = -90; j <= 90; j += this._granularity) {
+			for (let j = -90; j <= 90; j += this._granularity) {
 				const point: JPoint = new JPoint(i, j);
-				const cell: JCell = diagram.getCellFromPoint(point);				
+				const cell: JCell = diagram.getCellFromPoint(point);
 				const gp = new JGridPoint(point, cell);
-		    col.push(gp);
-		  }
+				col.push(gp);
+			}
 			out.push(col);
 		}
 		return out;
@@ -87,11 +87,11 @@ export default class JGrid {
 		if (Math.abs(p.x) > 180 || Math.abs(p.y) > 90)
 			throw new Error(`el punto: ${p.toTurfPosition()} se encuentra fuera de rango`)
 		return {
-			c: inRange(Math.round((p.x+180)/this._granularity), 0, this.colsNumber-1),
-			r: inRange(Math.round((p.y+90)/this._granularity), 0, this.rowsNumber-1)
+			c: inRange(Math.round((p.x + 180) / this._granularity), 0, this.colsNumber - 1),
+			r: inRange(Math.round((p.y + 90) / this._granularity), 0, this.rowsNumber - 1)
 		}
 	}
-	
+
 	getGridPoint(p: JPoint): JGridPoint {
 		const INDXS = this.getGridPointIndexes(p);
 		return this._points[INDXS.c][INDXS.r];
@@ -100,12 +100,12 @@ export default class JGrid {
 	getGridPointsInWindow(point: JPoint, windKm: number): JGridPoint[] {
 		let out: JGridPoint[] = [];
 
-		this.getGridPointsInWindowGrade(point, windKm/30).forEach((gp: JGridPoint) => {
+		this.getGridPointsInWindowGrade(point, windKm / 30).forEach((gp: JGridPoint) => {
 			if (JPoint.geogDistance(point, gp._point) < windKm) {
 				out.push(gp);
 			}
 		})
-		
+
 		return out;
 	}
 
@@ -133,20 +133,20 @@ export default class JGrid {
 			}
 			if (c >= this.colsNumber) {
 				c = c - this.colsNumber;
-			}	
+			}
 			ridxs.forEach((r: number) => {
 				if (r < 0) {
 					r = -r;
-					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)
+					c = Math.round((c < this.colsNumber / 2) ? c + this.colsNumber / 2 : c - this.colsNumber / 2)
 				}
 				if (r >= this.rowsNumber) {
 					r = this.rowsNumber - (r - this.rowsNumber + 1);
-					c = Math.round((c < this.colsNumber/2) ? c + this.colsNumber/2 : c - this.colsNumber/2)
-				}	
-				if ( !this._points[c] ) console.log('c', c)
+					c = Math.round((c < this.colsNumber / 2) ? c + this.colsNumber / 2 : c - this.colsNumber / 2)
+				}
+				if (!this._points[c]) console.log('c', c)
 				const p: JGridPoint = this._points[c][r];
 				out.push(p)
-			})			
+			})
 		})
 		return out;
 	}
@@ -176,6 +176,6 @@ const inRange = (value: number, minimo: number, maximo: number): number => {
 
 	if (out > maximo) out = maximo;
 	if (out < minimo) out = minimo;
-	
+
 	return out;
 }

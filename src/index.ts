@@ -21,7 +21,7 @@ import chroma from 'chroma-js';
 import JHeightMap from './heightmap/JHeightMap';
 import JTempMap from './heightmap/JTempMap';
 import JClimateGrid from './heightmap/JClimateGrid'
-import JPressureGrid, {PressureData} from './heightmap/JPressureGrid'
+import JPressureGrid, { PressureData } from './heightmap/JPressureGrid'
 import * as JTempFunctions from './Climate/JTempFunctions';
 
 import * as turf from '@turf/turf';
@@ -108,16 +108,16 @@ world.diagram.forEachCell((cell: JCell) => {
 
 console.log('hmax', hmax.info.cellHeight.heightInMeters, hmax.center.x, hmax.center.y)
 console.log('tmax', tempMax.map((cell: JCell, idx) => {
-	return `${idx+1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
+	return `${idx + 1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
 }))
 console.log('tmin', tempMin.map((cell: JCell, idx) => {
-	return `${idx+1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
+	return `${idx + 1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
 }))
 
 let tempGrid = new JClimateGrid(world.grid);
 console.log(tempGrid.getPressureCenters(2).length)
 const tempStep = 5;
-const monthArr = [1,4,7,10];
+const monthArr = [1, 2];
 
 // const gcg = new GeoCoordGrid();
 // const hgd = new HeightGridData(gcg);
@@ -153,15 +153,15 @@ hgd._heightData.forEach((data: {
 
 // tempGrid.smoothTemp(50);
 let dm2: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/temp`);
-colorScale = chroma.scale('Spectral').domain([30,-35]);
+colorScale = chroma.scale('Spectral').domain([30, -35]);
 for (let i of monthArr) {
 	dm2.clear()
 	dm2.drawFondo()
 	const month: number = i;
 	world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
 		col.forEach((gp: JGridPoint, ridx: number) => {
-			let val = tempGrid.getPointInfo(gp._point).tempMonth[month-1];
-			val = Math.round(val/tempStep)*tempStep;
+			let val = tempGrid.getPointInfo(gp._point).tempMonth[month - 1];
+			val = Math.round(val / tempStep) * tempStep;
 			color = colorScale(val).hex();
 			dm2.drawDot(gp._point, {
 				strokeColor: color, fillColor: color
@@ -172,29 +172,29 @@ for (let i of monthArr) {
 		color = '#00000F65'
 		dm2.drawDot(gp._point, {
 			strokeColor: color, fillColor: color
-		}, GRAN/2)
+		}, GRAN / 2)
 	})
 	tempGrid.getPolarFrontPoints(month, 's').concat(tempGrid.getPolarFrontPoints(month, 'n'))
 		.forEach((gp: JGridPoint) => {
-		color = '#0B000F65'
-		dm2.drawDot(gp._point, {
-			strokeColor: color, fillColor: color
-		}, GRAN/2)
-	})
+			color = '#0B000F65'
+			dm2.drawDot(gp._point, {
+				strokeColor: color, fillColor: color
+			}, GRAN / 2)
+		})
 	tempGrid.getHorseLatPoints(month, 's').concat(tempGrid.getHorseLatPoints(month, 'n'))
 		.forEach((gp: JGridPoint) => {
-		color = '#00000F65'
-		dm2.drawDot(gp._point, {
-			strokeColor: color, fillColor: color
-		}, GRAN/2)
-	})
+			color = '#00000F65'
+			dm2.drawDot(gp._point, {
+				strokeColor: color, fillColor: color
+			}, GRAN / 2)
+		})
 	tempGrid.getPolarLinePoints(month, 's').concat(tempGrid.getPolarLinePoints(month, 'n'))
 		.forEach((gp: JGridPoint) => {
-		color = '#00000F65'
-		dm2.drawDot(gp._point, {
-			strokeColor: color, fillColor: color
-		}, GRAN/2)
-	})
+			color = '#00000F65'
+			dm2.drawDot(gp._point, {
+				strokeColor: color, fillColor: color
+			}, GRAN / 2)
+		})
 	dm2.drawMeridianAndParallels();
 	dm2.saveDrawFile(`tempGrid${(month < 10 ? `0${month}` : `${month}`)}.png`);
 }
@@ -217,36 +217,36 @@ getPressureCenters().forEach((val: any) => {
 	}, GRAN)
 })
 */
-colorScale = chroma.scale('Spectral').domain([2,0]);
+colorScale = chroma.scale('Spectral').domain([2000, -2000]);
 for (let i of monthArr) {
 	dm2.clear()
 	dm2.drawFondo()
 	const month: number = i;
-	
+
 	world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
 		col.forEach((gp: JGridPoint, ridx: number) => {
-			let val = pressGrid.getPointInfo(gp._point).pots[month];
+			let val = pressGrid.getPointInfo(gp._point).pots[month-1];
 			//val = Math.round(val*tempStep)/tempStep;
 			color = colorScale(val).hex();
-			dm.drawDot(gp._point, {
+			dm2.drawDot(gp._point, {
 				strokeColor: color, fillColor: color
 			}, GRAN)
 		})
 	})
-	dm.drawMeridianAndParallels();
-	dm.saveDrawFile(`pressGrid${(month < 10 ? `0${month}` : `${month}`)}.png`);
+	dm2.drawMeridianAndParallels();
+	dm2.saveDrawFile(`pressGrid${(month < 10 ? `0${month}` : `${month}`)}.png`);
 }
 
 /*******************************************/
 
-dm.clear()
-dm.drawFondo()
-const month = 4;
+dm2.clear()
+dm2.drawFondo()
+const month = 1;
 tempGrid.getPressureCenters(month).forEach((val: any) => {
 	color = (val.mag < 10) ? '#00FF0020' : '#FF000020';
-	dm.drawDot(val.point, {
+	dm2.drawDot(val.point, {
 		strokeColor: color, fillColor: color
-	}, GRAN*2)
+	}, GRAN * 2)
 })
 
 let curr: JPoint;
@@ -287,27 +287,27 @@ initPoints.forEach((curr: JPoint) => {
 
 world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
 	col.forEach((gp: JGridPoint, ridx: number) => {
-		if ( cidx*ridx == 360*240 && cidx == 360) {		
+		if (cidx * ridx == 360 * 240 && cidx == 360) {
 			route = [];
 			curr = new JPoint(gp._point.x, gp._point.y);
 
 			// const color: string = '#F0F0F080'//`${chroma.random()}`
-			
+
 			for (let it = 0; it < 700; it++) {
 
 				let pd: PressureData = pressGrid.getPointInfo(curr);
-				let vec: JPoint = pd.vecs[month];
-				vec = applyCoriolis(curr.y, vec).normalize();
+				let vec: JPoint = pd.vecs[month-1];
+				vec = applyCoriolis(curr, vec, tempGrid).normalize();
 
 				console.log(it, pd.pots[month]);
 				color = colorScale(pd.pots[month]).hex();
-				
+
 				curr = JPoint.pointToCoord(curr.add(vec));
 				route.push(curr)
-				dm.drawDot(curr, {
+				dm2.drawDot(curr, {
 					strokeColor: color,
 					fillColor: color,
-				}, GRAN/4)
+				}, GRAN / 4)
 			}
 		}
 	})
@@ -343,21 +343,21 @@ gc.forEach((p: JPoint) => {
 		GRAN);
 })
 */
-dm.drawMeridianAndParallels();
-dm.saveDrawFile(`tempWind.png`);
+dm2.drawMeridianAndParallels();
+dm2.saveDrawFile(`tempWind.png`);
 
-const a = new JPoint(168,15);
-const b = new JPoint(-168,15);
+const a = new JPoint(168, 15);
+const b = new JPoint(-168, 15);
 const c = b.point2(a);
 
-console.log('d1', JPoint.distance(a,b))
-console.log('d2', JPoint.distance2(a,b))
-console.log('d22', JPoint.distance(c,b))
-console.log('dg', JPoint.geogDistance(a,b))
+console.log('d1', JPoint.distance(a, b))
+console.log('d2', JPoint.distance2(a, b))
+console.log('d22', JPoint.distance(c, b))
+console.log('dg', JPoint.geogDistance(a, b))
 
-console.log(pressGrid.getPointInfo(new JPoint(14,-30)))
-console.log(pressGrid.getPointInfo(new JPoint( 11, 0)))
-console.log(pressGrid.getPointInfo(new JPoint( 11, 60)))
-console.log(pressGrid.getPointInfo(new JPoint( 111, 90)))
+console.log(pressGrid.getPointInfo(new JPoint(14, -30)))
+console.log(pressGrid.getPointInfo(new JPoint(11, 0)))
+console.log(pressGrid.getPointInfo(new JPoint(11, 60)))
+console.log(pressGrid.getPointInfo(new JPoint(111, 90)))
 
 console.timeEnd('all')

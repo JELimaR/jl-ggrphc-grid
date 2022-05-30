@@ -1,4 +1,5 @@
 import JPoint from "../Geom/JPoint";
+import JClimateGrid from "../heightmap/JClimateGrid";
 
 interface IPressureZone {
 	mag: number;
@@ -38,33 +39,37 @@ lowPointArr.forEach((hp: JPoint) => {
 */
 const MAGCOR: number = 20;
 
-export const calcFieldInPoint = (point: JPoint, pressureCenters: IPressureZone[]): {vec: JPoint, pot: number} => {
-	let out: JPoint = new JPoint(0,0);
+export const calcFieldInPoint = (point: JPoint, pressureCenters: IPressureZone[]): { vec: JPoint, pot: number } => {
+	let out: JPoint = new JPoint(0, 0);
 	let magSum: number = 0;
-	
+
 	pressureCenters.forEach((pz: IPressureZone) => {
-		// const dist: number = JPoint.distance2(pz.point, point)+1;
-		const dist = JPoint.geogDistance(pz.point, point)+100;
-		const magnitude: number = pz.mag/((dist)**2);
+		const dist: number = JPoint.distance2(pz.point, point) + 0.1;
+		// const dist = JPoint.geogDistance(pz.point, point) + 100;
+		const magnitude: number = pz.mag / ((dist) ** 2);
 		let pz2: JPoint = point.point2(pz.point)
 		let dir: JPoint = point.sub(pz2).normalize();
 		dir = dir.scale(magnitude);
 		out = out.add(dir);
-		
-		magSum += pz.mag/((dist));;
+
+		magSum += pz.mag / ((dist));;
 	})
-	
-	return {vec: out, pot: magSum};
+
+	return { vec: out, pot: magSum };
 }
 
-export const applyCoriolis = (lat: number, vec: JPoint) => {
+export const applyCoriolis = (point: JPoint, vec: JPoint, tempGrid: JClimateGrid) => {
 	let out = vec.normalize();
+	const lat: number = point.y;
+	const indexes = tempGrid._grid.getGridPointIndexes(point);
+	const dev: number = tempGrid.getITCZPoints(4)[indexes.r]!._point.y;
+	const angle = lat - dev;
 	if (lat > 0) {
-		out = out.add(out.rightPerp().scale( MAGCOR*Math.cos(Math.PI * lat/180) )).normalize()
+		out = out.add(out.rightPerp().scale(MAGCOR * Math.cos(Math.PI * angle / 180))).normalize()
 	} else if (lat < 0) {
-		out = out.add(out.leftPerp().scale( MAGCOR*Math.cos(Math.PI * lat/180) )).normalize()
+		out = out.add(out.leftPerp().scale(MAGCOR * Math.cos(Math.PI * angle / 180))).normalize()
 	} else {
-		
+
 	}
 
 	return out;
