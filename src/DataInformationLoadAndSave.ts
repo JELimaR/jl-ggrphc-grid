@@ -198,10 +198,10 @@ export default class DataInformationFilesManager {
 	}
 
 	// 
-	loadGridPressure(): IPressureDataGrid[][] {
+	loadGridPressure(gran: number): IPressureDataGrid[][] {
 		let out: IPressureDataGrid[][] = [];
 		try {
-			let pathName: string = `${this._dirPath}/CellsInfo/pressure.json`;
+			let pathName: string = `${this._dirPath}/GridInfo/G${gran}pressure.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
 			
@@ -209,9 +209,9 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveGridPressure(data: IPressureDataGrid[][]): void {
-		fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
-		let pathName: string = `${this._dirPath}/CellsInfo/pressure.json`;
+	saveGridPressure(data: IPressureDataGrid[][], gran: number): void {
+		fs.mkdirSync(`${this._dirPath}/GridInfo`, {recursive: true});
+		let pathName: string = `${this._dirPath}/GridInfo/G${gran}pressure.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 

@@ -58,7 +58,7 @@ export default class JPressureGrid {
 		console.log('calculate and setting pressures values')
 		console.time('set pressures info');
 		let out: PressureData[][] = [];
-		let info: IPressureDataGrid[][] = dataInfoManager.loadGridPressure();
+		let info: IPressureDataGrid[][] = dataInfoManager.loadGridPressure(this._grid._granularity);
 		if (info.length == 0) {
 			this._grid._points.forEach((col: JGridPoint[], colIdx: number) => {
 				let dataCol: IPressureDataGrid[] = [];
@@ -81,7 +81,7 @@ export default class JPressureGrid {
 				}
 				info.push(dataCol);
 			})
-			dataInfoManager.saveGridPressure(info)
+			dataInfoManager.saveGridPressure(info, this._grid._granularity)
 		}
 		info.forEach((col: IPressureDataGrid[], c: number) => {
 			let outCol: PressureData[] = [];
@@ -98,6 +98,24 @@ export default class JPressureGrid {
 	getPointInfo(p: JPoint): PressureData {
 		const indexes = this._grid.getGridPointIndexes(p);
 		return this._pressureData[indexes.c][indexes.r];
+	}
+
+	getMaxMedMin(month: number) {
+		
+		let med: number = 0, max: number = -Infinity, min: number = Infinity;
+		this._pressureData.forEach((colVal: PressureData[]) => {
+			colVal.forEach((elemVal: PressureData) => {
+				if (elemVal.pots[month] < min) min = elemVal.pots[month];
+				if (elemVal.pots[month] > max) max = elemVal.pots[month];
+				med += elemVal.pots[month];
+			})
+		})
+
+		med /= (this._grid.colsNumber * this._grid.rowsNumber);
+
+		return {
+			med, min, max
+		}
 	}
 
 }

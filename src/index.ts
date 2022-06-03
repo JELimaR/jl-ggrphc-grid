@@ -33,7 +33,8 @@ import GeoCoordGrid from './Geom/GeoCoordGrid';
 import Coord from './Geom/Coord';
 import HeightGridData from './heightmap/HeightGridData';
 import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
-import { applyCoriolis, calcFieldInPoint } from './Climate/JPressureFieldFunctions';
+import { applyCoriolis, calcCoriolisForce, calcFieldInPoint } from './Climate/JPressureFieldFunctions';
+import { IMovementState, calcMovementState } from "./Geom/Movement";
 
 const tam: number = 3600;
 let SIZE: JVector = new JVector({ x: tam, y: tam / 2 });
@@ -50,7 +51,7 @@ const azgaarFolder: string[] = [
 	'Mont100',
 	'Itri100'
 ];
-const folderSelected: string = azgaarFolder[8];
+const folderSelected: string = azgaarFolder[2];
 
 console.log('folder:', folderSelected)
 
@@ -74,7 +75,7 @@ console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
 const TOTAL: number = 10;
-const GRAN: number = 0.5;
+const GRAN: number = 2//0.5;
 const world: JWorld = new JWorld(TOTAL, GRAN);
 /*let jhm: JHeightMap = */world.generateHeightMap();
 /*let jtm: JTempMap = */world.generateTemperatureMap();
@@ -151,7 +152,7 @@ hgd._heightData.forEach((data: {
 
 /*** TEMPERATURE ***/
 
-// tempGrid.smoothTemp(50);
+// tempGrid.smoothTemp(1000);
 let dm2: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/temp`);
 colorScale = chroma.scale('Spectral').domain([30, -35]);
 for (let i of monthArr) {
@@ -206,7 +207,15 @@ for (let i of monthArr) {
 
 // grid
 // nuevo
-const pressGrid = new JPressureGrid(world.grid, tempGrid)
+const month = 1;
+const pressGrid = new JPressureGrid(world.grid, tempGrid);
+let mmm = pressGrid.getMaxMedMin(month-1);
+world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
+	col.forEach((gp: JGridPoint, ridx: number) => {
+		pressGrid._pressureData[cidx][ridx]._pots[month-1] -= mmm.med;
+	})
+})
+mmm = pressGrid.getMaxMedMin(month-1);
 dm.clear()
 dm.drawFondo()
 /*
@@ -217,7 +226,7 @@ getPressureCenters().forEach((val: any) => {
 	}, GRAN)
 })
 */
-colorScale = chroma.scale('Spectral').domain([2000, -2000]);
+colorScale = chroma.scale('Spectral').domain([mmm.max, mmm.min]);
 for (let i of monthArr) {
 	dm2.clear()
 	dm2.drawFondo()
@@ -225,8 +234,16 @@ for (let i of monthArr) {
 
 	world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
 		col.forEach((gp: JGridPoint, ridx: number) => {
-			let val = pressGrid.getPointInfo(gp._point).pots[month-1];
-			//val = Math.round(val*tempStep)/tempStep;
+			// let val = pressGrid.getPointInfo(gp._point).pots[month-1];
+			let val = pressGrid.getPointInfo(gp._point).vecs[month-1].y*10;
+			/*
+			if (val < mmm.min * 0.75) color = '#F11313';
+			else if (val > mmm.max * 0.5) color = '#F0F0F0';
+			else {
+				//val = Math.round(val*tempStep)/tempStep;
+				color = colorScale(val).hex();
+			}
+			*/
 			color = colorScale(val).hex();
 			dm2.drawDot(gp._point, {
 				strokeColor: color, fillColor: color
@@ -240,16 +257,17 @@ for (let i of monthArr) {
 /*******************************************/
 
 dm2.clear()
-dm2.drawFondo()
-const month = 1;
+// dm2.drawFondo()
+
 tempGrid.getPressureCenters(month).forEach((val: any) => {
-	color = (val.mag < 10) ? '#00FF0020' : '#FF000020';
+	color = (val.mag < 0) ? '#00FF0020' : '#FF000020';
 	dm2.drawDot(val.point, {
 		strokeColor: color, fillColor: color
-	}, GRAN * 2)
+	}, GRAN)
 })
 
-let curr: JPoint;
+let currPos: JPoint;
+let currVel: JPoint;
 let route: JPoint[];
 
 /*
@@ -285,53 +303,195 @@ initPoints.forEach((curr: JPoint) => {
 })
 */
 
+const sat: number = 10000;
+const TOTALPRECIPMAX = 400000;
+const MASS = 1;
+const time = .05;
+const roz = 0.7;
+const MAXEVAP = 20;
+
+const calcPrecip = (nextHeight: number, pressValue: number, acc: number): number => {
+	// nextHeight
+	let hval: number = 0;
+	if (nextHeight >= 0.2) {
+		let exponent = (nextHeight < 0.5)
+			? 3	: ((nextHeight < 0.7) ? 2 : 0.5);
+		//exponent = 0.5;
+		hval = (nextHeight+0.01) ** exponent;
+	}
+	
+	// pressValue
+	let pval: number = 0;
+	// pval = 1 * Math.log( (-pressValue+mmm.max)/(mmm.max-mmm.min)  + 1);
+	
+	let aval: number = 0;
+	if (acc >= sat && hval < 0.1) aval = 0.1 - hval;
+
+	return hval + pval + aval;
+}
+
+const calcEvap = (temp: number, precipValue: number, isLand: boolean): number => {
+	let out: number = 0;
+	const tempMin = -10;
+	if (temp-tempMin > 0) {
+		if (isLand) {
+			out = 1 * precipValue * ((temp-tempMin)/(35 - tempMin)*0.8 + 0.2);
+		} else {
+			out = 1 * ((temp-tempMin)/(35 - tempMin)*0.8 + 0.2);
+		}
+	}
+	return out;
+}
+
+colorScale = chroma.scale('Spectral').domain([1, 0]);
+let acc: number;
+
+const dataPrecip: number[][] = [];
+world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
+	dataPrecip[cidx] = [];
+	col.forEach((gp: JGridPoint, ridx: number) => {
+		dataPrecip[cidx].push(0)// = 0;
+	})
+})
+
+console.log(mmm)
 world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
 	col.forEach((gp: JGridPoint, ridx: number) => {
-		if (cidx * ridx == 360 * 240 && cidx == 360) {
-			route = [];
-			curr = new JPoint(gp._point.x, gp._point.y);
+		//if (true || (ridx == 3/GRAN && cidx == 180/GRAN)) {
+		// HACER UNA FUNCION DE ESTA SECCION DE CODICO CON ENTRADAS CURR, ACC SALIDA ROUTE CON LOS RESPECTIVOS DATOS
+		route = [];
+		currPos = new JPoint(gp._point.x, gp._point.y);
+		currVel = new JPoint(0,0);
+		acc = 0;
+		// color = '#F0F0F080'
+		const colorChroma = chroma.random();
 
-			// const color: string = '#F0F0F080'//`${chroma.random()}`
-
-			for (let it = 0; it < 700; it++) {
-
-				let pd: PressureData = pressGrid.getPointInfo(curr);
+		let cont: number = 0;
+		// const subGran = 1;
+		for (let it = 0; it < 50000 && cont < 100; it++) {
+			if (
+				/*
+					(cidx % 180 == 30 && ridx % 90 == 16) || (cidx % 180 == 90 && ridx % 90 == 74) || 
+					(cidx % 180 == 78 && ridx % 90 == 35) || (cidx % 180 == 168 && ridx % 90 == 55) || 
+				 	(cidx % 180 == 65 && ridx % 90 == 1) || (cidx % 180 == 115 && ridx % 90 == 89)
+				*/	
+				(cidx % 4 == 0 && ridx % 4 == 0)
+			) {
+				
+				if (pressGrid.getPointInfo(currPos).pots[month-1] < mmm.min*0.85) cont++
+				//else cont = 0;
+				
+				const gpprev: JGridPoint = world.grid.getGridPoint(currPos);
+				
+				let pd: PressureData = pressGrid.getPointInfo(currPos);
 				let vec: JPoint = pd.vecs[month-1];
-				vec = applyCoriolis(curr, vec, tempGrid).normalize();
+				let cor: JPoint = /*new JPoint(0,0) //*/calcCoriolisForce({pos: currPos, vel: currVel}, MASS, tempGrid);
+				let netForce = vec.add(cor).sub(currVel.scale(roz));
+	
+				const newState: IMovementState = calcMovementState({pos: currPos, vel: currVel}, netForce, MASS, time);
+				
+				//vec = applyCoriolis(currPos, vec, tempGrid);
+				//vec = vec.scale(1/vec.mod/subGran);
+		
+				//currPos = JPoint.pointToCoord(currPos.add(vec));
+				currPos = JPoint.pointToCoord(newState.pos);
+				currVel = newState.vel;
+				if ( Math.abs(currPos.y) > 90 ) console.log(currPos)
+				const gpnew: JGridPoint = world.grid.getGridPoint(currPos);
+	
+				
+				const precip = calcPrecip(gpnew._cell.info.height, pd.pots[month-1], acc );
+				
+				// let pval: number = 0.05 * (-pd.pots[month-1]+mmm.max)/(mmm.max-mmm.min) ** 0.99;
+				const totalPrecip = precip * acc// + pval;
+				
+				const evap = calcEvap(gpprev._cell.info.tempMonthArr[month-1], precip, gpprev._cell.info.isLand);
+				const totalEvap = evap * MAXEVAP;
+		
+				acc = acc + totalEvap - totalPrecip;
+				if (acc < 0) acc = 0;
+				if (acc > sat) acc = sat;
+				dataPrecip[gpprev.colValue][gpprev.rowValue] += totalPrecip;
+				if (dataPrecip[gpprev.colValue][gpprev.rowValue] > TOTALPRECIPMAX)
+					dataPrecip[gpprev.colValue][gpprev.rowValue] = TOTALPRECIPMAX;
+				world.grid.getGridPointsInWindowGrade(currPos, GRAN).forEach((gpn: JGridPoint) => {
+					dataPrecip[gpn.colValue][gpn.rowValue] += totalPrecip;
+					if (dataPrecip[gpn.colValue][gpn.rowValue] > TOTALPRECIPMAX)
+						dataPrecip[gpn.colValue][gpn.rowValue] = TOTALPRECIPMAX;
+				})
+				
+				
+				// console.log(it, pd.pots[month]);
+				color = colorScale(acc/sat).hex();
+				if (!currPos) console.log(newState)
+				route.push(currPos)
 
-				console.log(it, pd.pots[month]);
-				color = colorScale(pd.pots[month]).hex();
-
-				curr = JPoint.pointToCoord(curr.add(vec));
-				route.push(curr)
-				dm2.drawDot(curr, {
+			// el if va acá	
+				// color = colorScale(pd.vecs[month-1].mod/500).hex();
+				// color = colorChroma.alpha(it/2000+0.5).hex();
+				dm2.drawDot(currPos, {
 					strokeColor: color,
 					fillColor: color,
-				}, GRAN / 4)
+				}, GRAN / 8)
+				// if ( Math.abs(curr.y) > 90 ) console.log(curr)
+				
 			}
+			
 		}
+		/*
+		if (route.length > 0 && ridx % 180 == 90 && cidx % 90 == 40) {
+			dm.draw(route, {
+					strokeColor: '#000100',
+					fillColor: 'none',
+				})
+		}
+		*/
 	})
 	if (cidx % 50 == 0) console.log('van:', cidx, ', de:', world.grid.colsNumber)
 })
+// dm2.drawMeridianAndParallels();
+dm2.saveDrawFile(`tempWind.png`);
 
-/*
-lowPointArr.forEach((pz: JPoint, i: number) => {
-	if ( i % 10 ) {		
-		route = [];
-		let curr = new JPoint(pz.x, pz.y);
-		for (let it = 0; it < 500; it++) {
-			const vec: JPoint = calcFieldInPoint(curr);
-			
-			curr = JPoint.pointToCoord(curr.add(vec));
-			route.push(curr)
-			dm.drawDot(curr, {
-				strokeColor: '#000000',
-				fillColor: '#000000'
-			}, GRAN/4)
+// moisture
+
+dm2.clear();
+let mmax: number = -Infinity;
+world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
+	col.forEach((gp: JGridPoint, ridx: number) => {
+		if (gp._cell.info.isLand) {
+			if (mmax < dataPrecip[cidx][ridx]) mmax = dataPrecip[cidx][ridx];
 		}
-	}
+	})
 })
-*/
+
+console.log(mmax)
+colorScale = chroma.scale('Spectral').domain([mmax, 0]);
+world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
+	col.forEach((gp: JGridPoint, ridx: number) => {
+		let pd: number = pressGrid._pressureData[cidx][ridx]._pots[month-1] - mmm.med;
+		let temp: number = tempGrid._tempData[cidx][ridx].tempMonth[month-1] + 15;
+		if (pd < (mmm.min-mmm.med)*0.5) pd = (mmm.min-mmm.med)*0.5;
+		if (pd > (mmm.max-mmm.med)*0.5) pd = (mmm.max-mmm.med)*0.5;
+		const val = dataPrecip[cidx][ridx] //+ 0.25 * mmax * (-pd/(mmm.max-mmm.min) * 0.5 + 0.5 ) // * temp/50);
+
+		const alpha = (gp._cell.info.isLand) ? 1 : 0.3;
+					
+		color = colorScale(val).alpha(alpha).hex();
+		
+		dm2.drawDot(gp._point, {
+			strokeColor: color,
+			fillColor: color,
+		}, GRAN)
+		
+		if (ridx % 5 == 0 && cidx % 5 == 0) {
+			//console.log(cidx, ridx, val)
+		}
+	})
+})
+
+dm2.drawMeridianAndParallels();
+dm2.saveDrawFile(`moisture.png`);
+
 /*
 const gc = JPoint.greatCircle(lowPoint, highPoint)
 gc.forEach((p: JPoint) => {
@@ -343,21 +503,18 @@ gc.forEach((p: JPoint) => {
 		GRAN);
 })
 */
-dm2.drawMeridianAndParallels();
-dm2.saveDrawFile(`tempWind.png`);
 
-const a = new JPoint(168, 15);
-const b = new JPoint(-168, 15);
-const c = b.point2(a);
+console.log('  2', pressGrid.getPointInfo(new JPoint(10, 2)))
+console.log('-32', pressGrid.getPointInfo(new JPoint(14, -32)))
+console.log(' 58', pressGrid.getPointInfo(new JPoint(12, 58)))
+console.log('-58', pressGrid.getPointInfo(new JPoint(12, -58)))
+console.log(' 88', pressGrid.getPointInfo(new JPoint(110, 88)))
+console.log('-88', pressGrid.getPointInfo(new JPoint(110, -88)))
 
-console.log('d1', JPoint.distance(a, b))
-console.log('d2', JPoint.distance2(a, b))
-console.log('d22', JPoint.distance(c, b))
-console.log('dg', JPoint.geogDistance(a, b))
-
-console.log(pressGrid.getPointInfo(new JPoint(14, -30)))
-console.log(pressGrid.getPointInfo(new JPoint(11, 0)))
-console.log(pressGrid.getPointInfo(new JPoint(11, 60)))
-console.log(pressGrid.getPointInfo(new JPoint(111, 90)))
+let gp: JGridPoint;
+gp = world.grid.getGridPoint(new JPoint(15,87));
+console.log(gp.getPixelArea())
+gp = world.grid.getGridPoint(new JPoint(15,0));
+console.log(gp.getPixelArea())
 
 console.timeEnd('all')

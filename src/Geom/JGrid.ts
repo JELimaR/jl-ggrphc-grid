@@ -1,7 +1,7 @@
 import JCell from '../Voronoi/JCell';
 import JDiagram from '../Voronoi/JDiagram';
 import JPoint from './JPoint';
-import { WRADIUS, GRAN } from './constants'
+import { WRADIUS } from './constants'
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 const dataInfoManager = DataInformationFilesManager.instance;
 
@@ -11,6 +11,7 @@ export interface IJGridPointInfo {
 }
 
 export class JGridPoint {
+	private static _gran: number;
 	/*private*/ _point: JPoint;
 	/*private*/ _cell: JCell;
 	constructor(p: JPoint, cell: JCell) {
@@ -18,11 +19,30 @@ export class JGridPoint {
 		this._cell = cell;
 	}
 
-	getPïxelArea(): number {
+	static set gran(g: number) { this._gran = g; }
+	// static get gran() { return this._gran; }
+
+	get rowValue() {
+		return inRange(
+			Math.round((90 + this._point.y)/JGridPoint._gran),
+			0,
+			180/JGridPoint._gran + 1
+		);
+	}
+
+	get colValue() {
+		return inRange(
+			Math.round((180 + this._point.x)/JGridPoint._gran),
+			0,
+			360/JGridPoint._gran
+		);
+	}
+
+	getPixelArea(): number {
 		const grad2radConst = Math.PI / 180;
 
-		let out = WRADIUS * (GRAN * grad2radConst);
-		out *= WRADIUS * Math.cos(this._point.y * grad2radConst) * (GRAN * grad2radConst);
+		let out = WRADIUS * (JGridPoint._gran * grad2radConst);
+		out *= WRADIUS * Math.cos(this._point.y * grad2radConst) * (JGridPoint._gran * grad2radConst);
 
 		return out;
 	}
@@ -41,6 +61,7 @@ export default class JGrid {
 
 	constructor(gran: number, diagram: JDiagram) {
 		this._granularity = gran;
+		JGridPoint.gran = gran;
 		const loadedData = dataInfoManager.loadGridPoints(this._granularity, diagram.cells.size);
 		if (loadedData.length === 0) {
 			this._points = this.createGridPoints(diagram);

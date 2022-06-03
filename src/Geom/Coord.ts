@@ -13,9 +13,9 @@ export default class Coord {
 
 	constructor(lat: number, lon: number) {
 		this._lat = lat;
-		if (this._lat < -90) this._lat += (-90 - this._lat)*2;
-		if (this._lat > 90) this._lat += (this._lat - 90)*2;
-		this._lat = (lat + 90) % 180 - 90;
+		if (this._lat < -90) this._lat += -(90 + this._lat)*2;
+		if (this._lat > 90) this._lat += -(this._lat - 90)*2;
+		//this._lat = (lat + 90) % 180 - 90;
 		lon = Math.abs(this._lat - lat) > 0.001 ? lon + 180 : lon;
 		if (lon + 180 < 0) lon += 360
 		if (lon + 180 > 360) lon -= 360;

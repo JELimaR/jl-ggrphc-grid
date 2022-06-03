@@ -77,6 +77,7 @@ export default class JPoint {
 	}
 
 	point2(b: JPoint): JPoint {
+		b = JPoint.pointToCoord(b);
 		let out: JPoint = b;
 		let dist: number = JPoint.distance(this, b);
 		
