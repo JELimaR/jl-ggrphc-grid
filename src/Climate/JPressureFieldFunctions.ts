@@ -49,7 +49,7 @@ export const applyCoriolis = (point: JPoint, vec: JPoint, tempGrid: JClimateGrid
 
 const VELROTVALUE: number = 2;
 
-export const calcCoriolisForce = (state: IMovementState, M: number, tempGrid: JClimateGrid): JPoint => {
+export const calcCoriolisForce = (state: IMovementState, M: number/*, tempGrid: JClimateGrid*/): JPoint => {
 	const lat: number = state.pos.y;
 	// const indexes = tempGrid._grid.getGridPointIndexes(state.pos);
 	const dev: number = 0//tempGrid.getITCZPoints(4)[indexes.r]!._point.y;

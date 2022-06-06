@@ -13,8 +13,8 @@ export default class JClimateGrid {
 	_grid: JGrid;
 	_tempData: ITempDataGrid[][] = [];
 	_itczPoints: JGridPoint[] = [];
-	_horseLatPoints: {n: JGridPoint[], s: JGridPoint[]} = {n: [], s:[]};
-	_polarFrontPoints: {n: JGridPoint[], s: JGridPoint[]} = {n: [], s:[]};
+	_horseLatPoints: { n: JGridPoint[], s: JGridPoint[] } = { n: [], s: [] };
+	_polarFrontPoints: { n: JGridPoint[], s: JGridPoint[] } = { n: [], s: [] };
 
 	constructor(grid: JGrid) {
 		this._grid = grid;
@@ -28,103 +28,17 @@ export default class JClimateGrid {
 		this._grid._points.forEach((col: JGridPoint[], colIdx: number) => {
 			let dataCol: ITempDataGrid[] = []
 			col.forEach((gp: JGridPoint, rowIdx: number) => {
-				// if (gp._cell.info.cellHeight.heightType !== 'deepocean') {
 				dataCol.push({
 					tempCap: gp._cell.info.cellTemp._tempCap,
 					tempMed: gp._cell.info.tempMedia,
 					tempMonth: gp._cell.info.tempMonthArr
 				})
-				/*} else {
-					const tempLatMed: number = TempFunctions.calculateTempPromPerLat(gp._point.y);
-					const tempLatMonth: number[] = TempFunctions.generateTempLatArrPerMonth(gp._point.y).map((v) => v.tempLat);
-					let tarr: number[] = [];
-					tempLatMonth.forEach((mt: number) => {
-						let tv: number = tempLatMed + (tempLatMed - mt) * 0.25;
-						tv = TempFunctions.parametertoRealTemp(tv);
-						tarr.push(tv);
-					})
-					dataCol.push({
-						tempCap: gp._cell.info.cellTemp._tempCap,
-						tempMed: 0.25 * gp._cell.info.tempMedia + 0.75 * tarr.reduce((v: number, c: number) => v += c) / 12,
-						tempMonth: tarr.map((tv: number, i: number) => 0.25 * gp._cell.info.tempMonthArr[i] + 0.75 * tv)
-					})
-				}*/
 			})
 			out.push(dataCol);
 		})
 		return out;
 	}
-	/*
-		private setTempData2(): ITempDataGrid[][] {
-			let out: ITempDataGrid[][] = [];
-			const caps: number[][] = this.calculateCapPoints();
-			this._grid._points.forEach((col: JGridPoint[], colIdx: number) => {
-				let dataCol: ITempDataGrid[] = []
-				col.forEach((gp: JGridPoint, rowIdx: number) => {
-					const tempLatMed: number = TempFunctions.calculateTempPromPerLat(gp._point.y);
-					const tempLatMonth: number[] = TempFunctions.generateTempLatArrPerMonth(gp._point.y).map((v) => v.tempLat);
-					let tarr: number[] = [];
-					tempLatMonth.forEach((mt: number) => {
-						let tv: number = tempLatMed + (tempLatMed - mt) * caps[colIdx][rowIdx];
-						tv = TempFunctions.parametertoRealTemp(tv);
-						if (gp._cell.info.isLand)
-							tv -= 6.5 * gp._cell.info.cellHeight.heightInMeters/1000;
-						tarr.push(tv);
-					})
-					dataCol.push({
-						tempCap: caps[colIdx][rowIdx],
-						tempMed: tarr.reduce((v: number, c: number) => v += c) / 12,
-						tempMonth: tarr
-					})
-				})
-				out.push(dataCol);
-			})
-			return out;
-		}
-	
-		private calculateCapPoints() {
-			let out: number[][] = [];
-			this._grid._points.forEach((col: JGridPoint[], cidx: number) => {
-				let capCol: number[] = []
-				col.forEach((gp: JGridPoint, ridx: number) => {
-					let cap: number = 0, cant: number = 0;
-					this._grid.getGridPointsInWindow(gp._point, 20).forEach((gpiw: JGridPoint) => { // debe ser 20?
-						cant++;
-						cap += (gpiw._cell.info.isLand) ? 1 : 0.44;
-					})
-	
-					capCol.push(cap/cant)
-				})
-				out.push(capCol);
-				if (cidx % 50 == 0) console.log(`van ${cidx}: `)
-			})
-	
-			for (let i = 0; i<1; i++) {
-				out = this.smoothCap(out, 2)
-			}
-			console.log('cap grid calculada');
-			return out;
-		}
-	
-		private smoothCap(cin: number[][], win: number): number[][] {
-			let cout: number[][] = [];
-			cin.forEach((col: number[], cidx: number) => {
-				let capCol: number[] = []
-				col.forEach((capin: number, ridx: number) => {
-					let cap: number = capin, cant: number = 1;
-					this._grid.getGridPointsInWindow(this._grid._points[cidx][ridx]._point, win).forEach((gpiw: JGridPoint) => {
-						// console.log(gpiw._point.toTurfPosition())
-						const indexes = this._grid.getGridPointIndexes(gpiw._point);
-						cant++;
-						cap += cin[indexes.c][indexes.r];
-					})
-					capCol.push(cap/cant)
-				})
-				cout.push(capCol);
-			})
-			return cout;
-		}
-	*/
+
 	smoothTemp(win: number) {
 		let cout: ITempDataGrid[][] = [];
 		this._tempData.forEach((col: ITempDataGrid[], cidx: number) => {
@@ -188,7 +102,7 @@ export default class JClimateGrid {
 
 	getHorseLatPoints(month: number | 'med', hemisf: 'n' | 's'): JGridPoint[] {
 		if (this._horseLatPoints[hemisf].length === 0)
-			this._horseLatPoints = {n: this.calcHorseLatPoints(month, 'n'), s: this.calcHorseLatPoints(month, 's')};
+			this._horseLatPoints = { n: this.calcHorseLatPoints(month, 'n'), s: this.calcHorseLatPoints(month, 's') };
 		return this._horseLatPoints[hemisf];
 	}
 	private calcHorseLatPoints(month: number | 'med', hemisf: 'n' | 's'): JGridPoint[] {
@@ -221,7 +135,7 @@ export default class JClimateGrid {
 
 	getPolarFrontPoints(month: number | 'med', hemisf: 'n' | 's'): JGridPoint[] {
 		if (this._polarFrontPoints[hemisf].length === 0)
-			this._polarFrontPoints = {n: this.calcPolarFrontPoints(month, 'n'), s: this.calcPolarFrontPoints(month, 's')};
+			this._polarFrontPoints = { n: this.calcPolarFrontPoints(month, 'n'), s: this.calcPolarFrontPoints(month, 's') };
 		return this._polarFrontPoints[hemisf];
 	}
 	private calcPolarFrontPoints(month: number | 'med', hemisf: 'n' | 's'): JGridPoint[] {
@@ -251,7 +165,7 @@ export default class JClimateGrid {
 		/*  */
 		return this._grid.soft(outPoints)
 	}
-	
+
 	getPolarLinePoints(month: number | 'med', hemisf: 'n' | 's'): JGridPoint[] {
 		let outPoints: JPoint[] = [];
 		const RIDXmin: number = (hemisf === 'n') ? 1 : Math.round(this._grid.rowsNumber / 2) - 1;
@@ -280,11 +194,20 @@ export default class JClimateGrid {
 		return this._grid.soft(outPoints)
 	}
 
-	getPressureCenters(month: number): IPressureZone[] { // verificar tiempo total
+	getPressureCenters(month: number): { pressCenter: IPressureZone[], locationGrid: number[][] } { // verificar tiempo total
 		console.time('calc pressure centers')
 		const MAG: number = 5 * this._grid._granularity;
 		let out: IPressureZone[] = [];
-		/*
+		let pressureCentersLocation: number[][] = [];
+		this._grid.forEachPoint((gp: JGridPoint, cidx, ridx) => {
+			if (!pressureCentersLocation[cidx]) pressureCentersLocation[cidx] = [];
+			pressureCentersLocation[cidx][ridx] = 0;
+		})
+		let magProm: number = 0;
+		let posProm: number = 0;
+		let negProm: number = 0;
+		const landDiff = 0.2999;
+
 		// high press zones 
 		// ITZC
 		const itcz = this.getITCZPoints(month);
@@ -293,8 +216,9 @@ export default class JClimateGrid {
 		itcz.forEach((gp: JGridPoint) => { // ver criterio para agregar
 			out.push({
 				point: gp._point,
-				mag: -10 * gp.getPixelArea() - 10
+				mag: 4 / 3 * (gp._cell.info.isLand ? -MAG : -landDiff * MAG)
 			})
+			pressureCentersLocation[gp.colValue][gp.rowValue] = -1;
 		})
 		// ITZC polar Front
 		const polarFront = this.getPolarFrontPoints(month, 'n').concat(this.getPolarFrontPoints(month, 's'));
@@ -303,8 +227,9 @@ export default class JClimateGrid {
 		polarFront.forEach((gp: JGridPoint) => { // ver criterio para agregar
 			out.push({
 				point: gp._point,
-				mag: -10 * gp.getPixelArea() - 10
+				mag: 4 / 3 * (gp._cell.info.isLand ? -MAG : -landDiff * MAG)
 			})
+			pressureCentersLocation[gp.colValue][gp.rowValue] = -1;
 		})
 
 		// low press zones 
@@ -315,8 +240,9 @@ export default class JClimateGrid {
 		horseLat.forEach((gp: JGridPoint) => { // ver criterio para agregar
 			out.push({
 				point: gp._point,
-				mag: 10 * gp.getPixelArea() + 10
+				mag: (gp._cell.info.isLand ? landDiff * MAG : MAG)
 			})
+			pressureCentersLocation[gp.colValue][gp.rowValue] = 1;
 		})
 		// polarLine
 		const polarLine = this.getPolarLinePoints(month, 'n').concat(this.getPolarLinePoints(month, 's'));
@@ -324,48 +250,70 @@ export default class JClimateGrid {
 		polarLine.forEach((gp: JGridPoint) => tempMedPL += this.getPointInfo(gp._point).tempMonth[month - 1] / 720);
 		polarLine.forEach((gp: JGridPoint) => { // ver criterio para agregar
 			out.push({
-				point: gp._point,
-				mag: 10 * gp.getPixelArea() + 10
+				point: new JPoint(gp._point.x, (gp._point.y < 0) ? -90 : 90),
+				mag: (gp._cell.info.isLand ? landDiff * MAG : MAG)
 			})
+			pressureCentersLocation[gp.colValue][gp.rowValue] = 1;
 		})
-		*/
-		
+
+/*
 		const arr: number[] = [];
-		for (let i = -180; i<180; i+=this._grid._granularity) arr.push(i);
-		//
+		for (let i = -180; i < 180; i += this._grid._granularity) arr.push(i);
+
 		let highPointArr: JGridPoint[] = [];
-		highPointArr = highPointArr.concat( arr.map((n: number) => this._grid.getGridPoint(new JPoint(n,90))) );
-		highPointArr = highPointArr.concat( arr.map((n: number) => this._grid.getGridPoint(new JPoint(n,-90))) );
-		highPointArr = highPointArr.concat( arr.map((n: number) => this._grid.getGridPoint(new JPoint(n,30 ))) );
-		highPointArr = highPointArr.concat( arr.map((n: number) => this._grid.getGridPoint(new JPoint(n,-30 ))) );
-		
+		highPointArr = highPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, 90))));
+		highPointArr = highPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, -90))));
+		highPointArr = highPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, 30))));
+		highPointArr = highPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, -30))));
+
 		highPointArr.forEach((hp: JGridPoint) => {
-			//if (!hp._cell.info.isLand || Math.abs(hp._point.y) == 90) {
+			// if (!hp._cell.info.isLand || Math.abs(hp._point.y) == 90) {
 				out.push({
-					point: hp._point, 
-					mag: (hp._cell.info.isLand) ? 0.999*MAG : MAG // */ 10 /** hp.getPixelArea() + 10*/
+					point: hp._point,
+					mag: (hp._cell.info.isLand) ? 0.4999 * MAG : MAG // */ 10 /** hp.getPixelArea() + 10
 				})
-			//}
+				pressureCentersLocation[hp.colValue][hp.rowValue] = 1;
+			// }
 		})
 
 		//
 		let lowPointArr: JGridPoint[] = [];
-		lowPointArr = lowPointArr.concat( arr.map((n: number) => this._grid.getGridPoint(new JPoint(n,0))) );
-		lowPointArr = lowPointArr.concat( arr.map((n: number) => this._grid.getGridPoint(new JPoint(n,60 ))) );
-		lowPointArr = lowPointArr.concat( arr.map((n: number) => this._grid.getGridPoint(new JPoint(n,-60 ))) );
+		lowPointArr = lowPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, 0))));
+		lowPointArr = lowPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, 60))));
+		lowPointArr = lowPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, -60))));
 
 		lowPointArr.forEach((lp: JGridPoint) => {
-			// if (lp._cell.info.isLand || Math.abs(lp._point.y) == 0) {
-				out.push({
-					point: lp._point, 
-					mag: 4/3 * (lp._cell.info.isLand ? -MAG : -0.999*MAG) // */-10 /** lp.getPixelArea() - 10*/
-				})
-			//}
+			// if (lp._cell.info.isLand || Math.abs(lp._point.y) == 750) {
+			out.push({
+				point: lp._point,
+				mag: 4 / 3 * (lp._cell.info.isLand ? -MAG : -0.4999 * MAG) // -10 /** lp.getPixelArea() - 10
+			})
+			pressureCentersLocation[lp.colValue][lp.rowValue] = -1;
+			// }
 		})
-		
+
+*/
+
+		out.forEach((val: IPressureZone) => {
+			magProm += val.mag;
+			if (val.mag > 0) posProm += val.mag;
+			else negProm += val.mag;
+		})
+
+		// out.forEach((val: IPressureZone) => {
+		// 	if (val.mag < 0) {
+		// 		val.mag = (val.mag - magProm >= 0) ? val.mag + negProm : val.mag - magProm;
+		// 	} else {
+		// 		val.mag = (val.mag - magProm <= 0) ? val.mag + posProm : val.mag - magProm;
+		// 	}
+		// })
+
 
 		console.timeEnd('calc pressure centers')
-		return out;
+		return {
+			pressCenter: out,
+			locationGrid: pressureCentersLocation
+		};
 	}
 
 

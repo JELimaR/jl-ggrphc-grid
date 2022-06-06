@@ -104,6 +104,14 @@ export default class JGrid {
 		return this._points.length;
 	}
 
+	forEachPoint(func: (gp: JGridPoint, col: number, row: number) => void) {
+		this._points.forEach((col: JGridPoint[], cidx: number) => {
+			col.forEach((gp: JGridPoint, ridx: number) => {
+				func(gp, cidx, ridx);
+			})
+		})
+	}
+
 	getGridPointIndexes(p: JPoint) {
 		if (Math.abs(p.x) > 180 || Math.abs(p.y) > 90)
 			throw new Error(`el punto: ${p.toTurfPosition()} se encuentra fuera de rango`)
