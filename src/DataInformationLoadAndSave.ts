@@ -11,6 +11,7 @@ import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
 import { IJCellHeightInfo } from './CellInformation/JCellHeight';
 import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
 import { IPressureDataGrid } from './heightmap/JPressureGrid';
+import { IPrecipData } from './heightmap/JPrecipGrid'
 
 export default class DataInformationFilesManager {
 	static _instance: DataInformationFilesManager;
@@ -212,6 +213,24 @@ export default class DataInformationFilesManager {
 	saveGridPressure(data: IPressureDataGrid[][], gran: number): void {
 		fs.mkdirSync(`${this._dirPath}/GridInfo`, {recursive: true});
 		let pathName: string = `${this._dirPath}/GridInfo/G${gran}pressure.json`;
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+
+	//
+	loadGridPrecip(gran: number): IPrecipData[][] {
+		let out: IPrecipData[][] = [];
+		try {
+			let pathName: string = `${this._dirPath}/GridInfo/G${gran}precip.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+			
+		}
+		return out;
+	}
+
+	saveGridPrecip(data: IPrecipData[][], gran: number): void {
+		fs.mkdirSync(`${this._dirPath}/GridInfo`, {recursive: true});
+		let pathName: string = `${this._dirPath}/GridInfo/G${gran}precip.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 

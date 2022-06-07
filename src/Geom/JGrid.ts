@@ -180,9 +180,9 @@ export default class JGrid {
 		return out;
 	}
 
-	//dada una lista de puntos de recorrido horizontal, (un punto para cada columna), se devuelve el recorrido "suavzado"
-	soft(points: JPoint[]): JGridPoint[] {
-		return points.map((p: JPoint, idx: number) => {
+	//dada una lista de puntos de recorrido horizontal, (un punto para cada columna), se devuelve el recorrido "suavizado"
+	soft(points: JPoint[], miny: number = -90, maxy: number = 90): JGridPoint[] {
+		let out: JPoint[] = points.map((p: JPoint, idx: number) => {
 			let val: number = 0, cant = 0;
 			let arr: number[] = [];
 			const stepCantMed: number = Math.round(10 / this._granularity);
@@ -193,9 +193,13 @@ export default class JGrid {
 					cant++;
 				}
 			})
-			return this.getGridPoint(
-				new JPoint(p.x, this._granularity * Math.round(val / cant / this._granularity))
-			);
+			return new JPoint(p.x, this._granularity * Math.round(val / cant / this._granularity));
+		})
+		
+		return out.map((point: JPoint) => {
+			const y = inRange(point.y, miny, maxy);
+			const x = point.x;
+			return this.getGridPoint(new JPoint(x,y));
 		})
 	}
 }
