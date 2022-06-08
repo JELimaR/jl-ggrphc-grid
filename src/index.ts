@@ -35,6 +35,7 @@ import HeightGridData from './heightmap/HeightGridData';
 import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
 import { applyCoriolis, calcCoriolisForce, calcFieldInPoint } from './Climate/JPressureFieldFunctions';
 import { IMovementState, calcMovementState } from "./Geom/Movement";
+import JPrecipGrid from './heightmap/JPrecipGrid';
 
 const tam: number = 3600;
 let SIZE: JVector = new JVector({ x: tam, y: tam / 2 });
@@ -51,7 +52,7 @@ const azgaarFolder: string[] = [
 	'Mont100',
 	'Itri100'
 ];
-const folderSelected: string = azgaarFolder[2];
+const folderSelected: string = azgaarFolder[8];
 
 console.log('folder:', folderSelected)
 
@@ -118,7 +119,7 @@ console.log('tmin', tempMinArr.map((cell: JCell, idx) => {
 let tempGrid = new JClimateGrid(world.grid);
 console.log(tempGrid.getPressureCenters(2).pressCenter.length)
 const tempStep = 5;
-const monthArr = [1, 2, 3, 4, 5, 6, 7];
+const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 // const gcg = new GeoCoordGrid();
 // const hgd = new HeightGridData(gcg);
@@ -270,48 +271,48 @@ dataPrecip = ws.precip.get(month) as { value: number; cant: number; }[][];
 dm2.saveDrawFile(`tempWind.png`);
 */
 // moisture
-let dataPrecip: { value: number, cant: number }[][];
-const ws = pressGrid.windSim();
+const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid)
+const dataPrecip = precipGrid._precipData;
 colorScale = chroma.scale('Spectral').domain([450, 0]);
 
 for (let month of monthArr) {
 	dm2.clear();
-	dataPrecip = ws.precip.get(month)!;
-	console.log(dataPrecip.length)
-	let mmax: number = -Infinity;
-	world.grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {	
-		const prom = dataPrecip[cidx][ridx].value / dataPrecip[cidx][ridx].cant;
-		if (gp._cell.info.isLand) {
-			if (mmax < prom) mmax = prom;
-		}
-	})
 	
-	console.log(mmax)
 	world.grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 		
-		//let pd: number = pressGrid._pressureData[cidx][ridx]._pots[month - 1] - mmm.med;
-		//let temp: number = tempGrid._tempData[cidx][ridx].tempMonth[month - 1] + 15;
-		//if (pd < (mmm.min - mmm.med) * 0.5) pd = (mmm.min - mmm.med) * 0.5;
-		//if (pd > (mmm.max - mmm.med) * 0.5) pd = (mmm.max - mmm.med) * 0.5;
-		const val = dataPrecip[cidx][ridx] //+ 0.25 * mmax * (-pd/(mmm.max-mmm.min) * 0.5 + 0.5 ) // * temp/50);
+		const val: number = dataPrecip[cidx][ridx].precip[month-1]
 
-		const alpha = (gp._cell.info.isLand) ? 1 : 0.6;
+		const alpha = (gp._cell.info.isLand) ? 1 : 0.1;
 
-		color = colorScale(val.value / val.cant * 6).alpha(alpha).hex();
+		color = colorScale(val).alpha(alpha).hex();
 
 		dm2.drawDot(gp._point, {
 			strokeColor: color,
 			fillColor: color,
 		}, GRAN)
 
-		if (ridx % 5 == 0 && cidx % 5 == 0) {
-			//console.log(cidx, ridx, val)
-		}
 	})
 	
 	dm2.drawMeridianAndParallels();
 	dm2.saveDrawFile(`moisture${(month < 10 ? `0${month}` : `${month}`)}.png`);
 }
+
+// anual
+dm.clear();
+colorScale = chroma.scale('Spectral').domain([4500, 0]);
+world.grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+	let val = 0;
+	precipGrid._precipData[cidx][ridx].precip.forEach((m: number) => val += m);
+	
+	const alpha = (gp._cell.info.isLand) ? 1 : 0.1;
+	color = colorScale(val).alpha(alpha).hex();
+	dm2.drawDot(gp._point, {
+		strokeColor: color,
+		fillColor: color,
+	}, GRAN)
+})
+dm2.drawMeridianAndParallels();
+dm2.saveDrawFile(`moistureAnual.png`)
 
 
 /*
