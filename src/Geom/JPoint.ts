@@ -3,6 +3,10 @@ import * as turf from '@turf/turf'
 import { Vertex } from 'voronoijs';
 import Coord from './Coord';
 
+interface IPoint {
+	x: number, y: number
+}
+
 export default class JPoint {
 	private _x: number;
 	private _y: number;
@@ -124,8 +128,19 @@ export default class JPoint {
 		return greatCircle.geometry.coordinates.map((tp: any) => new JPoint(tp[0], tp[1]));
 	}
 
+	// static constructors
+	static fromInterface(ip: IPoint): JPoint {
+		return new JPoint( ip.x, ip.y);
+	}
+
 	scalarprod( b: JPoint ): number {
 		return this._x*b.x+this._y*b.y;
+	}
+
+	getInterface(): IPoint {
+		return {
+			x: this._x, y: this._y
+		}
 	}
 }
 

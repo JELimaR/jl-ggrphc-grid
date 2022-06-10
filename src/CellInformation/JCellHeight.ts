@@ -55,7 +55,7 @@ export default class JCellHeight {
 	}
 
 	get height(): number {return this._height}
-	get heightInMeters(): number { return 6121.258 * ((this._height - 0.2)/0.8) ** 2.2 } // corregir
+	get heightInMeters(): number { return 6121.258 * ((this._height - 0.2)/0.8) ** 1.8 } // corregir
 	get prevHeight(): number {return this._prevHeight}
 	get heightType(): TypeCellheight {return this._heightType}
 	set height(h: number) {

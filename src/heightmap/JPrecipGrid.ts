@@ -1,7 +1,8 @@
 import JGrid, {JGridPoint} from '../Geom/JGrid';
-import JPressureGrid, {IPrecipDataGenerated} from './JPressureGrid';
+import JPressureGrid, {IPrecipDataGenerated, IWindRoute, JWindRoutePoint} from './JPressureGrid';
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 import JPoint from '../Geom/JPoint';
+import JWindSimulate from './JWindSimulate';
 const dataInfoManager = DataInformationFilesManager.instance;
 
 export interface IPrecipData {
@@ -21,16 +22,36 @@ export default class JPrecipGrid {
 		let out: IPrecipData[][] = dataInfoManager.loadGridPrecip(this._grid._granularity);
 		if (out.length == 0) {
 			out = [];
-			const ws = pressGrid.windSim();
+			const jws: JWindSimulate = new JWindSimulate(pressGrid);
+			const ws = jws.windSim();
 	
 			ws.precip.forEach((generated: IPrecipDataGenerated[][], month: number) => {
 				this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 					if (!out[cidx]) out[cidx] = [];
-					if (!out[cidx][ridx]) out[cidx][ridx] = {precip: []};
-					out[cidx][ridx].precip[month-1] = generated[cidx][ridx].value / generated[cidx][ridx].cant * 6;
+					if (!out[cidx][ridx]) out[cidx][ridx] = {precip: []/*, routes: []*/};
+					const gen = generated[cidx][ridx];
+					out[cidx][ridx].precip[month-1] = gen.cant === 0 ? 0 : gen.value / gen.cant;
+				})
+				
+			})
+			/*
+			ws.routes.forEach((route: JWindRoutePoint[][][], month: number) => {
+				this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+					out[cidx][ridx].routes[month-1] = route[cidx][ridx];
 				})
 			})
+			*/
 			out = this.smoothData(out);
+
+			let precipMax: number = 0;
+			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+				const gmax = Math.max(...out[cidx][ridx].precip);
+				if (precipMax < gmax) precipMax = gmax;
+			})
+
+			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => r * 750/precipMax)
+			})
 			
 			dataInfoManager.saveGridPrecip(out, this._grid._granularity);
 		}
@@ -42,6 +63,8 @@ export default class JPrecipGrid {
 		let dout: IPrecipData[][] = [];
 
 		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+			const h = gp._cell.info.height;
+			
 			if (!dout[cidx]) dout[cidx] = [];
 			let precipArr: number[] = [];
 			din[0][0].precip.forEach((v: number) => { precipArr.push(0) })
@@ -51,7 +74,10 @@ export default class JPrecipGrid {
 					precipArr[mi] += din[gpw.colValue][gpw.rowValue].precip[mi];
 				})
 			})
-			dout[cidx][ridx] = {precip: precipArr.map((v:number) => v/neigs.length)};
+			dout[cidx][ridx] = {
+				precip: precipArr.map((v:number, i: number) => 0.5*v/neigs.length + 0.5 * din[cidx][ridx].precip[i]),
+				// routes: din[cidx][ridx].routes
+			};
 		})
 
 		return dout;

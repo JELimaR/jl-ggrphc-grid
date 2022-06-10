@@ -1,10 +1,12 @@
 import JCell from "../Voronoi/JCell";
 import JCellHeight, {IJCellHeightInfo} from './JCellHeight';
+import JCellClimate, {IJCellClimateInfo} from './JCellClimate';
 import JCellTemp, { IJCellTempInfo } from './JCellTemp';
 
 export default class JCellInformation {
 	_cell: JCell
 	_height: JCellHeight | undefined;
+	_climate: JCellClimate | undefined;
 	_temp: JCellTemp | undefined;
 
 	private _mark: boolean = false;
@@ -47,5 +49,14 @@ export default class JCellInformation {
 		let out: number = 0;
 		this._temp!.tempMonth.forEach((t: number) => out += t)
 		return out/12;
+	}
+
+	/*
+	 * climate
+	 */
+	setClimatetInfo(c: IJCellClimateInfo) { this._climate = new JCellClimate(this._cell, c);	}
+	getClimateInfo(): IJCellClimateInfo | undefined { return this._climate!.getInterface(); }	
+	get cellClimate(): JCellClimate {
+		return this._climate!;
 	}
 }

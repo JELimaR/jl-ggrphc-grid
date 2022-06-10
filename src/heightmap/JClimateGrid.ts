@@ -98,7 +98,7 @@ export default class JClimateGrid {
 		})
 
 		/*  */
-		return this._grid.soft(itczPoints, -15, 15)
+		return this._grid.soft(itczPoints, -12, 12)
 	}
 
 	getHorseLatPoints(month: number | 'med', hemisf: 'n' | 's'): JGridPoint[] {

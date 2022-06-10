@@ -3,6 +3,7 @@ import fs from 'fs';
 
 import JCell from './Voronoi/JCell';
 import { IJContinentInfo, IJCountryInfo, IJIslandInfo, IJStateInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/JRegionMap';
+import JPoint, { JVector } from './Geom/JPoint';
 // import { IJDiagramInfo } from './Voronoi/JDiagram';
 // import { IJEdgeInfo } from './Voronoi/JEdge';
 import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
@@ -10,8 +11,9 @@ import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
 // import { IJCellInformation } from './CellInformation/JCellInformation';
 import { IJCellHeightInfo } from './CellInformation/JCellHeight';
 import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
-import { IPressureDataGrid } from './heightmap/JPressureGrid';
+import { IPressureDataGrid, IWindRoute, JWindRoutePoint } from './heightmap/JPressureGrid';
 import { IPrecipData } from './heightmap/JPrecipGrid'
+
 
 export default class DataInformationFilesManager {
 	static _instance: DataInformationFilesManager;
@@ -21,7 +23,7 @@ export default class DataInformationFilesManager {
 	private constructor() {}
 
 	static get instance(): DataInformationFilesManager {
-		if (!this._instance) {
+		if (!DataInformationFilesManager._instance) {
 			this._instance = new DataInformationFilesManager();
 		}
 		return this._instance;
@@ -217,6 +219,7 @@ export default class DataInformationFilesManager {
 	}
 
 	//
+
 	loadGridPrecip(gran: number): IPrecipData[][] {
 		let out: IPrecipData[][] = [];
 		try {
@@ -224,14 +227,14 @@ export default class DataInformationFilesManager {
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
 			
-		}
+		}		
 		return out;
 	}
 
-	saveGridPrecip(data: IPrecipData[][], gran: number): void {
+	saveGridPrecip(precipData: IPrecipData[][], gran: number): void {
 		fs.mkdirSync(`${this._dirPath}/GridInfo`, {recursive: true});
 		let pathName: string = `${this._dirPath}/GridInfo/G${gran}precip.json`;
-		fs.writeFileSync(pathName, JSON.stringify(data));
+		fs.writeFileSync(pathName, JSON.stringify(precipData));
 	}
 
 	// islands o masas

@@ -5,14 +5,12 @@ import { applyCoriolis, calcCoriolisForce, calcFieldInPoint } from '../Climate/J
 
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 import JClimateGrid from "./JClimateGrid";
-import { calcMovementState, IMovementState } from "../Geom/Movement";
+// import { calcMovementState, IMovementState } from "../Geom/Movement";
 const dataInfoManager = DataInformationFilesManager.instance;
 
 /*********************************************************************************************************/
 const sat: number = 60000;
 const TOTALPRECIPMAX = 400000;
-const MASS = 1;
-const time = .075;
 const roz = 0.7;
 const MAXEVAP = 100;
 const MAXRAIN = 100;
@@ -23,13 +21,37 @@ export interface IPressureZone {
 	point: JPoint;
 }
 
-export interface IPressureDataGrid { // debe ser por mes
+export interface IPressureDataGrid {
 	vecs: { x: number, y: number }[],
 	pots: number[],
 }
 
-interface IWindRoute {
-	point: JPoint,
+export class JWindRoutePoint {
+	constructor(
+		public point: JPoint,
+		public precipOut: number,
+		public evapOut: number,
+		public accOut: number
+	) {}
+
+	static fromInterface(wr: IWindRoute) {
+		return new JWindRoutePoint(
+			JPoint.fromInterface(wr.point), wr.precipOut,	wr.evapOut, wr.accOut
+		)
+	}
+
+	getInterface(): IWindRoute {
+		return {
+			point: {x: this.point.x, y: this.point.y},
+			precipOut: this.precipOut,
+			evapOut: this.evapOut,
+			accOut: this.accOut,
+		}
+	}
+}
+
+export interface IWindRoute {
+	point: {x: number, y: number},
 	precipOut: number,
 	evapOut: number,
 	accOut: number,
@@ -92,7 +114,7 @@ export default class JPressureGrid {
 					let potData: number[] = [];
 					this._pressureCenters.forEach((pcs: IPressureZone[], m: number) => {
 						let { vec, pot } = calcFieldInPoint(gp._point, pcs);
-						vecData[m - 1] = { x: vec.x, y: vec.y };
+						vecData[m - 1] = vec.getInterface();
 						potData[m - 1] = pot;
 					})
 					dataCol.push({
@@ -107,6 +129,7 @@ export default class JPressureGrid {
 				info.push(dataCol);
 			})
 
+			// info = this.smoothData(info);
 			this._pressureCenters.forEach((pcs: IPressureZone[], m: number) => {
 				let med: number = 0;
 				info.forEach((infoCol: IPressureDataGrid[]) => {
@@ -121,10 +144,8 @@ export default class JPressureGrid {
 					})
 				})
 			})
-			// info = this.smoothData(info);
 			dataInfoManager.saveGridPressure(info, this._grid._granularity)
 		}
-
 
 		info.forEach((col: IPressureDataGrid[], c: number) => {
 			let outCol: PressureData[] = [];
@@ -137,30 +158,30 @@ export default class JPressureGrid {
 		console.timeEnd('set pressures info');
 		return out;
 	}
-	/*
-		smoothData(info: IPressureDataGrid[][]): IPressureDataGrid[][] {
-			let out: IPressureDataGrid[][] = [];
-			this._grid._points.forEach((col: JGridPoint[], colIdx: number) => {
 	
-				let dataCol: IPressureDataGrid[] = [];
-				col.forEach((gp: JGridPoint, rowIdx: number) => {
-					let potValArr: number[] = [...info[colIdx][rowIdx].pots], cant: number = 1;
-					this._grid.getGridPointsInWindowGrade(gp._point, 2).forEach((wp: JGridPoint) => {
-						const indexes = this._grid.getGridPointIndexes(wp._point);
-						cant++;
-						info[indexes.c][indexes.r].pots.forEach((p: number, i: number) => potValArr[i] += p)
-					});
-					dataCol.push({
-						pots: potValArr.map((v: number) => v / cant),
-						vecs: info[colIdx][rowIdx].vecs
-					})
-	
-					out.push(dataCol)
+	smoothData(info: IPressureDataGrid[][]): IPressureDataGrid[][] {
+		let out: IPressureDataGrid[][] = [];
+		this._grid._points.forEach((col: JGridPoint[], colIdx: number) => {
+
+			let dataCol: IPressureDataGrid[] = [];
+			col.forEach((gp: JGridPoint, rowIdx: number) => {
+				let potValArr: number[] = [...info[colIdx][rowIdx].pots], cant: number = 1;
+				this._grid.getGridPointsInWindowGrade(gp._point, 5).forEach((wp: JGridPoint) => {
+					const indexes = this._grid.getGridPointIndexes(wp._point);
+					cant++;
+					info[indexes.c][indexes.r].pots.forEach((p: number, i: number) => potValArr[i] += p)
+				});
+				dataCol.push({
+					pots: potValArr.map((v: number) => v / cant),
+					vecs: info[colIdx][rowIdx].vecs
 				})
+
+				out.push(dataCol)
 			})
-			return out;
-		}
-	*/
+		})
+		return out;
+	}
+	
 	getPointInfo(p: JPoint): PressureData {
 		const indexes = this._grid.getGridPointIndexes(p);
 		return this._pressureData[indexes.c][indexes.r];
@@ -206,21 +227,21 @@ export default class JPressureGrid {
 		return out;
 	}
 
-	/*************************** SIMULATION ************************************/
+	/*************************** SIMULATION ************************************
 	windSim() {
 		let precipOut: Map<number, IPrecipDataGenerated[][]> = new Map<number, IPrecipDataGenerated[][]>();
-		let routeOut: Map<number, Array<IWindRoute>[][]> = new Map<number, Array<IWindRoute>[][]>();
+		let routeOut: Map<number, Array<JWindRoutePoint>[][]> = new Map<number, Array<JWindRoutePoint>[][]>();
 
 		console.time('wind sim iteration')
 		this._pressureCenters.forEach((pcs: IPressureZone[], m: number) => {
 			console.log('month:', m);
 			let dataPrecip: IPrecipDataGenerated[][] = [];
-			// let dataRoutes: Array<IWindRoute>[][] = [];
+			let dataRoutes: Array<JWindRoutePoint>[][] = [];
 			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 				if (!dataPrecip[cidx]) dataPrecip[cidx] = [];
 				dataPrecip[cidx][ridx] = { value: 0, cant: 0 };
-				// if (!dataRoutes[cidx]) dataRoutes[cidx] = [];
-				// dataRoutes[cidx][ridx] = [];
+				if (!dataRoutes[cidx]) dataRoutes[cidx] = [];
+				dataRoutes[cidx][ridx] = [];
 			})
 
 			let sortedList: JGridPoint[] = this.getPointsSorted(m);
@@ -235,21 +256,21 @@ export default class JPressureGrid {
 				const gp: JGridPoint = sortedList.shift() as JGridPoint;
 				if (gp._cell.isMarked()) continue
 
-				let route: IWindRoute[] = [];
+				let route: JWindRoutePoint[] = [];
 				const currPos: JPoint = new JPoint(gp._point.x, gp._point.y);
-
-				if (this._pressureCentersLocationGrid.get(m)![gp.colValue][gp.rowValue] !== 1) {
-					const wsOut = this.windSimIteration(currPos, m, dataPrecip, route);
+				let wsOut: { dataPrecip: IPrecipDataGenerated[][], route: JWindRoutePoint[] } = {dataPrecip: [], route: []}
+				// if (this._pressureCentersLocationGrid.get(m)![gp.colValue][gp.rowValue] !== 1) {
+					wsOut = this.windSimIteration(currPos, m, dataPrecip, route);
 					dataPrecip = wsOut.dataPrecip;
 					// dataRoutes[gp.colValue][gp.rowValue] = wsOut.route;
-				}
+				//}
+				
 			}
-
 			this._grid.forEachPoint((gp: JGridPoint) => {
 				gp._cell.dismark();
 			})
 			precipOut.set(m, dataPrecip);
-			// routeOut.set(m, dataRoutes);
+			routeOut.set(m, dataRoutes);
 		})
 
 		return {
@@ -258,7 +279,7 @@ export default class JPressureGrid {
 		}
 	}
 
-	windSimIteration(initPoint: JPoint, month: number, dataPrecip: IPrecipDataGenerated[][], route: IWindRoute[]): { dataPrecip: IPrecipDataGenerated[][], route: IWindRoute[] } {
+	windSimIteration(initPoint: JPoint, month: number, dataPrecip: IPrecipDataGenerated[][], route: JWindRoutePoint[]): { dataPrecip: IPrecipDataGenerated[][], route: JWindRoutePoint[] } {
 
 		route = [];
 		let currPos = initPoint;
@@ -269,9 +290,9 @@ export default class JPressureGrid {
 
 		let cont: number = 0;
 		let it: number = 0;
-		for (it = 0; it < 5000 && cont < 100; it++) {
+		for (it = 0; it < 5000 && cont < 10; it++) {
 			if (this.isCloseLowPressure(currPos, month)) cont++;
-			if ((!!gpprev && !!gpnew && gpprev === gpnew)) cont += 0.1//0.25 0.01;
+			if ((!!gpprev && !!gpnew && gpprev === gpnew)) cont += 0.25//0.25 0.01;
 			else cont = 0;
 
 			gpprev = this._grid.getGridPoint(currPos);
@@ -280,10 +301,10 @@ export default class JPressureGrid {
 			// calc force
 			let pd: PressureData = this.getPointInfo(currPos);
 			let vec: JPoint = pd.vecs[month - 1];
-			let cor: JPoint = /*new JPoint(0,0) //*/calcCoriolisForce({ pos: currPos, vel: currVel }, MASS);
+			let cor: JPoint = calcCoriolisForce({ pos: currPos, vel: currVel }, MASS);
 			let netForce = vec.add(cor).sub(currVel.scale(roz));
 			// new state
-			const newState: IMovementState = calcMovementState({ pos: currPos, vel: currVel }, netForce, MASS, time);
+			const newState: IMovementState = calcMovementState({ pos: currPos, vel: currVel }, netForce, MASS, time, this._grid._granularity);
 			currPos = JPoint.pointToCoord(newState.pos);
 			currVel = newState.vel;
 			gpnew = this._grid.getGridPoint(currPos);
@@ -294,7 +315,8 @@ export default class JPressureGrid {
 				accOut,
 			} = this.calcMoistureValuesIter(gpnew._cell.info.height, pd.pots[month - 1], acc, gpprev._cell.info.tempMonthArr[month - 1], gpprev._cell.info.isLand, this.getMaxMedMin(month));
 			acc = accOut;
-			route.push({ point: currPos, accOut, evapOut, precipOut })
+			if (gpprev !== gpnew)
+				route.push( new JWindRoutePoint( currPos, accOut, evapOut, precipOut ));
 
 			// asignar
 			dataPrecip[gpprev.colValue][gpprev.rowValue].value += Math.cos(gpprev._point.y * Math.PI / 180) * precipOut;
@@ -304,6 +326,7 @@ export default class JPressureGrid {
 				dataPrecip[gpn.colValue][gpn.rowValue].value += Math.cos(gpprev!._point.y * Math.PI / 180) * precipOut * 0.65;
 				dataPrecip[gpn.colValue][gpn.rowValue].cant++;
 			})
+		
 		}
 
 		return {
@@ -324,24 +347,39 @@ export default class JPressureGrid {
 
 		// pressValue
 		let pval: number = 0;
-		pval = ((-pressValue + mmm.max * 1.1) / (mmm.max - mmm.min)) ** 0.95;
+		if (pressValue == 0) throw new Error('pressValue es 0')
+		pval = (pressValue > 0) ? pressValue/mmm.max: -mmm.min/pressValue/mmm.min; // entre -1 y 1
+		if (Math.abs(pval) < 0.02) 
+			pval = (pval > 0) ? 0.02 : -0.02;
+		
+		pval = ((pval > 0) ? 1/pval : 100 + 1/pval) / 100;// (mmm.max - mmm.min)
+		if (pval < 0) console.log(pval)
+		pval = pval ** 1;
+
 
 		// nextHeight
-		if (nextHeight >= 0.8) {
-			precipOut = (nextHeight) ** 0.25 * acc * pval;
+		if (nextHeight >= 0.85) {
+			precipOut = (nextHeight) ** 0.25 * MAXRAIN;
 		} else if (nextHeight >= 0.2) {
-			let exponent = (nextHeight < 0.5) ? 3 : ((nextHeight < 0.7) ? 2 : 0.5);
-			precipOut = (nextHeight) ** exponent * acc * pval;
+			let exponent = (nextHeight < 0.5) ? 2 : ((nextHeight < 0.7) ? 1.5 : 0.45);
+			precipOut = 0.5 * ((nextHeight) ** exponent + pval) * MAXRAIN;
+			if (precipOut > acc) precipOut = acc;
 
 			if (temp - tempMin > 0) {
-				evapOut = ((temp - tempMin) / (35 - tempMin)) * (precipOut + precipOut * pval * 0.15);
+				evapOut = ((temp - tempMin) / (35 - tempMin)) * (precipOut + MAXRAIN * pval * 0.15);
+				//evapOut = ((temp - tempMin) / (35 - tempMin)) * (precipOut + MAXRAIN * pval * 0.15);
 			}
 		} else {
-			precipOut = (0.15 ** 3) * acc * pval;
-			evapOut = ((temp - tempMin) / (35 - tempMin)) * (MAXEVAP + MAXRAIN * pval * 0.25);
+			precipOut =  0.4 * ((0.1 ** 2) + pval) * MAXRAIN;
+			if (precipOut > acc) precipOut = acc;
+			if (temp - tempMin > 0)
+				evapOut = ((temp - tempMin) / (35 - tempMin)) * (MAXEVAP + MAXRAIN * pval * 0.25);
 		}
 
+		// precip real value
 		if (precipOut > MAXRAIN) precipOut = MAXRAIN;
+		if (precipOut > acc) precipOut = acc;
+		// evap real value
 		if (evapOut > MAXEVAP) evapOut = MAXEVAP;
 
 		accOut = (nextHeight >= 0.8) ? 0 : acc + evapOut - precipOut;
@@ -355,4 +393,5 @@ export default class JPressureGrid {
 		}
 	}
 
+*/
 }
