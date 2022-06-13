@@ -1,5 +1,5 @@
 import JPoint from "../Geom/JPoint";
-import JClimateGrid from "../heightmap/JClimateGrid";
+import JTempGrid from "../heightmap/JTempGrid";
 
 interface IPressureZone {
 	mag: number;
@@ -28,24 +28,6 @@ export const calcFieldInPoint = (point: JPoint, pressureCenters: IPressureZone[]
 	})
 
 	return { vec: out, pot: magSum };
-}
-
-export const applyCoriolis = (point: JPoint, vec: JPoint, tempGrid: JClimateGrid) => {
-	let out = vec.normalize();
-	const lat: number = point.y;
-	const indexes = tempGrid._grid.getGridPointIndexes(point);
-	const dev: number = 0//tempGrid.getITCZPoints(4)[indexes.r]!._point.y;
-	const angle = lat - dev;
-	const grad2radConst = Math.PI / 180;
-	//if (angle > 100) {
-		out = out.add(out.rightPerp().scale(MAGCOR * Math.sin(grad2radConst * angle))).normalize()
-	//} else if (angle < -1) {
-	//	out = out.add(out.leftPerp().scale(MAGCOR * Math.cos(grad2radConst * angle))).normalize()
-	//} else {
-
-	//}
-
-	return out;
 }
 
 const VELROTVALUE: number = 2;

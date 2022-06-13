@@ -1,13 +1,13 @@
 import JCell from "../Voronoi/JCell";
 import JCellHeight, {IJCellHeightInfo} from './JCellHeight';
 import JCellClimate, {IJCellClimateInfo} from './JCellClimate';
-import JCellTemp, { IJCellTempInfo } from './JCellTemp';
+// import JCellTemp, { IJCellTempInfo } from './JCellTemp';
 
 export default class JCellInformation {
 	_cell: JCell
 	_height: JCellHeight | undefined;
 	_climate: JCellClimate | undefined;
-	_temp: JCellTemp | undefined;
+	// _temp: JCellTemp | undefined;
 
 	private _mark: boolean = false;
 
@@ -38,18 +38,18 @@ export default class JCellInformation {
 	/*
 	 * temp
 	 */
-	setTempInfo(t: IJCellTempInfo) { this._temp = new JCellTemp(this._cell, t);	}
-	getTempInfo(): IJCellTempInfo | undefined { return this._temp!.getInterface();	}
-	get cellTemp(): JCellTemp {
-		return this._temp!;
-	}
+	// setTempInfo(t: IJCellTempInfo) { this._temp = new JCellTemp(this._cell, t);	}
+	// getTempInfo(): IJCellTempInfo | undefined { return this._temp!.getInterface();	}
+	// get cellTemp(): JCellTemp {
+	// 	return this._temp!;
+	// }
 
-	get tempMonthArr(): number[] { return this._temp!.tempMonth }
-	get tempMedia(): number { 
-		let out: number = 0;
-		this._temp!.tempMonth.forEach((t: number) => out += t)
-		return out/12;
-	}
+	// get tempMonthArr(): number[] { return this._temp!.tempMonth }
+	// get tempMedia(): number { 
+	// 	let out: number = 0;
+	// 	this._temp!.tempMonth.forEach((t: number) => out += t)
+	// 	return out/12;
+	// }
 
 	/*
 	 * climate
@@ -59,4 +59,11 @@ export default class JCellInformation {
 	get cellClimate(): JCellClimate {
 		return this._climate!;
 	}
+
+	get tempMonthArr(): number[] { return this._climate!.tempMonth }
+	// get tempMedia(): number { 
+	// 	let out: number = 0;
+	// 	this._temp!.tempMonth.forEach((t: number) => out += t)
+	// 	return out/12;
+	// }
 }

@@ -129,8 +129,8 @@ export default class JGrid {
 	getGridPointsInWindow(point: JPoint, windKm: number): JGridPoint[] {
 		let out: JGridPoint[] = [];
 
-		this.getGridPointsInWindowGrade(point, windKm / 30).forEach((gp: JGridPoint) => {
-			if (JPoint.geogDistance(point, gp._point) < windKm) {
+		this.getGridPointsInWindowGrade(point, windKm / 3).forEach((gp: JGridPoint) => {
+			if (JPoint.geogDistance(point, gp._point) <= windKm) {
 				out.push(gp);
 			}
 		})

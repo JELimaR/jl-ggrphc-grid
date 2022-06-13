@@ -10,7 +10,7 @@ import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
 // import { IJCellInformation } from './Voronoi/JCellInformation';
 // import { IJCellInformation } from './CellInformation/JCellInformation';
 import { IJCellHeightInfo } from './CellInformation/JCellHeight';
-import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
+// import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
 
 export default class PNGDrawsDataManager {
 	static _instance: PNGDrawsDataManager;

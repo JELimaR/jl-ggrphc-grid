@@ -10,9 +10,10 @@ import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
 // import { IJCellInformation } from './Voronoi/JCellInformation';
 // import { IJCellInformation } from './CellInformation/JCellInformation';
 import { IJCellHeightInfo } from './CellInformation/JCellHeight';
-import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
-import { IPressureDataGrid, IWindRoute, JWindRoutePoint } from './heightmap/JPressureGrid';
+// import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
+import { IPressureDataGrid } from './heightmap/JPressureGrid';
 import { IPrecipData } from './heightmap/JPrecipGrid'
+import { ITempDataGrid } from './heightmap/JTempGrid';
 
 
 export default class DataInformationFilesManager {
@@ -179,10 +180,31 @@ export default class DataInformationFilesManager {
 	}
 
 	// climate info cell
-	loadCellsTemperature(tam: number): IJCellTempInfo[] {
-		let out: IJCellTempInfo[] = [];
+	// loadCellsTemperature(tam: number): IJCellTempInfo[] {
+	// 	let out: IJCellTempInfo[] = [];
+	// 	try {
+	// 		let pathName: string = `${this._dirPath}/CellsInfo/temperature.json`;
+	// 		out = JSON.parse(fs.readFileSync(pathName).toString());
+	// 	} catch (e) {
+			
+	// 	}
+	// 	return out;
+	// }
+
+	// saveCellsTemperature(mapCells: Map<number, JCell>, tam: number): void {
+	// 	fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
+	// 	let pathName: string = `${this._dirPath}/CellsInfo/temperature.json`;
+	// 	let data: IJCellTempInfo[] = [];
+	// 	mapCells.forEach( (cell: JCell) => {
+	// 		data[cell.id] = cell.info.getTempInfo()!;
+	// 	})
+	// 	fs.writeFileSync(pathName, JSON.stringify(data));
+	// }
+
+	loadGridTemperature(gran: number): ITempDataGrid[][] {
+		let out: ITempDataGrid[][] = [];
 		try {
-			let pathName: string = `${this._dirPath}/CellsInfo/temperature.json`;
+			let pathName: string = `${this._dirPath}/GridInfo/G${gran}temperature.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
 			
@@ -190,13 +212,9 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveCellsTemperature(mapCells: Map<number, JCell>, tam: number): void {
-		fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
-		let pathName: string = `${this._dirPath}/CellsInfo/temperature.json`;
-		let data: IJCellTempInfo[] = [];
-		mapCells.forEach( (cell: JCell) => {
-			data[cell.id] = cell.info.getTempInfo()!;
-		})
+	saveGridTemperature(data: ITempDataGrid[][], gran: number): void {
+		fs.mkdirSync(`${this._dirPath}/GridInfo`, {recursive: true});
+		let pathName: string = `${this._dirPath}/GridInfo/G${gran}temperature.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 

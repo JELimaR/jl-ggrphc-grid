@@ -1,20 +1,12 @@
 import JGrid, { JGridPoint } from "../Geom/JGrid";
 import JPoint from "../Geom/JPoint";
 import * as TempFunctions from '../Climate/JTempFunctions';
-import { applyCoriolis, calcCoriolisForce, calcFieldInPoint } from '../Climate/JPressureFieldFunctions';
+import { calcCoriolisForce, calcFieldInPoint } from '../Climate/JPressureFieldFunctions';
 
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
-import JClimateGrid from "./JClimateGrid";
+import JTempGrid from "./JTempGrid";
 // import { calcMovementState, IMovementState } from "../Geom/Movement";
 const dataInfoManager = DataInformationFilesManager.instance;
-
-/*********************************************************************************************************/
-const sat: number = 60000;
-const TOTALPRECIPMAX = 400000;
-const roz = 0.7;
-const MAXEVAP = 100;
-const MAXRAIN = 100;
-const tempMin = -15;
 
 export interface IPressureZone {
 	mag: number;
@@ -25,39 +17,6 @@ export interface IPressureDataGrid {
 	vecs: { x: number, y: number }[],
 	pots: number[],
 }
-
-export class JWindRoutePoint {
-	constructor(
-		public point: JPoint,
-		public precipOut: number,
-		public evapOut: number,
-		public accOut: number
-	) {}
-
-	static fromInterface(wr: IWindRoute) {
-		return new JWindRoutePoint(
-			JPoint.fromInterface(wr.point), wr.precipOut,	wr.evapOut, wr.accOut
-		)
-	}
-
-	getInterface(): IWindRoute {
-		return {
-			point: {x: this.point.x, y: this.point.y},
-			precipOut: this.precipOut,
-			evapOut: this.evapOut,
-			accOut: this.accOut,
-		}
-	}
-}
-
-export interface IWindRoute {
-	point: {x: number, y: number},
-	precipOut: number,
-	evapOut: number,
-	accOut: number,
-}
-
-export interface IPrecipDataGenerated { value: number, cant: number }
 
 export class PressureData {
 	_vecs: JPoint[];
@@ -88,7 +47,7 @@ export default class JPressureGrid {
 	_mmmData: Map<number, { med: number, max: number, min: number }> = new Map<number, { med: number, max: number, min: number }>();
 	// _tempGrid: JClimateGrid;
 
-	constructor(grid: JGrid, tempGrid: JClimateGrid) {
+	constructor(grid: JGrid, tempGrid: JTempGrid) {
 		this._grid = grid;
 		// this._tempGrid = tempGrid;
 		console.time('set pressures centers');
@@ -144,7 +103,7 @@ export default class JPressureGrid {
 					})
 				})
 			})
-			dataInfoManager.saveGridPressure(info, this._grid._granularity)
+			// dataInfoManager.saveGridPressure(info, this._grid._granularity)
 		}
 
 		info.forEach((col: IPressureDataGrid[], c: number) => {
@@ -172,7 +131,7 @@ export default class JPressureGrid {
 					info[indexes.c][indexes.r].pots.forEach((p: number, i: number) => potValArr[i] += p)
 				});
 				dataCol.push({
-					pots: potValArr.map((v: number) => v / cant),
+					pots: potValArr.map((v: number, i: number) => 0.2 * v / cant + 0.8 * info[colIdx][rowIdx].pots[i]),
 					vecs: info[colIdx][rowIdx].vecs
 				})
 
