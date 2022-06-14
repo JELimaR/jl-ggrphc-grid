@@ -134,7 +134,7 @@ export default class JCellClimate {
 		if (!this._cell.info.isLand) return 'O';
 		if (this.totalPrecip < this.pumbral) return 'B';
 		else if (this.tmin > 18) return 'A';
-		else if (this.tmax > 10 && this.tmin > 0) return 'C'
+		else if (this.tmax >= 10 && this.tmin > -3) return 'C'
 		else if (this.tmax < 10) return 'E';
 		else return 'D'
 	}
@@ -169,14 +169,14 @@ export default class JCellClimate {
 		}
 		return min
 	}
-	get pwhum(): number {
+	get pshum(): number {
 		let max: number = 0;
 		for (let m of this.getMonthsSet().calido) {
 			if (max < this._precipMonth[m - 1]) max = this._precipMonth[m - 1];
 		}
 		return max
 	}
-	get pshum(): number {
+	get pwhum(): number {
 		let max: number = 0;
 		for (let m of this.getMonthsSet().frio) {
 			if (max < this._precipMonth[m - 1]) max = this._precipMonth[m - 1];
@@ -191,25 +191,32 @@ export default class JCellClimate {
 			// A
 			case 'A':
 				if (this.pseco >= 60) return 'Af'
-				if (this.pseco >= 50 - this.totalPrecip/25) return 'Am'
+				if (this.pseco >= 50 - this.totalPrecip/25) return 'Am'//100 - this.totalPrecip/25) return 'Am'
 				return 'Aw';
 			// B
 			case 'B':
 				if (this.totalPrecip < 0.5 * this.pumbral) {
-					if (this.tmed >= 18) return 'BWh'
+					if (this.tmed >= 15) return 'BWh' //if (this.tmed >= 18) return 'BWh'
 					else return 'BWk'
 				} else {
-					if (this.tmed >= 18) return 'BSh'
+					if (this.tmed >= 15) return 'BSh'// if (this.tmed >= 18) return 'BSh'
 					else return 'BSk'
 				}
 			// C
 			case 'C':
-				const tf = (this.tmax >= 22) ? 'a' : ((this.tmon10 >= 4) ? 'b' : 'c');
-				if (this.psseco < 40 && this.psseco < this.pwhum/3) return 'Cs' + tf as TKoppenSubType;
-				if (this.pwseco < this.pshum/10) return 'Cw' + tf as TKoppenSubType;
-				return 'Cf' + tf as TKoppenSubType;
+				const tfc = (this.tmax >= 22) ? 'a' : ((this.tmon10 >= 4) ? 'b' : 'c');
+				if (this.psseco < 40 && this.psseco < this.pwhum/3) return 'Cs' + tfc as TKoppenSubType;
+				if (this.pwseco < this.pshum/10) return 'Cw' + tfc as TKoppenSubType;
+				return 'Cf' + tfc as TKoppenSubType;
+			case 'D':
+				const tfd = (this.tmax >= 22) ? 'a' : 
+					((this.tmon10 >= 4) ? 'b' : ( this.tmin < -25 ? 'd' : 'c')); //( this.tmin < -38 ? 'd' : 'c'));
+				if (this.psseco < 40 && this.psseco < this.pwhum/3) return 'Ds' + tfd as TKoppenSubType;
+				if (this.pwseco < this.pshum/10) return 'Dw' + tfd as TKoppenSubType;
+				return 'Df' + tfd as TKoppenSubType;
 			default:
-				return 'ET'
+				if (this.tmax > 0) return 'ET'
+				return 'EF'
 		}
 
 	}

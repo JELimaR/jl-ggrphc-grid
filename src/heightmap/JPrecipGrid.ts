@@ -8,6 +8,7 @@ const dataInfoManager = DataInformationFilesManager.instance;
 
 export interface IPrecipData {
 	precip: number[];
+	deltaTemps: number[];
 }
 
 export default class JPrecipGrid {
@@ -17,6 +18,7 @@ export default class JPrecipGrid {
 	constructor(pressGrid: JPressureGrid, tempGrid: JTempGrid) {
 		this._grid = pressGrid._grid;
 		this._precipData = this.setPrecipData(pressGrid, tempGrid);
+		
 	}
 
 	private setPrecipData(pressGrid: JPressureGrid, tempGrid: JTempGrid): IPrecipData[][] {
@@ -30,15 +32,16 @@ export default class JPrecipGrid {
 				generated = this.smoothDeltaTemp(generated);
 				this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 					if (!out[cidx]) out[cidx] = [];
-					if (!out[cidx][ridx]) out[cidx][ridx] = { precip: []/*, routes: []*/ };
+					if (!out[cidx][ridx]) out[cidx][ridx] = { precip: [], deltaTemps: []/*, routes: []*/ };
 					const gen = generated[cidx][ridx];
 					out[cidx][ridx].precip[month - 1] = gen.precipCant === 0 ? 0 : gen.precipValue / gen.precipCant;
-
+					out[cidx][ridx].deltaTemps[month - 1] = gen.deltaTempValue;
 					// hacer mejor
 					tempGrid._tempData[cidx][ridx].tempMonth[month - 1] += gen.deltaTempValue;
 				})
 
 			})
+			// tempGrid.smoothTemp(2)
 			/*
 			ws.routes.forEach((route: JWindRoutePoint[][][], month: number) => {
 				this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
@@ -46,6 +49,7 @@ export default class JPrecipGrid {
 				})
 			})
 			*/
+			out = this.smoothData(out);
 			out = this.smoothData(out);
 
 			let precipMax: number = 0;
@@ -55,7 +59,7 @@ export default class JPrecipGrid {
 			})
 
 			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
-				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => r * 450 / precipMax)
+				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => (((r < 100 ? r : r)/100) ** 1) * 634.1)//0 / precipMax)
 			})
 
 			// dataInfoManager.saveGridPrecip(out, this._grid._granularity);
@@ -80,7 +84,8 @@ export default class JPrecipGrid {
 				})
 			})
 			dout[cidx][ridx] = {
-				precip: precipArr.map((v: number, i: number) => 0.6 * v / neigs.length + 0.4 * din[cidx][ridx].precip[i]),
+				precip: precipArr.map((v: number, i: number) => 0.5 * v / neigs.length + 0.5 * din[cidx][ridx].precip[i]),
+				deltaTemps: din[cidx][ridx].deltaTemps
 				// routes: din[cidx][ridx].routes
 			};
 		})

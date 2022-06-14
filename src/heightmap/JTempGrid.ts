@@ -25,7 +25,13 @@ export default class JTempGrid {
 		this._grid = grid;
 		this._tempData = this.setTempData2();
 		for (let i = 0; i < 2; i++)
-			this.smoothTemp(55)
+			this.smoothTemp(5)
+		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+			if (gp._cell.info.isLand) {
+				const hf = 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000;
+				this._tempData[cidx][ridx].tempMonth = this._tempData[cidx][ridx].tempMonth.map((t: number) => t -= hf)
+			}
+		})
 		console.timeEnd('set temp grid data');
 	}
 
@@ -58,10 +64,10 @@ export default class JTempGrid {
 				const tempLatMonth: number[] = TempFunctions.generateTempLatArrPerMonth(gp._point.y).map((v) => v.tempLat);
 				let tarr: number[] = [];
 				tempLatMonth.forEach((mt: number) => {
-					let tv: number = tempLatMed + (tempLatMed - mt) * caps[cidx][ridx];
+					let tv: number = tempLatMed + (tempLatMed - mt) * caps[cidx][ridx] * 1.1;
 					tv = TempFunctions.parametertoRealTemp(tv);
-					if (gp._cell.info.isLand)
-						tv -= 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000;;
+					// if (gp._cell.info.isLand)
+					//	tv -= 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000;
 					tarr.push(tv);
 				})
 				out[cidx][ridx] = {
@@ -80,11 +86,11 @@ export default class JTempGrid {
 
 		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 			if (!out[cidx]) out[cidx] = [];
-			let captotal: number = 0//10 * (cell.isLand ? 1.0 : 0.44);
+			let captotal: number = 0;
 			let areaTotal: number = 0;
 			this._grid.getGridPointsInWindowGrade(gp._point, 15).forEach((gpiw: JGridPoint) => { // debe ser 20?
 				const d: number = turf.lengthToDegrees(15) * 1.05 - JPoint.geogDistance(gpiw._point, gp._point);
-				captotal += (gpiw._cell.info.isLand ? 1.0 : 0.44 ** 2) * d;
+				captotal += (gpiw._cell.info.isLand ? 1.0 : 0.44) * d;
 				areaTotal += d;
 			})
 			out[cidx][ridx] = captotal / (areaTotal) * 0.75 + 0.25 * (gp._cell.info.isLand ? 1.0 : 0.44);
@@ -93,7 +99,7 @@ export default class JTempGrid {
 		})
 
 		for (let i = 0; i < 3; i++) {
-			out = this.smoothCap(out, 1)
+			out = this.smoothCap(out, 5)
 		}
 		console.log('cap grid calculada');
 		return out;
@@ -118,13 +124,14 @@ export default class JTempGrid {
 		return cout;
 	}
 
-	private smoothTemp(win: number) {
+	smoothTemp(win: number) {
 		let cout: ITempDataGrid[][] = [];
 		this._tempData.forEach((col: ITempDataGrid[], cidx: number) => {
 			let dataCol: ITempDataGrid[] = [...this._tempData[cidx]];
 			col.forEach((tdg: ITempDataGrid, ridx: number) => {
 				let tmonth: number[] = [...tdg.tempMonth], cant: number = 1;
-				this._grid.getGridPointsInWindow(this._grid._points[cidx][ridx]._point, win).forEach((gpiw: JGridPoint) => {
+				//this._grid.getGridPointsInWindow(this._grid._points[cidx][ridx]._point, win).forEach((gpiw: JGridPoint) => {
+				this._grid.getGridPointsInWindowGrade(this._grid._points[cidx][ridx]._point, win).forEach((gpiw: JGridPoint) => {
 					const indexes = this._grid.getGridPointIndexes(gpiw._point);
 					cant++;
 					this._tempData[indexes.c][indexes.r].tempMonth.forEach((tv: number, i: number) => tmonth[i] += tv);
@@ -177,7 +184,7 @@ export default class JTempGrid {
 		})
 
 		/*  */
-		return this._grid.soft(itczPoints, -10, 10)
+		return this._grid.soft(itczPoints, -16, 16)
 	}
 
 	getHorseLatPoints(month: number | 'med', hemisf: 'n' | 's'): JGridPoint[] {
@@ -211,8 +218,8 @@ export default class JTempGrid {
 		})
 
 		/*  */
-		const miny = (hemisf === 'n') ? -32 : 25;
-		const maxy = (hemisf === 'n') ? -25 : 32;
+		const miny = (hemisf === 'n') ? -32 : 22;
+		const maxy = (hemisf === 'n') ? -22 : 32;
 		return this._grid.soft(outPoints, miny, maxy);
 	}
 
@@ -247,8 +254,8 @@ export default class JTempGrid {
 		})
 
 		/*  */
-		const miny = (hemisf === 'n') ? -61 : 58;
-		const maxy = (hemisf === 'n') ? -58 : 61;
+		const miny = (hemisf === 'n') ? -61 : 57;
+		const maxy = (hemisf === 'n') ? -57 : 61;
 		return this._grid.soft(outPoints, miny, maxy)
 	}
 
@@ -308,7 +315,7 @@ export default class JTempGrid {
 				// if (i > itcz.length * 0.35) {
 			out.push({
 				point: gp._point,
-				mag: 4 / 3 * (i > itcz.length * 0 ? -MAG : -landDiff * MAG)
+				mag: 5 / 3 * (i > itcz.length * 0 ? -MAG : -landDiff * MAG)
 			})
 			pressureCentersLocation[gp.colValue][gp.rowValue] = -1;
 			// }
@@ -327,7 +334,7 @@ export default class JTempGrid {
 						// if (i > polarFront.length * 0.30) {
 						out.push({
 							point: gp._point,
-							mag: 5 / 3 * (i > polarFront.length * 0.20 ? -MAG : -landDiff * MAG)
+							mag: 4 / 3 * (i > polarFront.length * 0.20 ? -MAG : -landDiff * MAG)
 						})
 						pressureCentersLocation[gp.colValue][gp.rowValue] = -1;
 					// }
@@ -347,7 +354,7 @@ export default class JTempGrid {
 					// if (i > horseLat.length * 0.30) {
 				out.push({
 					point: gp._point,
-					mag: (i > polarFront.length * 0.2 || !gp._cell.info.isLand ? MAG : landDiff * MAG )
+					mag: (i > polarFront.length * 0.2 || !gp._cell.info.isLand ? MAG : 1.5*landDiff * MAG )
 				})
 				pressureCentersLocation[gp.colValue][gp.rowValue] = 1;
 				// }

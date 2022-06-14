@@ -4,11 +4,11 @@ import JPoint from "../Geom/JPoint";
 import JPressureGrid, { IPressureZone, PressureData } from "./JPressureGrid";
 import JTempGrid from "./JTempGrid";
 
-const sat: number = 6000;
+const sat: number = 10000;
 const roz = 0.7;
-const MAXEVAP = 100;
+const MAXEVAP = 200;
 const MAXRAIN = 100;
-const tempMin = -21;
+const tempMin = -30;
 
 
 export class JWindRoutePoint {
@@ -121,9 +121,9 @@ export default class JWindSimulate {
 
 		let cont: number = 0;
 		let it: number = 0;
-		for (it = 0; it < 5000 && cont < 10; it++) {
+		for (it = 0; /*it < 5000 && */cont < 1; it++) {
 			if (this._pressGrid.isCloseLowPressure(currPos, month)) cont++;
-			if ((!!gpprev && !!gpnew && gpprev === gpnew)) cont += 0.25//0.25 0.01;
+			if ((!!gpprev && !!gpnew && gpprev === gpnew)) cont += 0.2//0.25 0.01;
 			else cont = 0;
 
 			gpprev = this._pressGrid._grid.getGridPoint(currPos);
@@ -188,7 +188,7 @@ export default class JWindSimulate {
 		let precipOut: number = 0;
 		let evapOut: number = 0;
 		let accOut: number = 0;
-		let deltaTempOut: number = 4 * (currTemp - nextTemp);
+		let deltaTempOut: number = 1.5 * (currTemp - nextTemp);
 
 		// pressValue
 		let pval: number = 0;
@@ -199,24 +199,25 @@ export default class JWindSimulate {
 		
 		pval = ((pval > 0) ? 1/pval : 100 + 1/pval) / 100;// (mmm.max - mmm.min)
 		if (pval < 0) console.log(pval)
-		pval = pval ** 1.2;
+		pval = (0.95 * pval + 0.05) ** 0.9;
 
 
 		// nextHeight		
 		if (nextHeight >= 0.84) {
-			precipOut = (nextHeight) ** 0.25 * MAXRAIN;
+			precipOut = (nextHeight ** 0.45) * acc;
 		} else if (nextHeight >= 0.2) {
 			let exponent = (nextHeight < 0.5) ? 2 : ((nextHeight < 0.7) ? 1.5 : 0.45);
-			precipOut = ( (currHeight <= nextHeight) ? 0.5 : 0) * ((nextHeight) ** exponent + pval) * MAXRAIN;
+			precipOut = ((currHeight <= nextHeight) ? 0.5 : 0.0) * (nextHeight ** exponent + pval) * acc //MAXRAIN; // acc?
 			if (precipOut > acc) precipOut = acc;
+			if (precipOut > MAXRAIN) precipOut = MAXRAIN;
 
-			if (nextTemp - tempMin > 0) {
-				evapOut = ((nextTemp - tempMin) / (35 - tempMin) + pval * 0.11) * ( precipOut < 15 ? 15 * pval : precipOut );
+			if (currTemp - tempMin > 0) {
+				evapOut = ((currTemp - tempMin) / (35 - tempMin) + pval * 0.3 + 0.1) * ( precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5 );
 			}
 		} else {
-			precipOut =  0.4 * ((0.1 ** 2) + pval) * MAXRAIN;
-			if (nextTemp - tempMin > 0)
-				evapOut = ((nextTemp - tempMin) / (35 - tempMin) + pval * 0.25) * (MAXEVAP);
+			precipOut = 0.1 * ((0.1 ** 3) + pval) * acc;
+			if (currTemp - tempMin > 0)
+				evapOut = ((currTemp - tempMin) / (35 - tempMin) + pval * 0.11) * (1.5*MAXEVAP);
 		}
 
 		// precip real value

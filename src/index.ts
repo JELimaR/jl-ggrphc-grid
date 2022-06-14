@@ -54,7 +54,7 @@ const azgaarFolder: string[] = [
 	'Mont100', // 8
 	'Itri100' // 9
 ];
-const folderSelected: string = azgaarFolder[9];
+const folderSelected: string = azgaarFolder[3];
 
 console.log('folder:', folderSelected)
 
@@ -78,28 +78,55 @@ console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
 const TOTAL: number = 10;
-const GRAN: number = 2//0.5;
+const GRAN: number = 3//0.5;
 const world: JWorld = new JWorld(TOTAL, GRAN);
+const tempStep = 5;
+// const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const monthArr = [1, 3, 5, 7, 9, 11];
+
 /*let jhm: JHeightMap = */world.generateHeightMap();
 // console.log(world.diagram.cells.get(8)!.info.tempMonthArr)
 // /*let jtm: JTempMap = */world.generateTemperatureMap();
 
 let tempGrid = new JTempGrid(world.grid);
+// temperatura antes del cambio por precip
+let dm2: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/${GRAN}temp`);
+colorScale = chroma.scale('Spectral').domain([30, -35]);
+for (let i of monthArr) {
+	dm2.clear()
+	dm2.drawFondo()
+	const month: number = i;
+	world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
+		col.forEach((gp: JGridPoint, ridx: number) => {
+			let val = tempGrid.getPointInfo(gp._point).tempMonth[month - 1];
+			val = Math.round(val / tempStep) * tempStep;
+			color = colorScale(val).hex();
+			dm2.drawDot(gp._point, {
+				strokeColor: color, fillColor: color
+			}, GRAN)
+		})
+	})
+	dm2.drawMeridianAndParallels();
+	dm2.saveDrawFile(`tempGrid${(month < 10 ? `0${month}` : `${month}`)}-prev.png`);
+}
+
+
 const pressGrid = new JPressureGrid(world.grid, tempGrid);
 const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
 
 
 
 console.log(tempGrid.getPressureCenters(2).pressCenter.length)
-const tempStep = 5;
-// const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-const monthArr = [1, 3, 5, 7, 9, 11];
 
 // const gcg = new GeoCoordGrid();
 // const hgd = new HeightGridData(gcg);
 
 
 dm.drawFondo()
+dm.drawCellMap(world, JCellToDrawEntryFunctions.heighLand(1))
+dm.drawMeridianAndParallels();
+dm.saveDrawFile(`hh.png`);
+
 /*
 const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1,0]);
 hgd._heightData.forEach((data: {
@@ -128,7 +155,6 @@ hgd._heightData.forEach((data: {
 /*** TEMPERATURE ***/
 
 // tempGrid.smoothTemp(1000);
-let dm2: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/temp`);
 colorScale = chroma.scale('Spectral').domain([30, -35]);
 for (let i of monthArr) {
 	dm2.clear()
@@ -306,7 +332,6 @@ world.grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 })
 dm2.drawMeridianAndParallels();
 dm2.saveDrawFile(`${GRAN}moistureAnual.png`)
-console.log('anual max:', max)
 
 /*
 const gc = JPoint.greatCircle(lowPoint, highPoint)
@@ -384,6 +409,13 @@ dm2.clear();
 world.grid.forEachPoint((gp: JGridPoint, col: number, row: number) => {
 	const ccl = gp._cell.info.cellClimate;
 	if (ccl.koppenSubType() !== 'O') {
+		if (col % 10 == 0 && row % 10 == 0) {
+			console.log(gp._cell.center.getInterface());
+			console.log(ccl.tempMonth)
+			console.log(ccl.precipMonth)
+			console.log(ccl.koppenSubType())
+			console.log(gp._cell.info.height);
+		}
 		color = koppenColors[ccl.koppenSubType() as TKoppenSubType];
 		koppenCant[ccl.koppenSubType() as TKoppenSubType]++;
 		dm2.drawDot(gp._point, {
@@ -396,43 +428,48 @@ world.grid.forEachPoint((gp: JGridPoint, col: number, row: number) => {
 dm2.drawMeridianAndParallels();
 dm2.saveDrawFile(`${GRAN}climateClass.png`)
 console.log(koppenCant)
+console.log('anual max:', max)
 
 
 
 let hmax: JCell = world.diagram.cells.get(1)!;
+const gp = world.grid.getGridPoint(new JPoint(-180,-90));
 let tempMaxArr: JCell[] = [
-	world.diagram.cells.get(1)!,
-	world.diagram.cells.get(2)!,
-	world.diagram.cells.get(3)!,
-	world.diagram.cells.get(4)!,
-	world.diagram.cells.get(5)!,
-	world.diagram.cells.get(6)!,
-	world.diagram.cells.get(7)!,
-	world.diagram.cells.get(8)!,
-	world.diagram.cells.get(9)!,
-	world.diagram.cells.get(10)!,
-	world.diagram.cells.get(11)!,
-	world.diagram.cells.get(12)!
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell,
+	gp._cell
 ];
 let tempMinArr: JCell[] = [...tempMaxArr];
 
 world.diagram.forEachCell((cell: JCell) => {
 	if (cell.info.height > hmax.info.height) hmax = cell;
-	// tempMaxArr.forEach((tmax: JCell, monthMinus: number) => {
-	// 	if (cell.info.tempMonthArr[monthMinus] > tmax.info.tempMonthArr[monthMinus]) tempMaxArr[monthMinus] = cell
-	// })
-	// tempMinArr.forEach((tmin: JCell, monthMinus: number) => {
-	// 	if (cell.info.tempMonthArr[monthMinus] < tmin.info.tempMonthArr[monthMinus]) tempMinArr[monthMinus] = cell
-	// })
+	const ccl = cell.info.cellClimate;
+	if (ccl) {		
+		tempMaxArr.forEach((tmax: JCell, monthMinus: number) => {
+			if (cell.info.tempMonthArr[monthMinus] > tmax.info.tempMonthArr[monthMinus]) tempMaxArr[monthMinus] = cell
+		})
+		tempMinArr.forEach((tmin: JCell, monthMinus: number) => {
+			if (cell.info.tempMonthArr[monthMinus] < tmin.info.tempMonthArr[monthMinus]) tempMinArr[monthMinus] = cell
+		})
+	}
 })
 
 console.log('hmax', hmax.info.cellHeight.heightInMeters, hmax.center.x, hmax.center.y)
-// console.log('tmax', tempMaxArr.map((cell: JCell, idx) => {
-// 	return `${idx + 1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
-// }))
-// console.log('tmin', tempMinArr.map((cell: JCell, idx) => {
-// 	return `${idx + 1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
-// }))
+console.log('tmax', tempMaxArr.map((cell: JCell, idx) => {
+	return `${idx + 1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
+}))
+console.log('tmin', tempMinArr.map((cell: JCell, idx) => {
+	return `${idx + 1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
+}))
 
 
 console.timeEnd('all')
