@@ -199,7 +199,7 @@ export default class JWindSimulate {
 		
 		pval = ((pval > 0) ? 1/pval : 100 + 1/pval) / 100;// (mmm.max - mmm.min)
 		if (pval < 0) console.log(pval)
-		pval = (0.95 * pval + 0.05) ** 0.9;
+		pval = (0.95 * pval + 0.05) ** 2;
 
 
 		// nextHeight		
@@ -212,7 +212,7 @@ export default class JWindSimulate {
 			if (precipOut > MAXRAIN) precipOut = MAXRAIN;
 
 			if (currTemp - tempMin > 0) {
-				evapOut = ((currTemp - tempMin) / (35 - tempMin) + pval * 0.3 + 0.1) * ( precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5 );
+				evapOut = ((currTemp - tempMin) / (35 - tempMin) + pval * 0.11 + 0.1) * ( precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5 );
 			}
 		} else {
 			precipOut = 0.1 * ((0.1 ** 3) + pval) * acc;

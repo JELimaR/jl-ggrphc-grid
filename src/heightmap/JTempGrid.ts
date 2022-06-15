@@ -76,7 +76,7 @@ export default class JTempGrid {
 					tempMonth: tarr
 				}
 			})
-			// dataInfoManager.saveGridTemperature(out, this._grid._granularity);
+			dataInfoManager.saveGridTemperature(out, this._grid._granularity);
 		}
 		return out;
 	}
@@ -184,7 +184,7 @@ export default class JTempGrid {
 		})
 
 		/*  */
-		return this._grid.soft(itczPoints, -16, 16)
+		return this._grid.soft(itczPoints, -7, 7)
 	}
 
 	getHorseLatPoints(month: number | 'med', hemisf: 'n' | 's'): JGridPoint[] {
@@ -218,8 +218,8 @@ export default class JTempGrid {
 		})
 
 		/*  */
-		const miny = (hemisf === 'n') ? -32 : 22;
-		const maxy = (hemisf === 'n') ? -22 : 32;
+		const miny = (hemisf === 'n') ? -32 : 24;
+		const maxy = (hemisf === 'n') ? -24 : 32;
 		return this._grid.soft(outPoints, miny, maxy);
 	}
 
@@ -315,7 +315,7 @@ export default class JTempGrid {
 				// if (i > itcz.length * 0.35) {
 			out.push({
 				point: gp._point,
-				mag: 5 / 3 * (i > itcz.length * 0 ? -MAG : -landDiff * MAG)
+				mag: 4 / 3 * (i > itcz.length * 0 ? -MAG : -landDiff * MAG)
 			})
 			pressureCentersLocation[gp.colValue][gp.rowValue] = -1;
 			// }
@@ -367,7 +367,7 @@ export default class JTempGrid {
 			polarLine.forEach((gp: JGridPoint) => { // ver criterio para agregar
 				out.push({
 					point: new JPoint(gp._point.x, (gp._point.y < 0) ? -90 : 90),
-					mag: (gp._cell.info.isLand ? landDiff * MAG : MAG)
+					mag: MAG
 				})
 				pressureCentersLocation[gp.colValue][gp.rowValue] = 1;
 			})

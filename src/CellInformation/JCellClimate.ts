@@ -78,7 +78,7 @@ export default class JCellClimate {
 	get tmed() { return this._tempMonth.reduce((p: number, c: number) => c + p, 0) / 12 }
 
 	// precip
-	get totalPrecip(): number { return this._precipMonth.reduce((p: number, c: number) => c + p, 0) / 12 }
+	get mediaPrecip(): number { return this._precipMonth.reduce((p: number, c: number) => c + p, 0)/12 }
 	get precipSemCalido(): number {
 		let out: number = 0;
 		for (let m of this.getMonthsSet().calido) {
@@ -101,10 +101,10 @@ export default class JCellClimate {
 	 */
 	private get pumbral(): number {
 		let constante: number;
-		if (this.precipSemCalido >= 0.7 * this.totalPrecip) constante = 280;
-		else if (this.precipSemCalido < 0.3 * this.totalPrecip) constante = 0;
+		if (this.precipSemCalido >= 0.7 * this.mediaPrecip) constante = 280;
+		else if (this.precipSemCalido < 0.3 * this.mediaPrecip) constante = 0;
 		else constante = 140;
-		return (20 * this.tmed + constante) / 10;
+		return (20 * this.tmed + constante)/10;
 	}
 
 	getMonthsSet(): { calido: number[], frio: number[] } {
@@ -132,7 +132,7 @@ export default class JCellClimate {
 	 */
 	koppenType(): TKoppenType | 'O' {
 		if (!this._cell.info.isLand) return 'O';
-		if (this.totalPrecip < this.pumbral) return 'B';
+		if (this.mediaPrecip < this.pumbral) return 'B';
 		else if (this.tmin > 18) return 'A';
 		else if (this.tmax >= 10 && this.tmin > -3) return 'C'
 		else if (this.tmax < 10) return 'E';
@@ -191,11 +191,11 @@ export default class JCellClimate {
 			// A
 			case 'A':
 				if (this.pseco >= 60) return 'Af'
-				if (this.pseco >= 50 - this.totalPrecip/25) return 'Am'//100 - this.totalPrecip/25) return 'Am'
+				if (this.pseco >= 50 - this.mediaPrecip/25) return 'Am'//100 - this.totalPrecip/25) return 'Am'
 				return 'Aw';
 			// B
 			case 'B':
-				if (this.totalPrecip < 0.5 * this.pumbral) {
+				if (this.mediaPrecip < 0.5 * this.pumbral) {
 					if (this.tmed >= 15) return 'BWh' //if (this.tmed >= 18) return 'BWh'
 					else return 'BWk'
 				} else {

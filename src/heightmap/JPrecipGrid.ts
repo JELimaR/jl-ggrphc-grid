@@ -37,7 +37,7 @@ export default class JPrecipGrid {
 					out[cidx][ridx].precip[month - 1] = gen.precipCant === 0 ? 0 : gen.precipValue / gen.precipCant;
 					out[cidx][ridx].deltaTemps[month - 1] = gen.deltaTempValue;
 					// hacer mejor
-					tempGrid._tempData[cidx][ridx].tempMonth[month - 1] += gen.deltaTempValue;
+					// tempGrid._tempData[cidx][ridx].tempMonth[month - 1] += gen.deltaTempValue;
 				})
 
 			})
@@ -62,7 +62,7 @@ export default class JPrecipGrid {
 				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => (((r < 100 ? r : r)/100) ** 1) * 634.1)//0 / precipMax)
 			})
 
-			// dataInfoManager.saveGridPrecip(out, this._grid._granularity);
+			dataInfoManager.saveGridPrecip(out, this._grid._granularity);
 		}
 
 		return out;

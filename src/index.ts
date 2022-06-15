@@ -54,7 +54,7 @@ const azgaarFolder: string[] = [
 	'Mont100', // 8
 	'Itri100' // 9
 ];
-const folderSelected: string = azgaarFolder[3];
+const folderSelected: string = azgaarFolder[9];
 
 console.log('folder:', folderSelected)
 
@@ -78,11 +78,11 @@ console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
 const TOTAL: number = 10;
-const GRAN: number = 3//0.5;
+const GRAN: number = 1//0.5;
 const world: JWorld = new JWorld(TOTAL, GRAN);
 const tempStep = 5;
-// const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-const monthArr = [1, 3, 5, 7, 9, 11];
+const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+// const monthArr = [1, 3, 5, 7, 9, 11];
 
 /*let jhm: JHeightMap = */world.generateHeightMap();
 // console.log(world.diagram.cells.get(8)!.info.tempMonthArr)
@@ -221,27 +221,27 @@ getPressureCenters().forEach((val: any) => {
 	}, GRAN)
 })
 */
-console.log(mmm);
+// console.log(mmm);
 
-colorScale = chroma.scale('Spectral').domain([mmm.max, mmm.min]);
-for (let i of monthArr) {
-	dm2.clear()
-	dm2.drawFondo()
-	const month: number = i;
+// colorScale = chroma.scale('Spectral').domain([mmm.max, mmm.min]);
+// for (let i of monthArr) {
+// 	dm2.clear()
+// 	dm2.drawFondo()
+// 	const month: number = i;
 
-	world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
-		col.forEach((gp: JGridPoint, ridx: number) => {
-			let val = pressGrid.getPointInfo(gp._point).pots[month - 1];
-			// let val = pressGrid.getPointInfo(gp._point).vecs[month - 1].y * 10;
-			color = colorScale(val).hex();
-			dm2.drawDot(gp._point, {
-				strokeColor: color, fillColor: color
-			}, GRAN)
-		})
-	})
-	dm2.drawMeridianAndParallels();
-	dm2.saveDrawFile(`${GRAN}pressGrid${(month < 10 ? `0${month}` : `${month}`)}.png`);
-}
+// 	world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
+// 		col.forEach((gp: JGridPoint, ridx: number) => {
+// 			let val = pressGrid.getPointInfo(gp._point).pots[month - 1];
+// 			// let val = pressGrid.getPointInfo(gp._point).vecs[month - 1].y * 10;
+// 			color = colorScale(val).hex();
+// 			dm2.drawDot(gp._point, {
+// 				strokeColor: color, fillColor: color
+// 			}, GRAN)
+// 		})
+// 	})
+// 	dm2.drawMeridianAndParallels();
+// 	dm2.saveDrawFile(`${GRAN}pressGrid${(month < 10 ? `0${month}` : `${month}`)}.png`);
+// }
 
 /*******************************************/
 /*
@@ -355,37 +355,15 @@ console.log('-88', pressGrid.getPointInfo(new JPoint(110, -88)))
 
 // climate map
 let koppenCant = {
-	Af: 0,
-	Am: 0,
-	Aw: 0,
-	As: 0,
-	BWh: 0,
-	BWk: 0,
-	BSh: 0,
-	BSk: 0,
-	Csa: 0,
-	Csb: 0,
-	Csc: 0,
-	Cwa: 0,
-	Cwb: 0,
-	Cwc: 0,
-	Cfa: 0,
-	Cfb: 0,
-	Cfc: 0,
-	Dsa: 0,
-	Dsb: 0,
-	Dsc: 0,
-	Dsd: 0,
-	Dwa: 0,
-	Dwb: 0,
-	Dwc: 0,
-	Dwd: 0,
-	Dfa: 0,
-	Dfb: 0,
-	Dfc: 0,
-	Dfd: 0,
-	ET: 0,
-	EF: 0,
+	Af: 0, Am: 0, Aw: 0, As: 0,
+	BWh: 0, BWk: 0, BSh: 0, BSk: 0,
+	Csa: 0, Csb: 0, Csc: 0,
+	Cwa: 0, Cwb: 0, Cwc: 0,
+	Cfa: 0, Cfb: 0, Cfc: 0,
+	Dsa: 0, Dsb: 0, Dsc: 0, Dsd: 0,
+	Dwa: 0, Dwb: 0, Dwc: 0, Dwd: 0,
+	Dfa: 0, Dfb: 0, Dfc: 0, Dfd: 0,
+	ET: 0, EF: 0,
 }
 const jcm: JClimateMap = new JClimateMap(world.diagram, precipGrid, tempGrid);
 dm2.clear();
@@ -409,13 +387,13 @@ dm2.clear();
 world.grid.forEachPoint((gp: JGridPoint, col: number, row: number) => {
 	const ccl = gp._cell.info.cellClimate;
 	if (ccl.koppenSubType() !== 'O') {
-		if (col % 10 == 0 && row % 10 == 0) {
-			console.log(gp._cell.center.getInterface());
-			console.log(ccl.tempMonth)
-			console.log(ccl.precipMonth)
-			console.log(ccl.koppenSubType())
-			console.log(gp._cell.info.height);
-		}
+		// if (col % 10 == 0 && row % 10 == 0) {
+		// 	console.log(gp._cell.center.getInterface());
+		// 	console.log(ccl.tempMonth)
+		// 	console.log(ccl.precipMonth)
+		// 	console.log(ccl.koppenSubType())
+		// 	console.log(gp._cell.info.height);
+		// }
 		color = koppenColors[ccl.koppenSubType() as TKoppenSubType];
 		koppenCant[ccl.koppenSubType() as TKoppenSubType]++;
 		dm2.drawDot(gp._point, {
@@ -433,7 +411,7 @@ console.log('anual max:', max)
 
 
 let hmax: JCell = world.diagram.cells.get(1)!;
-const gp = world.grid.getGridPoint(new JPoint(-180,-90));
+const gp = world.grid.getGridPoint(new JPoint(-180, -90));
 let tempMaxArr: JCell[] = [
 	gp._cell,
 	gp._cell,
@@ -453,14 +431,14 @@ let tempMinArr: JCell[] = [...tempMaxArr];
 world.diagram.forEachCell((cell: JCell) => {
 	if (cell.info.height > hmax.info.height) hmax = cell;
 	const ccl = cell.info.cellClimate;
-	if (ccl) {		
+	// if (ccl) {
 		tempMaxArr.forEach((tmax: JCell, monthMinus: number) => {
 			if (cell.info.tempMonthArr[monthMinus] > tmax.info.tempMonthArr[monthMinus]) tempMaxArr[monthMinus] = cell
 		})
 		tempMinArr.forEach((tmin: JCell, monthMinus: number) => {
 			if (cell.info.tempMonthArr[monthMinus] < tmin.info.tempMonthArr[monthMinus]) tempMinArr[monthMinus] = cell
 		})
-	}
+	// }
 })
 
 console.log('hmax', hmax.info.cellHeight.heightInMeters, hmax.center.x, hmax.center.y)
@@ -470,6 +448,55 @@ console.log('tmax', tempMaxArr.map((cell: JCell, idx) => {
 console.log('tmin', tempMinArr.map((cell: JCell, idx) => {
 	return `${idx + 1} - ${cell.info.tempMonthArr[idx]} - ${cell.center.x},${cell.center.y}`
 }))
+
+let dmg: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/grid`);
+dmg.drawCellMap(world, (cell: JCell) => {
+	const ccl = cell.info.cellClimate;
+	if (ccl.koppenSubType() !== 'O')
+		color = koppenColors[ccl.koppenSubType() as TKoppenSubType]
+	else
+		color = '#FFFFFF'
+	return {
+		fillColor: color,
+		strokeColor: color,
+	}
+})
+
+dmg.drawMeridianAndParallels();
+dmg.saveDrawFile(`climateClass.png`)
+
+
+//
+colorScale = chroma.scale('Spectral').domain([30, -35]);
+dmg.clear()
+dmg.drawCellMap(world, (cell: JCell) => {
+	const ccl = cell.info.cellClimate;
+	if (!ccl.tmax) {
+		const gp = world.grid.getGridPoint(cell.center);
+		console.log(tempGrid._tempData[gp.colValue][gp.rowValue].tempMonth) // usar este metodo
+	}
+	color = colorScale(ccl.tmed).hex();
+	return {
+		fillColor: color,
+		strokeColor: color,
+	}
+})
+dmg.drawMeridianAndParallels();
+dmg.saveDrawFile(`tempMedia.png`)
+
+//
+colorScale = chroma.scale('Spectral').domain([500, 0]);
+dmg.clear()
+dmg.drawCellMap(world, (cell: JCell) => {
+	const ccl = cell.info.cellClimate;
+	color = colorScale(ccl.mediaPrecip).hex();
+	return {
+		fillColor: color,
+		strokeColor: color,
+	}
+})
+dmg.drawMeridianAndParallels();
+dmg.saveDrawFile(`precipMedia.png`)
 
 
 console.timeEnd('all')
