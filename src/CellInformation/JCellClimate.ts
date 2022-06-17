@@ -7,50 +7,25 @@ import JCell from "../Voronoi/JCell";
  * D: Dfa, Dfb, Dfc, Dfd, Dwa, Dwb, Dwc, Dwd, Dsa, Dsb, Dsc, Dsd
  * E: ET, EF
  */
-type TKoppenType = 'A' | 'B' | 'C' | 'D' | 'E';
+export type TKoppenType = 'A' | 'B' | 'C' | 'D' | 'E';
 export type TKoppenSubType =
-	| 'Af' | 'As' | 'Aw' | 'Am'
+	| 'Af' | 'AwAs' | 'Am'
 	| 'BWh' | 'BWk' | 'BSh' | 'BSk'
 	| 'Cfa' | 'Cfb' | 'Cfc' | 'Cwa' | 'Cwb' | 'Cwc' | 'Csa' | 'Csb' | 'Csc'
 	| 'Dfa' | 'Dfb' | 'Dfc' | 'Dfd' | 'Dwa' | 'Dwb' | 'Dwc' | 'Dwd' | 'Dsa' | 'Dsb' | 'Dsc' | 'Dsd'
 	| 'ET' | 'EF';
 
 export const koppenColors = {
-	Af: '#0000FF',
-	Am: '#0077FF',
-	Aw: '#46A9FA',
-	As: '#46A9FA',
-	BWh: '#FF0000',
-	BWk: '#FF9695',
-	BSh: '#F5A301',
-	BSk: '#FFDB63',
-	Csa: '#FFFF00',
-	Csb: '#C6C700',
-	Csc: '#969600',
-	Cwa: '#96FF96',
-	Cwb: '#63C764',
-	Cwc: '#329633',
-	Cfa: '#C6FF4E',
-	Cfb: '#66FF33',
-	Cfc: '#33C701',
-	Dsa: '#FF00FF',
-	Dsb: '#C600C7',
-	Dsc: '#963295',
-	Dsd: '#966495',
-	Dwa: '#ABB1FF',
-	Dwb: '#5A77DB',
-	Dwc: '#4C51B5',
-	Dwd: '#320087',
-	Dfa: '#00FFFF',
-	Dfb: '#38C7FF',
-	Dfc: '#007E7D',
-	Dfd: '#00455E',
-	ET: '#B2B2B2',
-	EF: '#686868',
+	Af: '#0000FF', Am: '#0077FF', AwAs: '#46A9FA',
+	BWh: '#FF0000', BWk: '#FF9695', BSh: '#F5A301', BSk: '#FFDB63',
+	Csa: '#FFFF00', Csb: '#C6C700', Csc: '#969600',
+	Cwa: '#96FF96', Cwb: '#63C764', Cwc: '#329633',
+	Cfa: '#C6FF4E', Cfb: '#66FF33', Cfc: '#33C701',
+	Dsa: '#FF00FF', Dsb: '#C600C7', Dsc: '#963295', Dsd: '#966495',
+	Dwa: '#ABB1FF', Dwb: '#5A77DB', Dwc: '#4C51B5', Dwd: '#320087',
+	Dfa: '#00FFFF', Dfb: '#38C7FF', Dfc: '#007E7D', Dfd: '#00455E',
+	ET: '#B2B2B2', EF: '#686868',
 }
-
-type TKoppen =
-	| { type: 'A' }
 
 export interface IJCellClimateInfo {
 	id: number;
@@ -78,7 +53,7 @@ export default class JCellClimate {
 	get tmed() { return this._tempMonth.reduce((p: number, c: number) => c + p, 0) / 12 }
 
 	// precip
-	get mediaPrecip(): number { return this._precipMonth.reduce((p: number, c: number) => c + p, 0)/12 }
+	get mediaPrecip(): number { return this.annualPrecip/12 }
 	get precipSemCalido(): number {
 		let out: number = 0;
 		for (let m of this.getMonthsSet().calido) {
@@ -104,7 +79,7 @@ export default class JCellClimate {
 		if (this.precipSemCalido >= 0.7 * this.mediaPrecip) constante = 280;
 		else if (this.precipSemCalido < 0.3 * this.mediaPrecip) constante = 0;
 		else constante = 140;
-		return (20 * this.tmed + constante)/10;
+		return (20 * this.tmed + constante);
 	}
 
 	getMonthsSet(): { calido: number[], frio: number[] } {
@@ -132,7 +107,7 @@ export default class JCellClimate {
 	 */
 	koppenType(): TKoppenType | 'O' {
 		if (!this._cell.info.isLand) return 'O';
-		if (this.mediaPrecip < this.pumbral) return 'B';
+		if (this.annualPrecip < 1.2 * this.pumbral) return 'B';
 		else if (this.tmin > 18) return 'A';
 		else if (this.tmax >= 10 && this.tmin > -3) return 'C'
 		else if (this.tmax < 10) return 'E';
@@ -191,11 +166,11 @@ export default class JCellClimate {
 			// A
 			case 'A':
 				if (this.pseco >= 60) return 'Af'
-				if (this.pseco >= 50 - this.mediaPrecip/25) return 'Am'//100 - this.totalPrecip/25) return 'Am'
-				return 'Aw';
+				if (this.pseco >= 115 - this.annualPrecip/25) return 'Am'//100 - this.annualPrecip/25 return 'Am'
+				return 'AwAs';
 			// B
 			case 'B':
-				if (this.mediaPrecip < 0.5 * this.pumbral) {
+				if (this.annualPrecip < 1.2*0.58 * this.pumbral) { //(this.mediaPrecip < .5 * this.pumbral) {
 					if (this.tmed >= 15) return 'BWh' //if (this.tmed >= 18) return 'BWh'
 					else return 'BWk'
 				} else {
@@ -208,12 +183,14 @@ export default class JCellClimate {
 				if (this.psseco < 40 && this.psseco < this.pwhum/3) return 'Cs' + tfc as TKoppenSubType;
 				if (this.pwseco < this.pshum/10) return 'Cw' + tfc as TKoppenSubType;
 				return 'Cf' + tfc as TKoppenSubType;
+			// D
 			case 'D':
 				const tfd = (this.tmax >= 22) ? 'a' : 
 					((this.tmon10 >= 4) ? 'b' : ( this.tmin < -25 ? 'd' : 'c')); //( this.tmin < -38 ? 'd' : 'c'));
 				if (this.psseco < 40 && this.psseco < this.pwhum/3) return 'Ds' + tfd as TKoppenSubType;
 				if (this.pwseco < this.pshum/10) return 'Dw' + tfd as TKoppenSubType;
 				return 'Df' + tfd as TKoppenSubType;
+			// E
 			default:
 				if (this.tmax > 0) return 'ET'
 				return 'EF'
@@ -221,8 +198,205 @@ export default class JCellClimate {
 
 	}
 
+	// calculo de holdridge life zone
+	get bioTemperature(): number {
+		let out: number = 0;
+		this._tempMonth.forEach((t: number) => {
+			let temp = (t < 0) ? 0 : t;
+			if (temp > 24)
+				temp = temp  - 3 * this._cell.center.y/100 * ((t - 24) ** 2);
+			out += inRange(temp/12, 0, 24);
+		})
+		return out;
+	}
+	get annualPrecip(): number {
+		return this._precipMonth.reduce((p: number, c: number) => c + p, 0);
+	}
+	get potentialEvapotrasnpirationRate(): number {
+		return (this.bioTemperature * 50)/this.annualPrecip;
+	}
+
+	get altitudinalBelt(): TAltitudinalBelt {
+		const BT = this.bioTemperature;
+		if (BT < 1.5) return 'Alvar'
+		if (BT < 3) return 'Alpine'
+		if (BT < 6) return 'Subalpine'
+		if (BT < 12) return 'Montane'
+		if (BT < 18) return 'LowerMontane'
+		if (BT < 24) return 'Premontane'
+		else return 'Basal'
+	}
+
+	get humidityProvince(): THumidityProvinces {
+		const AP = this.annualPrecip;
+		/*
+		if (AP < 125) return 'SuperArid'
+		if (AP < 250) return 'Perarid'
+		if (AP < 500) return 'Arid'
+		if (AP < 1000) return 'SemiArid'
+		if (AP < 2000) return 'Subhumid'
+		if (AP < 4000) return 'humid'
+		if (AP < 8000) return 'Perhumid'
+		*/
+		/*
+		if (AP < 78) return 'SuperArid'
+		if (AP < 156) return 'Perarid'
+		if (AP < 312) return 'Arid'
+		if (AP < 625) return 'SemiArid'
+		if (AP < 1250) return 'Subhumid'
+		if (AP < 2500) return 'humid'
+		if (AP < 5000) return 'Perhumid'
+		else return 'SuperHumid'
+		*/
+		const PET = this.potentialEvapotrasnpirationRate;
+		if (PET > 16) return 'SuperArid'
+		if (PET > 8) return 'Perarid'
+		if (PET > 4) return 'Arid'
+		if (PET > 2) return 'SemiArid'
+		if (PET > 1) return 'Subhumid'
+		if (PET > 0.5) return 'humid'
+		if (PET > 0.25) return 'Perhumid'
+		else return 'SuperHumid'
+	}
+
+	get lifeZone(): ILifeZone {
+		const AB = this.altitudinalBelt;
+		const HP = this.humidityProvince;
+		let maxHPIdx: number;
+		let minABIdx: number;
+
+		switch(AB) {				
+			case 'Alvar':
+				maxHPIdx = 0
+				minABIdx = 1
+				break;
+			case 'Alpine':
+				maxHPIdx = 3
+				minABIdx = 2
+				break;
+			case 'Subalpine':
+				maxHPIdx = 4
+				minABIdx = 4
+				break;
+			case 'Montane':
+				maxHPIdx = 5
+				minABIdx = 11
+				break;
+			case 'LowerMontane':
+				maxHPIdx = 6
+				minABIdx = 17
+				break;
+			case 'Premontane':
+				maxHPIdx = 6
+				minABIdx = 24
+				break;
+			case 'Basal': default:
+				maxHPIdx = 7
+				minABIdx = 31
+				break;
+		}
+		
+		const id = minABIdx + inRange(humidityProvinceToNumber[HP], 0, maxHPIdx) as keyof typeof lifeZonesList;
+
+		return lifeZonesList[id]
+	}
+
+	
 
 }
+/*
+Polar (glacial)	0 a 1,5 ºC	Nival
+Subpolar (tundra)	1,5 a 3 ºC	Alpino
+Boreal	3 a 6 ºC	Subalpino
+Templado frío	6 a 12 ºC	Montano
+Templado cálido	12 a 18 ºC	Montano bajo
+Subtropical	18 a 24 ºC	Premontano
+Tropical	mayor de 24 ºC	Basal
+*/
+export type TAltitudinalBelt =
+	| 'Alvar'
+	| 'Alpine'
+	| 'Subalpine'
+	| 'Montane'
+	| 'LowerMontane'
+	| 'Premontane'
+	| 'Basal'
+
+export const altitudinalBeltToNumber = {
+	'Alvar': 0,
+	'Alpine': 1,
+	'Subalpine': 2,
+	'Montane': 3,
+	'LowerMontane': 4,
+	'Premontane': 5,
+	'Basal': 6
+}
+
+export type THumidityProvinces =
+	| 'SuperArid'
+	| 'Perarid'
+	| 'Arid'
+	| 'SemiArid'
+	| 'Subhumid'
+	| 'humid'
+	| 'Perhumid'
+	| 'SuperHumid'
+
+export const humidityProvinceToNumber = {
+	'SuperArid': 0,
+	'Perarid': 1,
+	'Arid': 2,
+	'SemiArid': 3,
+	'Subhumid': 4,
+	'humid': 5,
+	'Perhumid': 6,
+	'SuperHumid': 7
+}
+
+interface ILifeZone {desc: string, desc2: string, color: string}
+
+export const lifeZonesList = {
+	1:{ desc: 'Desierto polar', desc2: 'Polar desert', color: ''},
+	2:{ desc: 'Tundra seca', desc2: 'Subpolar dry tundra', color: ''},
+	3:{ desc: 'Tundra húmeda', desc2: 'Subpolar moist tundra', color: ''},
+	4:{ desc: 'Tundra muy húmeda', desc2: 'Subpolar wet tundra', color: ''},
+	5:{ desc: 'Tundra pluvial', desc2: 'Subpolar rain tundra', color: ''},
+	6:{ desc: 'Desierto boreal', desc2: 'Boreal desert', color: ''},
+	7:{ desc: 'Matorral boreal seco', desc2: 'Boreal dry scrub', color: ''},
+	8:{ desc: 'Bosque boreal húmedo', desc2: 'Boreal moist forest', color: ''},
+	9:{ desc: 'Bosque boreal muy húmedo', desc2: 'Boreal wet forest', color: ''},
+	10:{ desc: 'Bosque boreal pluvial', desc2: 'Boreal rain forest', color: ''},
+	11:{ desc: 'Desierto templado frío', desc2: 'Cool temperate desert', color: ''},
+	12:{ desc: 'Matorral templado frío', desc2: 'Cool temperate desert scrub', color: ''},
+	13:{ desc: 'Estepa templada fría', desc2: 'Cool temperate steppe', color: ''},
+	14:{ desc: 'Bosque húmedo templado frío', desc2: 'Cool temperate moist forest', color: ''},
+	15:{ desc: 'Bosque muy húmedo templado frío', desc2: 'Cool temperate wet forest', color: ''},
+	16:{ desc: 'Bosque pluvial templado frío', desc2: 'Cool temperate rain forest', color: ''},
+	17:{ desc: 'Desierto templado cálido', desc2: 'Warm temperate desert', color: ''},
+	18:{ desc: 'Matorral xerófilo templado cálido', desc2: 'Warm temperate desert scrub', color: ''},
+	19:{ desc: 'Matorral espinoso templado cálido', desc2: 'Warm temperate thorn scrub', color: ''},
+	20:{ desc: 'Bosque seco templado cálido', desc2: 'Warm temperate dry forest', color: ''},
+	21:{ desc: 'Bosque húmedo templado cálido', desc2: 'Warm temperate moist forest', color: ''},
+	22:{ desc: 'Bosque muy húmedo templado cálido', desc2: 'Warm temperate wet forest', color: ''},
+	23:{ desc: 'Bosque pluvial templado cálido', desc2: 'Warm temperate rain forest', color: ''},
+	24:{ desc: 'Desierto subtropical', desc2: 'Subtropical desert', color: ''},
+	25:{ desc: 'Matorral xerófilo subtropical', desc2: 'Subtropical desert scrub', color: ''},
+	26:{ desc: 'Floresta espinosa subtropical', desc2: 'Subtropical thorn woodland', color: ''},
+	27:{ desc: 'Bosque seco subtropical', desc2: 'Subtropical dry forest', color: ''},
+	28:{ desc: 'Selva húmeda subtropical', desc2: 'Subtropical moist forest', color: ''},
+	29:{ desc: 'Selva muy húmeda subtropical', desc2: 'Subtropical wet forest', color: ''},
+	30:{ desc: 'Selva pluvial subtropical', desc2: 'Subtropical rain forest', color: ''},
+	31:{ desc: 'Desierto tropical', desc2: 'Tropical desert', color: ''},
+	32:{ desc: 'Matorral xerófilo tropical', desc2: 'Tropical desert scrub', color: ''},
+	33:{ desc: 'Floresta espinosa tropical', desc2: 'Tropical thorn woodland', color: ''},
+	34:{ desc: 'Bosque muy seco tropical', desc2: 'Tropical very dry forest', color: ''},
+	35:{ desc: 'Bosque seco tropical', desc2: 'Tropical dry forest', color: ''},
+	36:{ desc: 'Selva húmeda tropical', desc2: 'Tropical moist forest', color: ''},
+	37:{ desc: 'Selva muy húmeda tropical', desc2: 'Tropical wet forest', color: ''},
+	38:{ desc: 'Selva pluvial tropical', desc2: 'Tropical rain forest', color: ''},
+}
+
+console.log(lifeZonesList[8])
 /*
 Para determinar la clase de clima de una localidad, primero se debe obtener los siguientes datos de ella:
 	Tmin la temperatura media del mes más frío, en grados Celsius (°C);
@@ -262,3 +436,12 @@ Para la determinación de los subtipos de clima en un lugar son necesarios los s
 	Pwhum precipitaciones durante el mes más húmedo del invierno;
 
 */
+
+const inRange = (value: number, minimo: number, maximo: number): number => {
+	let out = value;
+
+	if (out > maximo) out = maximo;
+	if (out < minimo) out = minimo;
+	
+	return out;
+}

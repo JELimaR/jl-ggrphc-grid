@@ -29,7 +29,7 @@ export default class JHeightMap extends JWMap {
 		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(cellsMap.size);
 		const isLoaded: boolean = loadedHeightInfo.length !== 0;
 		if (!isLoaded) {
-			ard.hs().forEach((elem: { id: number, x: number, y: number, h: number }) => {
+			ard.hs().forEach((elem: { id: number, x: number, y: number, h: number }, idx: number) => {
 				const cellId = this.diagram.getCellFromCenter(new JPoint(elem.x, elem.y)).id;
 				loadedHeightInfo[cellId] = {
 					id: cellId,
@@ -37,6 +37,10 @@ export default class JHeightMap extends JWMap {
 					height: elem.h,
 					heightType: elem.h > 0.2 ? 'land' : 'ocean',
 				};
+				if (idx % 1000 == 0) {
+					console.log(`van ${idx} de ${ard.hs().length}`)
+					console.timeLog('set height info')
+				}
 			})
 		}
 		cellsMap.forEach((cell: JCell) => {

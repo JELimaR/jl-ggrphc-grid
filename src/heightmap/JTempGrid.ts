@@ -315,7 +315,7 @@ export default class JTempGrid {
 				// if (i > itcz.length * 0.35) {
 			out.push({
 				point: gp._point,
-				mag: 4 / 3 * (i > itcz.length * 0 ? -MAG : -landDiff * MAG)
+				mag: 5 / 3 * (i > itcz.length * 0 ? -MAG : -landDiff * MAG)
 			})
 			pressureCentersLocation[gp.colValue][gp.rowValue] = -1;
 			// }

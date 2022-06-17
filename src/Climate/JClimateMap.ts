@@ -33,7 +33,7 @@ export default class JClimateMap extends JWMap {
 		const climateData: IJCellClimateInfo[] = []; // dataInfoManager
 		if (climateData.length == 0) {
 			// agregar de los gridpoints
-			precipGrid._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+			/*precipGrid._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 				const cell = gp._cell;
 				const precData: IPrecipData = precipGrid._precipData[cidx][ridx];
 				const temps = [...tempGrid._tempData[cidx][ridx].tempMonth]
@@ -43,7 +43,7 @@ export default class JClimateMap extends JWMap {
 					tempMonth: temps.map((t: number, i: number) => t + precData.deltaTemps[i])
 				}
 				cell.mark();
-			})
+			})*/
 			// para el resto hacer un promedio
 			// let restList: JCell[] = []
 			// this.forEachCell((c: JCell) => {
@@ -102,19 +102,19 @@ export default class JClimateMap extends JWMap {
 			// })
 
 			this.forEachCell((c: JCell) => { // hacer unico for
-				if (!c.isMarked()) {
+				//if (!c.isMarked()) {
 					const gp = tempGrid._grid.getGridPoint(c.center);
 					const cidx = gp.colValue, ridx = gp.rowValue;
 					const precData: IPrecipData = precipGrid._precipData[cidx][ridx];
 					const temps = [...tempGrid._tempData[cidx][ridx].tempMonth];
-					const chf = 6.5 * c.info.cellHeight.heightInMeters / 1000;
-					const ghf = 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000;
+					const chf = c.info.isLand ? 6.5 * c.info.cellHeight.heightInMeters / 1000 : 0;
+					const ghf = gp._cell.info.isLand ? 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000 : 0;
 					climateData[c.id] = { 
 						id: c.id,
 						precipMonth: [...precData.precip],
 						tempMonth: temps.map((t: number, i: number) => t + precData.deltaTemps[i] + ghf - chf)
 					}
-				}
+				//}
 			})
 
 			this.forEachCell((c: JCell) => { c.dismark() })

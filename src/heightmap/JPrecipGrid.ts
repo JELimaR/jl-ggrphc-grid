@@ -59,10 +59,10 @@ export default class JPrecipGrid {
 			})
 
 			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
-				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => (((r < 100 ? r : r)/100) ** 1) * 634.1)//0 / precipMax)
+				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => (((r < 100 ? r : r)/100) ** 1) * 1134.1)//0 / precipMax)
 			})
 
-			dataInfoManager.saveGridPrecip(out, this._grid._granularity);
+			// dataInfoManager.saveGridPrecip(out, this._grid._granularity);
 		}
 
 		return out;
@@ -72,14 +72,14 @@ export default class JPrecipGrid {
 		let dout: IPrecipData[][] = [];
 
 		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
-			const h = gp._cell.info.height;
-
 			if (!dout[cidx]) dout[cidx] = [];
-			let precipArr: number[] = [];
-			din[0][0].precip.forEach((v: number) => { precipArr.push(0) })
+			let precipArr: number[] = [
+				0,0,0,0,
+				0,0,0,0,
+				0,0,0,0];
 			const neigs: JGridPoint[] = this._grid.getGridPointsInWindowGrade(gp._point, 5)
 			neigs.forEach((gpw: JGridPoint) => {
-				din[0][0].precip.forEach((v: number, mi: number) => {
+				precipArr.forEach((v: number, mi: number) => {
 					precipArr[mi] += din[gpw.colValue][gpw.rowValue].precip[mi];
 				})
 			})

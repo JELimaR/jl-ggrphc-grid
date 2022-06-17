@@ -103,7 +103,7 @@ export default class JPressureGrid {
 					})
 				})
 			})
-			dataInfoManager.saveGridPressure(info, this._grid._granularity)
+			// dataInfoManager.saveGridPressure(info, this._grid._granularity)
 		}
 
 		info.forEach((col: IPressureDataGrid[], c: number) => {

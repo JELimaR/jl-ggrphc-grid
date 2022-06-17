@@ -290,8 +290,8 @@ export default class DrawerMap {
 		})
 	}
 
-	drawFondo() {
-		const color = chroma.scale('Spectral').domain([1, 0])(0.05).hex();
+	drawFondo(color?: string) {
+		color = chroma.scale('Spectral').domain([1, 0])(0.05).hex();
 		this.draw([new JPoint(-200, -100), new JPoint(-200, 100), new JPoint(200, 100), new JPoint(200, -100), new JPoint(-200, -100)], {
 			strokeColor: color,
 			fillColor: color

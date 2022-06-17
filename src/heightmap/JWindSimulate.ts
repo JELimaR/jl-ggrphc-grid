@@ -4,11 +4,11 @@ import JPoint from "../Geom/JPoint";
 import JPressureGrid, { IPressureZone, PressureData } from "./JPressureGrid";
 import JTempGrid from "./JTempGrid";
 
-const sat: number = 10000;
+const sat: number = 60000;
 const roz = 0.7;
 const MAXEVAP = 200;
 const MAXRAIN = 100;
-const tempMin = -30;
+const tempMin = 0;
 
 
 export class JWindRoutePoint {
@@ -140,27 +140,30 @@ export default class JWindSimulate {
 			currVel = newState.vel;
 			gpnew = this._pressGrid._grid.getGridPoint(currPos);
 			// calc iter : evap and precip for currPos
-			const {
-				precipOut,
-				evapOut,
-				accOut,
-				deltaTempOut,
-			} = this.calcMoistureValuesIter(gpnew, gpprev, acc, month);
-			acc = accOut;
-			if (gpprev !== gpnew)
-				route.push( new JWindRoutePoint( currPos, accOut, evapOut, precipOut ));
 
-			// asignar
-			dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += /*Math.cos(gpprev._point.y * Math.PI / 180) */ precipOut;
-			dataPrecip[gpprev.colValue][gpprev.rowValue].precipCant++;
-			dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempValue += deltaTempOut;
-			dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempCant++;
-/*
-			this._grid.getGridPointsInWindowGrade(currPos, this._grid._granularity).forEach((gpn: JGridPoint) => {
-				dataPrecip[gpn.colValue][gpn.rowValue].value += Math.cos(gpprev!._point.y * Math.PI / 180) * precipOut * 0.65;
-				dataPrecip[gpn.colValue][gpn.rowValue].cant++;
-			})
-			*/
+			if (gpprev !== gpnew) {
+				const {
+					precipOut,
+					evapOut,
+					accOut,
+					deltaTempOut,
+				} = this.calcMoistureValuesIter(gpnew, gpprev, acc, month);
+				acc = accOut;
+				if (gpprev !== gpnew)
+					route.push( new JWindRoutePoint( currPos, accOut, evapOut, precipOut ));
+	
+				// asignar
+				dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += /*Math.cos((1.1*gpprev._point.y-0.1) * Math.PI / 180) */ precipOut;
+				dataPrecip[gpprev.colValue][gpprev.rowValue].precipCant = 1//++;
+				dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempValue += deltaTempOut;
+				dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempCant++;
+	/*
+				this._grid.getGridPointsInWindowGrade(currPos, this._grid._granularity).forEach((gpn: JGridPoint) => {
+					dataPrecip[gpn.colValue][gpn.rowValue].value += Math.cos(gpprev!._point.y * Math.PI / 180) * precipOut * 0.65;
+					dataPrecip[gpn.colValue][gpn.rowValue].cant++;
+				})
+				*/
+			}
 		}
 
 		return {
@@ -199,7 +202,7 @@ export default class JWindSimulate {
 		
 		pval = ((pval > 0) ? 1/pval : 100 + 1/pval) / 100;// (mmm.max - mmm.min)
 		if (pval < 0) console.log(pval)
-		pval = (0.95 * pval + 0.05) ** 2;
+		pval = (0.95 * pval + 0.05) ** 1.5;
 
 
 		// nextHeight		
@@ -212,12 +215,12 @@ export default class JWindSimulate {
 			if (precipOut > MAXRAIN) precipOut = MAXRAIN;
 
 			if (currTemp - tempMin > 0) {
-				evapOut = ((currTemp - tempMin) / (35 - tempMin) + pval * 0.11 + 0.1) * ( precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5 );
+				evapOut = ((currTemp - tempMin) / (35 - tempMin) + pval * 0.11 + 0.095) * ( precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5); // adaptar mejor este valor (el valor constante debe estar entre 0.07 y 0.1)
 			}
 		} else {
 			precipOut = 0.1 * ((0.1 ** 3) + pval) * acc;
 			if (currTemp - tempMin > 0)
-				evapOut = ((currTemp - tempMin) / (35 - tempMin) + pval * 0.11) * (1.5*MAXEVAP);
+				evapOut = ((currTemp - tempMin) / (35 - tempMin) /*+ pval * 0.11*/) * ( MAXEVAP * 1.5);
 		}
 
 		// precip real value
