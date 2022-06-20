@@ -30,6 +30,7 @@ export default class JPrecipGrid {
 
 			ws.precip.forEach((generated: IPrecipDataGenerated[][], month: number) => {
 				generated = this.smoothDeltaTemp(generated);
+				generated = this.smoothDeltaTemp(generated);
 				this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 					if (!out[cidx]) out[cidx] = [];
 					if (!out[cidx][ridx]) out[cidx][ridx] = { precip: [], deltaTemps: []/*, routes: []*/ };
@@ -59,7 +60,7 @@ export default class JPrecipGrid {
 			})
 
 			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
-				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => (((r < 100 ? r : r)/100) ** 1) * 1134.1)//0 / precipMax)
+				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => ((r/100) ** 1.5) * 3644.1 * (0.1 + 0.9*Math.cos(gp._point.y * Math.PI/180)))
 			})
 
 			// dataInfoManager.saveGridPrecip(out, this._grid._granularity);
@@ -110,7 +111,7 @@ export default class JPrecipGrid {
 			})
 			dtout[cidx][ridx] = {
 				...dtin[cidx][ridx],
-				deltaTempValue: 0.7 * sum / neigs.length + 0.3 * dtin[cidx][ridx].deltaTempValue,
+				deltaTempValue: 0.9 * sum / neigs.length + 0.1 * dtin[cidx][ridx].deltaTempValue,
 				deltaTempCant: 1
 			}
 		})

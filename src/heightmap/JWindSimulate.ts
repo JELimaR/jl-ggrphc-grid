@@ -4,11 +4,11 @@ import JPoint from "../Geom/JPoint";
 import JPressureGrid, { IPressureZone, PressureData } from "./JPressureGrid";
 import JTempGrid from "./JTempGrid";
 
-const sat: number = 60000;
-const roz = 0.7;
+const sat: number = 6000;
+const roz = 0.71;
 const MAXEVAP = 200;
 const MAXRAIN = 100;
-const tempMin = 0;
+const tempMin = -5;
 
 
 export class JWindRoutePoint {
@@ -141,7 +141,7 @@ export default class JWindSimulate {
 			gpnew = this._pressGrid._grid.getGridPoint(currPos);
 			// calc iter : evap and precip for currPos
 
-			if (gpprev !== gpnew) {
+			// if (gpprev !== gpnew) {
 				const {
 					precipOut,
 					evapOut,
@@ -153,8 +153,8 @@ export default class JWindSimulate {
 					route.push( new JWindRoutePoint( currPos, accOut, evapOut, precipOut ));
 	
 				// asignar
-				dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += /*Math.cos((1.1*gpprev._point.y-0.1) * Math.PI / 180) */ precipOut;
-				dataPrecip[gpprev.colValue][gpprev.rowValue].precipCant = 1//++;
+				dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += ((Math.cos(gpprev._point.y * Math.PI / 180)*0.8 + 0.2 ) ** 1.0 )* precipOut;
+				dataPrecip[gpprev.colValue][gpprev.rowValue].precipCant++;
 				dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempValue += deltaTempOut;
 				dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempCant++;
 	/*
@@ -163,7 +163,7 @@ export default class JWindSimulate {
 					dataPrecip[gpn.colValue][gpn.rowValue].cant++;
 				})
 				*/
-			}
+			// }
 		}
 
 		return {
@@ -186,12 +186,13 @@ export default class JWindSimulate {
 		const currPress: number = this._pressGrid.getPointInfo(gpprev._point).pots[month-1];
 		const nextTemp: number = this._tempGrid.getPointInfo(gpprev._point).tempMonth[month - 1];
 		const currTemp: number = this._tempGrid.getPointInfo(gpnew._point).tempMonth[month - 1];
+		const tempParam: number = currTemp < tempMin ? 0 : (currTemp - tempMin) / (35 - tempMin);
 		const mmm: { med: number, max: number, min: number } = this._pressGrid.getMaxMedMin(month);
 		// salidas
 		let precipOut: number = 0;
 		let evapOut: number = 0;
 		let accOut: number = 0;
-		let deltaTempOut: number = 1.5 * (currTemp - nextTemp);
+		let deltaTempOut: number = (nextHeight > 0.2 ? 2 : 10) * (currTemp - nextTemp);
 
 		// pressValue
 		let pval: number = 0;
@@ -202,7 +203,7 @@ export default class JWindSimulate {
 		
 		pval = ((pval > 0) ? 1/pval : 100 + 1/pval) / 100;// (mmm.max - mmm.min)
 		if (pval < 0) console.log(pval)
-		pval = (0.95 * pval + 0.05) ** 1.5;
+		pval = (0.95 * pval + 0.05) ** 2.4;
 
 
 		// nextHeight		
@@ -210,17 +211,17 @@ export default class JWindSimulate {
 			precipOut = (nextHeight ** 0.45) * acc;
 		} else if (nextHeight >= 0.2) {
 			let exponent = (nextHeight < 0.5) ? 2 : ((nextHeight < 0.7) ? 1.5 : 0.45);
-			precipOut = ((currHeight <= nextHeight) ? 0.5 : 0.0) * (nextHeight ** exponent + pval) * acc //MAXRAIN; // acc?
+			precipOut = ((currHeight <= nextHeight) ? 0.5 : 0.01) * (nextHeight ** exponent + pval) * acc //MAXRAIN; // acc?
 			if (precipOut > acc) precipOut = acc;
 			if (precipOut > MAXRAIN) precipOut = MAXRAIN;
 
-			if (currTemp - tempMin > 0) {
-				evapOut = ((currTemp - tempMin) / (35 - tempMin) + pval * 0.11 + 0.095) * ( precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5); // adaptar mejor este valor (el valor constante debe estar entre 0.07 y 0.1)
-			}
+			// if (currTemp - tempMin > 0) {
+				evapOut = (tempParam + pval * 0.11 + 0.095) * ( precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5); // adaptar mejor este valor (el valor constante debe estar entre 0.07 y 0.1)
+			// }
 		} else {
 			precipOut = 0.1 * ((0.1 ** 3) + pval) * acc;
 			if (currTemp - tempMin > 0)
-				evapOut = ((currTemp - tempMin) / (35 - tempMin) /*+ pval * 0.11*/) * ( MAXEVAP * 1.5);
+				evapOut = (tempParam + pval * 0.11 + 0.095) * ( MAXEVAP * 1.5);
 		}
 
 		// precip real value
@@ -230,7 +231,7 @@ export default class JWindSimulate {
 		if (evapOut > MAXEVAP) evapOut = MAXEVAP;
 
 		accOut = (nextHeight >= 0.84) ? 0 : acc + evapOut - precipOut;
-		if (accOut > sat) accOut = sat;
+		if (accOut > sat * (0.1 + 0.9*tempParam)) accOut = sat * (0.1 + 0.9*tempParam);
 		if (accOut < 0) accOut = 0;
 
 		return {

@@ -29,7 +29,7 @@ import { calcCoriolisForce, calcFieldInPoint } from './Climate/JPressureFieldFun
 
 import JPrecipGrid from './heightmap/JPrecipGrid';
 import JClimateMap from './Climate/JClimateMap';
-import { altitudinalBeltToNumber, humidityProvinceToNumber, koppenColors, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
+import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
 
 const tam: number = 3600;
 let SIZE: JVector = new JVector({ x: tam, y: tam / 2 });
@@ -46,7 +46,7 @@ const azgaarFolder: string[] = [
 	'Mont100', // 8
 	'Itri100' // 9
 ];
-const folderSelected: string = azgaarFolder[4];
+const folderSelected: string = azgaarFolder[9];
 
 console.log('folder:', folderSelected)
 
@@ -117,29 +117,6 @@ dm.drawCellMap(world, JCellToDrawEntryFunctions.heighLand(1))
 dm.drawMeridianAndParallels();
 dm.saveDrawFile(`hh.png`);
 
-/*
-const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1,0]);
-hgd._heightData.forEach((data: {
-	height: number
-}, id: number) => {
-	let val = Math.pow((5000+data.height)/11000, Math.log(0.2)/Math.log(5/11));
-	//val = Math.round(val*100)/100;
-	const gc = gcg._map.get(id)!;
-	const stringColor = '#' + hgd._rawData.getPixelColor(gc.colValue, gc.rowValue).toString(16).padStart(6, '0');
-	
-	const color: string = colorScale(val).hex();
-	
-	dm.drawDot(
-		gcg._map.get(id)!._coord.toPoint(),
-		{
-			strokeColor: stringColor,
-			fillColor: stringColor
-		},
-		GRAN
-	)
-})
-*/
-
 /****************************************************/
 
 /*** TEMPERATURE ***/
@@ -195,15 +172,7 @@ const month = 1;
 let mmm = pressGrid.getMaxMedMin(month);
 dm.clear()
 dm.drawFondo()
-/*
-getPressureCenters().forEach((val: any) => {
-	color = (val.mag < 10) ? '#00FF00' : '#FF0000';
-	dm.drawDot(val.point, {
-		strokeColor: color, fillColor: color
-	}, GRAN)
-})
-*/
-// console.log(mmm);
+
 
 colorScale = chroma.scale('Spectral').domain([mmm.max, mmm.min]);
 for (let i of monthArr) {
@@ -318,17 +287,6 @@ for (let month of monthArr) {
 */
 
 /*
-const gc = JPoint.greatCircle(lowPoint, highPoint)
-gc.forEach((p: JPoint) => {
-	dm.drawDot(p,
-	 {
-		 strokeColor: '#000000',
-		fillColor: '#000000'
-	 },
-		GRAN);
-})
-*/
-/*
 console.log('  2', pressGrid.getPointInfo(new JPoint(10, 2)))
 console.log('-32', pressGrid.getPointInfo(new JPoint(14, -32)))
 console.log(' 58', pressGrid.getPointInfo(new JPoint(12, 58)))
@@ -360,8 +318,9 @@ let koppenArea = {
 	Dfa: 0, Dfb: 0, Dfc: 0, Dfd: 0,
 	ET: 0, EF: 0,
 }
-let koppenBasicArea = {A: 0, B: 0, C:0, D: 0, E: 0}
+let koppenBasicArea = { A: 0, B: 0, C: 0, D: 0, E: 0 }
 let totalArea: number = 0;
+let annualMax: number = 0;
 const jcm: JClimateMap = new JClimateMap(world.diagram, precipGrid, tempGrid);
 /*
 dm2.clear();
@@ -390,6 +349,7 @@ dmclim.drawCellMap(world, (cell: JCell) => {
 		koppenArea[ccl.koppenSubType() as TKoppenSubType] += cell.areaSimple;
 		koppenBasicArea[ccl.koppenType() as TKoppenType] += cell.areaSimple;
 		totalArea += cell.areaSimple;
+		if (annualMax < ccl.annualPrecip) annualMax = ccl.annualPrecip;
 	}
 	else
 		color = '#FFFFFF'
@@ -401,16 +361,17 @@ dmclim.drawCellMap(world, (cell: JCell) => {
 
 dmclim.drawMeridianAndParallels();
 dmclim.saveDrawFile(`${GRAN}climateClass.png`)
-for(let p in koppenCant) {
+for (let p in koppenCant) {
 	console.log(p, koppenCant[p as TKoppenSubType], koppenArea[p as TKoppenSubType])
-	console.log((koppenArea[p as TKoppenSubType]/totalArea*100).toLocaleString())
+	console.log((koppenArea[p as TKoppenSubType] / totalArea * 100).toLocaleString())
 }
 console.log('----------------------------------------------------------------------------------')
-for(let p in koppenBasicArea) {
+for (let p in koppenBasicArea) {
 	console.log(p, koppenBasicArea[p as TKoppenType])
-	console.log((koppenBasicArea[p as TKoppenType]/totalArea*100).toLocaleString())
+	console.log((koppenBasicArea[p as TKoppenType] / totalArea * 100).toLocaleString())
 }
 
+console.log('annual precipitation max', annualMax)
 
 colorScale = chroma.scale('Spectral').domain([6, 0]);
 dmclim.clear();
@@ -451,7 +412,6 @@ dmclim.drawMeridianAndParallels();
 dmclim.saveDrawFile(`${GRAN}humidityProvinces.png`)
 
 //
-/*
 colorScale = chroma.scale('Spectral').domain([30, -35]);
 dmclim.clear()
 dmclim.drawCellMap(world, (cell: JCell) => {
@@ -465,6 +425,7 @@ dmclim.drawCellMap(world, (cell: JCell) => {
 })
 dmclim.drawMeridianAndParallels();
 dmclim.saveDrawFile(`tempMedia.png`)
+/*
 for (let month of monthArr) {
 	dmclim.clear()
 	dmclim.drawCellMap(world, (cell: JCell) => {
@@ -481,7 +442,7 @@ for (let month of monthArr) {
 }
 /*/
 //
-colorScale = chroma.scale('Spectral').domain([500, 0]);
+colorScale = chroma.scale('Spectral').domain([2500, 0]);
 dmclim.clear()
 dmclim.drawCellMap(world, (cell: JCell) => {
 	const ccl = cell.info.cellClimate;
@@ -498,7 +459,7 @@ for (let month of monthArr) {
 	dmclim.clear()
 	dmclim.drawCellMap(world, (cell: JCell) => {
 		const ccl = cell.info.cellClimate;
-		const val = Math.round(ccl.precipMonth[month-1] / tempStep) * tempStep;
+		const val = Math.round(ccl.precipMonth[month - 1] / tempStep) * tempStep;
 		color = colorScale(val).hex();
 		return {
 			fillColor: color,
@@ -512,5 +473,43 @@ for (let month of monthArr) {
 console.log(`
 disminuir el valor de Tmin en windsimulation y volver a utilizar el coseno de lat en windsimulation. 
 `)
+
+/**
+ * LIFE ZONES
+ */
+let lifeZonesCant = {
+	1: 0, 2: 0, 3: 0, 4: 0,
+	5: 0, 6: 0, 7: 0, 8: 0,
+	9: 0, 10: 0, 11: 0, 12: 0,
+	13: 0, 14: 0, 15: 0, 16: 0,
+	17: 0, 18: 0, 19: 0, 20: 0,
+	21: 0, 22: 0, 23: 0, 24: 0,
+	25: 0, 26: 0, 27: 0, 28: 0,
+	29: 0, 30: 0, 31: 0, 32: 0,
+	33: 0, 34: 0, 35: 0, 36: 0,
+	37: 0, 38: 0,
+}
+
+dmclim.clear()
+dmclim.drawCellMap(world, (cell: JCell) => {
+	const ccl = cell.info.cellClimate;
+	if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
+		color = ccl.lifeZone.color;
+		lifeZonesCant[ccl.lifeZone.id as keyof typeof lifeZonesCant]++;
+	}
+	else
+		color = '#FFFFFF00'
+	return {
+		fillColor: color,
+		strokeColor: color,
+	}
+})
+dmclim.drawMeridianAndParallels();
+dmclim.saveDrawFile(`${GRAN}lifeZones.png`)
+for (let z = 1; z <= 38; z++) {
+	const i = z as keyof typeof lifeZonesList;
+	console.log(`${i}: ${lifeZonesList[i].desc}	-	${lifeZonesCant[i]}`)
+
+}
 
 console.timeEnd('all')

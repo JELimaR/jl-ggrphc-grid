@@ -48,11 +48,22 @@ export default class JHeightMap extends JWMap {
 			cell.info.setHeightInfo(hinf);
 		})
 
+		// depresiones aquí
+
 		console.timeEnd('set height info');
 		// guardar info
 		if (!isLoaded) {
 			dataInfoManager.saveCellsHeigth(cellsMap, cellsMap.size);
 		}
+
+		this.forEachCell((c: JCell) => {
+			if (c.info.isLand) {
+				const ns: JCell[] = this.diagram.getNeighbors(c);
+				let hnmin: number = 0;
+				ns.forEach((nc: JCell) => {if (hnmin > nc.info.height) hnmin = nc.info.height })
+				if (c.info.height < hnmin) c.info.height = hnmin*0.99991;
+			}
+		})
 
 		/*
 		 * islands
