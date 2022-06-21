@@ -63,7 +63,7 @@ export default class JPrecipGrid {
 				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => ((r/100) ** 1.5) * 3644.1 * (0.1 + 0.9*Math.cos(gp._point.y * Math.PI/180)))
 			})
 
-			// dataInfoManager.saveGridPrecip(out, this._grid._granularity);
+			dataInfoManager.saveGridPrecip(out, this._grid._granularity);
 		}
 
 		return out;
@@ -85,7 +85,7 @@ export default class JPrecipGrid {
 				})
 			})
 			dout[cidx][ridx] = {
-				precip: precipArr.map((v: number, i: number) => 0.5 * v / neigs.length + 0.5 * din[cidx][ridx].precip[i]),
+				precip: precipArr.map((v: number, i: number) => 0.55 * v / neigs.length + 0.45 * din[cidx][ridx].precip[i]),
 				deltaTemps: din[cidx][ridx].deltaTemps
 				// routes: din[cidx][ridx].routes
 			};

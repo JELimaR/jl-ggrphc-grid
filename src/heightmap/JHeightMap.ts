@@ -49,6 +49,7 @@ export default class JHeightMap extends JWMap {
 		})
 
 		// depresiones aquí
+		// definir correctamente los oceanos
 
 		console.timeEnd('set height info');
 		// guardar info
@@ -61,7 +62,7 @@ export default class JHeightMap extends JWMap {
 				const ns: JCell[] = this.diagram.getNeighbors(c);
 				let hnmin: number = 0;
 				ns.forEach((nc: JCell) => {if (hnmin > nc.info.height) hnmin = nc.info.height })
-				if (c.info.height < hnmin) c.info.height = hnmin*0.99991;
+				if (c.info.height < hnmin) c.info.height = hnmin*1.002;
 			}
 		})
 

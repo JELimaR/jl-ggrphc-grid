@@ -30,6 +30,7 @@ import { calcCoriolisForce, calcFieldInPoint } from './Climate/JPressureFieldFun
 import JPrecipGrid from './heightmap/JPrecipGrid';
 import JClimateMap from './Climate/JClimateMap';
 import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
+import JRiverMap from './heightmap/JRiverMap';
 
 const tam: number = 3600;
 let SIZE: JVector = new JVector({ x: tam, y: tam / 2 });
@@ -70,7 +71,7 @@ console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
 const TOTAL: number = 10;
-const GRAN: number = 2//0.5;
+const GRAN: number = 2;
 const world: JWorld = new JWorld(TOTAL, GRAN);
 const tempStep = 5;
 // const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -511,5 +512,8 @@ for (let z = 1; z <= 38; z++) {
 	console.log(`${i}: ${lifeZonesList[i].desc}	-	${lifeZonesCant[i]}`)
 
 }
+
+/**** */
+const rm = new JRiverMap(world.diagram);
 
 console.timeEnd('all')

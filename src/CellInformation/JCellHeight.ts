@@ -30,28 +30,15 @@ export default class JCellHeight {
 	private _heightType: TypeCellheight;
 	private _island: number = -1;
 
-	constructor(c: JCell, info: IJCellHeightInfo | undefined) {
+	constructor(c: JCell, info: IJCellHeightInfo) {
 		this._cell = c;
 		// const turfPol = this._cell.toTurfPolygonSimple();
-		if (info) {
-			this._height = /*(info.height < 0.2 && c.area > 17000) ? 0.05 :*/ info.height;
-			this._prevHeight = info.prevHeight;
-			this._heightType = info.heightType;
-			
-		} else {
-			const out = this.setReliefZone();
-			this._height = Math.round(out.h*1000000)/1000000*0 + 0.01;
-			this._heightType = out.th;
-		}
-	}
-
-	setReliefZone(): { h: number, th: TypeCellheight } {
-		let out: { h: number, th: TypeCellheight } = { h: 0, th: 'land' };
-		const rfn: ()=>number = RandomNumberGenerator.makeRandomFloat(this._cell.id);
-		out.h = rfn();
-		out.th = 'deepocean'
 		
-		return out;
+		this._height = /*(info.height < 0.2 && c.area > 17000) ? 0.05 :*/ info.height;
+		this._prevHeight = info.prevHeight;
+		this._heightType = info.heightType;
+			
+
 	}
 
 	get height(): number {return this._height}
