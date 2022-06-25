@@ -27,7 +27,7 @@ export default class JEdge {
 	private _vertexA: JPoint;
 	private _vertexB: JPoint;
 	private _points: JPoint[] = [];
-	static _diagramSize: number;
+	//static _diagramSize: number;
 
 	constructor({/*e,*/ ls, rs, va, vb}: IJEdgeConstructor) {
 		//this._edge = e;
@@ -36,7 +36,7 @@ export default class JEdge {
 		this._vertexA = va;
 		this._vertexB = vb;
 	}
-
+/*
 	static calculateId(lid: number, rid: number): number {
 		let key: number = (lid + 1) * this._diagramSize + (rid + 1);
 		return key
@@ -45,20 +45,23 @@ export default class JEdge {
 	static set diagramSize(ds: number) {
 		this._diagramSize = ds + 1;
 	}
-
+*/
 	// get diagramId(): string { return this._id}
 
 	get lSite(): JSite {return this._lSite}
 	get rSite(): JSite | undefined {return this._rSite}
 	get vertexA(): JPoint { return this._vertexA}
 	get vertexB(): JPoint { return this._vertexB}
-
+/*
 	get id(): number {
 		let out = (this._lSite.id + 1) * JEdge._diagramSize;
 		out += (this._rSite) ? this._rSite.id + 1 : 0;
 		return out;
 	}
-
+*/
+	get id(): string {
+		return `a${this._vertexA.id}-b${this._vertexB.id}`
+	}
 	get diamond(): turf.Feature<turf.Polygon> {
 		if (this._rSite) {
 			return turf.polygon([[

@@ -4,15 +4,17 @@ import JPoint, { JVector } from '../Geom/JPoint';
 import JCell from "./JCell";
 import JEdge from "./JEdge";
 import JSite from './JSite';
+import JVertex from './JVertex';
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 // import { IJCellInformation } from './JCellInformation';
 const dataInfoManager = DataInformationFilesManager.instance;
 
-
 export default class JDiagram {
 	// private _diagram: Diagram;
 	private _cells: Map<number, JCell> = new Map<number, JCell>();
-	private _vertices: JPoint[] = [];
+	private _cells2: Map<string, JCell> = new Map<string, JCell>();
+	// private _vertices: JPoint[] = [];
+	private _vertices2: Map<string, JVertex> = new Map<string, JVertex>();
 	private _edges: JEdge[] = []; //cambiar
 
 	constructor(d: Diagram) {
@@ -31,20 +33,37 @@ export default class JDiagram {
 			const js: JSite = new JSite(c.site);
 			sites.set(js.id, js);
 		});
-		// setear vertices
+		// crear maps de vertices
+		/*
 		let verticesMap = new Map<Vertex, JPoint>();
+		let verticesCellMap = new Map<Vertex, JEdge[]>();
 		d.vertices.forEach((v: Vertex) => {
 			const p = new JPoint(v.x, v.y);
 			this._vertices.push(p);
 			verticesMap.set(v, p);
-		})
+			verticesCellMap.set(v, []);
+		})*/
 		// setear edges
-		JEdge.diagramSize = d.cells.length;
+		// JEdge.diagramSize = d.cells.length;
 		let edgesMap = new Map<Edge, JEdge>();
+		let verticesPointMap = new Map<string, JPoint>();
+		let verticesEdgeMap = new Map<string, JEdge[]>();
 		d.edges.forEach((e: Edge) => {
 			// obtener vertices: va y vb
+			let vaId: string = JPoint.getIdfromVertex(e.va);
+			if (!verticesPointMap.get(vaId)) {
+				verticesPointMap.set(vaId, JPoint.fromVertex(e.va));
+			}
+			let va: JPoint = verticesPointMap.get(vaId) as JPoint;
+			let vbId: string = JPoint.getIdfromVertex(e.vb);
+			if (!verticesPointMap.get(vbId)) {
+				verticesPointMap.set(vbId, JPoint.fromVertex(e.vb));
+			}
+			let vb: JPoint = verticesPointMap.get(vbId) as JPoint;
+			/*
 			let va: JPoint = verticesMap.get(e.va) as JPoint;
 			let vb: JPoint = verticesMap.get(e.vb) as JPoint;
+			*/
 
 			// obtener los sites: lSite y rSite
 			const ls: JSite = sites.get(e.lSite.id) as JSite;
@@ -59,6 +78,18 @@ export default class JDiagram {
 
 			this._edges.push(je);
 			edgesMap.set(e, je);
+			//
+			if (!verticesEdgeMap.get(vaId)) verticesEdgeMap.set(vaId, []);
+			verticesEdgeMap.get(vaId)!.push(je);
+			
+			if (!verticesEdgeMap.get(vbId)) verticesEdgeMap.set(vbId, []);
+			verticesEdgeMap.get(vbId)!.push(je);
+		})
+		// setear vertices
+		verticesPointMap.forEach((p: JPoint) => {
+			const edges: JEdge[] = verticesEdgeMap.get(p.id) as JEdge[];
+			const jv: JVertex = new JVertex(p, edges);
+			this._vertices2.set(p.id, jv)
 		})
 
 		// setear cells
@@ -76,6 +107,7 @@ export default class JDiagram {
 
 			const cell = new JCell(/*c,*/ js, arrEdges/*info*/);
 			this._cells.set(js.id, cell);
+			this._cells2.set(js.point.id, cell);
 		});
 
 		// if (loadedInfo.length === 0) {
@@ -93,9 +125,13 @@ export default class JDiagram {
 		})
 		return out;
 	}
-	get vertices(): JPoint[] { return this._vertices }
+	//get vertices(): JPoint[] { return this._vertices }
+	get vertices2(): Map<string, JVertex> { return this._vertices2 }
 	get edges(): JEdge[] { return this._edges }
 	get cells(): Map<number, JCell> { return this._cells }
+	getCellsMapStringKey(): Map<string, JCell> {
+		return this._cells2;
+	}
 
 	forEachCell(func: (c: JCell) => void) {
 		this._cells.forEach((c: JCell) => {
@@ -103,7 +139,13 @@ export default class JDiagram {
 		})
 	}
 
-	getNeighbors(cell: JCell): JCell[] {
+	forEachVertex(func: (v: JVertex) => void) {
+		this._vertices2.forEach((v: JVertex) => {
+			func(v);
+		})
+	}
+
+	getCellNeighbours(cell: JCell): JCell[] { // cambiar a getCellNeighbours
 		let out: JCell[] = [];
 		for (let id of cell.neighborsId) {
 			const n: JCell | undefined = this._cells.get(id);
@@ -111,6 +153,42 @@ export default class JDiagram {
 				out.push(n);
 			else
 				throw new Error('cell tiene neghbor que no existe');
+		}
+		return out;
+	}
+
+	getCellsAssociated(v: JVertex) {
+		let out: JCell[] = [];
+		for (let id of v.cellIds) {
+			const n: JCell | undefined = this._cells.get(id);
+			if (n)
+				out.push(n);
+			else
+				throw new Error('vertex tiene cell que no existe');
+		}
+		return out;
+	}
+
+	getVertexNeighbours(v: JVertex): JVertex[] {
+		let out: JVertex[] = [];
+		for (let vid of v.neighborsId) {
+			const vn: JVertex | undefined = this._vertices2.get(vid)
+			if (vn)
+				out.push(vn);
+			else
+				throw new Error('vertex tiene neghbor que no existe');
+		}
+		return out;
+	}
+
+	getVerticesAssociated(cell: JCell): JVertex[] {
+		let out: JVertex[] = [];
+		for (let vid of cell.verticesId) {
+			const vn: JVertex | undefined = this._vertices2.get(vid)
+			if (vn)
+				out.push(vn);
+			else
+				throw new Error('cell tiene vertex que no existe');
 		}
 		return out;
 	}
@@ -159,6 +237,7 @@ export default class JDiagram {
 
 	getCellFromCenter(p: JPoint): JCell {
 		let out: JCell | undefined;
+		/*
 		let founded: boolean = false;
 		let i: number = 0;
 		while (!founded && i < this._cells.size) {
@@ -167,7 +246,8 @@ export default class JDiagram {
 				founded = true;
 			}
 			i++;
-		}
+		}*/
+		out = this._cells2.get(p.id);
 		if (out)
 			return out;
 		else {
@@ -199,7 +279,7 @@ export default class JDiagram {
 			// 	elem.center.y <= center.y + grades && elem.center.y >= center.y - grades ) {
 				out.push(elem);
 				elem.mark();
-				this.getNeighbors(elem).forEach((neighElem: JCell) => {
+				this.getCellNeighbours(elem).forEach((neighElem: JCell) => {
 					if (!neighElem.isMarked()) {
 						qeue.set(neighElem.id, neighElem);
 					}
@@ -231,7 +311,7 @@ export default class JDiagram {
 			// 	elem.center.y <= center.y + grades && elem.center.y >= center.y - grades ) {
 				out.push(elem);
 				elem.mark();
-				this.getNeighbors(elem).forEach((neighElem: JCell) => {
+				this.getCellNeighbours(elem).forEach((neighElem: JCell) => {
 					if (!neighElem.isMarked()) {
 						qeue.set(neighElem.id, neighElem);
 					}
@@ -256,7 +336,7 @@ export default class JDiagram {
 		let finished: boolean = endCell.id === currCell.id;
 		while (!finished) {
 			let arr: { cell: JCell; dist: number }[] = [];
-			this.getNeighbors(currCell).forEach((n: JCell) => {
+			this.getCellNeighbours(currCell).forEach((n: JCell) => {
 				arr.push({ cell: n, dist: JPoint.geogDistance(n.center, end) });
 				finished = true;
 			})
@@ -269,6 +349,17 @@ export default class JDiagram {
 		}
 		// out.push(endCell);
 		return out;
+	}
+
+	dismarkAllCells(): void {
+		this.forEachCell((c: JCell) => {
+			c.dismark();
+		})	
+	}
+	dismarkAllVertices(): void {
+		this.forEachVertex((v: JVertex) => {
+			v.dismark();
+		})	
 	}
 }
 

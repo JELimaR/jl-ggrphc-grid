@@ -92,7 +92,7 @@ export default class JWorldMap implements ICellContainer {
 			reg.addCell(cell);
 
 			let qeue: Map<number, JCell> = new Map<number, JCell>();
-			this._diagram.getNeighbors(cell).forEach((ncell: JCell) => {
+			this._diagram.getCellNeighbours(cell).forEach((ncell: JCell) => {
 				qeue.set(ncell.id, ncell)
 			});
 
@@ -106,7 +106,7 @@ export default class JWorldMap implements ICellContainer {
 				neigh.mark();
 				reg.addCell(neigh);
 
-				this._diagram.getNeighbors(neigh).forEach((nnn: JCell) => {
+				this._diagram.getCellNeighbours(neigh).forEach((nnn: JCell) => {
 					if (nnn.info.isLand && !nnn.isMarked() && !qeue.has(nnn.id)) {
 						qeue.set(nnn.id, nnn);
 					}

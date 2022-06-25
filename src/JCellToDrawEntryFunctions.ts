@@ -1,4 +1,5 @@
 import chroma from 'chroma-js';
+import { koppenColors, TKoppenSubType } from './CellInformation/JCellClimate';
 const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1,0]);
 
 import {IDrawEntry} from './DrawerMap';
@@ -48,6 +49,41 @@ export const list = (alpha: number = 1) => {
 	alpha = verifyAlpha(alpha);
 	return (c: JCell) => {
 		let color: string = c.info.isLand ? chroma('#FFFFFF').alpha(alpha).hex() : colorScale(0.05).alpha(alpha).hex();
+		return {
+			fillColor: color,
+			strokeColor: color
+		}
+	}
+}
+
+export const koppen = (alpha = 1) => {
+	alpha = verifyAlpha(alpha);
+	return (c: JCell) => {
+		let color: string;
+		const ccl = c.info.cellClimate;
+		if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
+			color = koppenColors[ccl.koppenSubType() as TKoppenSubType]
+			color = chroma(color).alpha(alpha).hex();
+		}
+		else
+			color = '#FFFFFF'
+		return {
+			fillColor: color,
+			strokeColor: color
+		}
+	}
+}
+
+export const lifeZones = (alpha = 1) => {
+	alpha = verifyAlpha(alpha);
+	return (c: JCell) => {
+		let color: string;
+		const ccl = c.info.cellClimate;
+		if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
+			color = chroma(ccl.lifeZone.color).alpha(alpha).hex();
+		}
+		else
+			color = '#FFFFFF00'
 		return {
 			fillColor: color,
 			strokeColor: color

@@ -27,6 +27,15 @@ export default class JClimateMap extends JWMap {
 			cell.info.setClimatetInfo(climateData[cell.id]);
 		})
 
+		let annualMax: number = 0;
+		this.forEachCell((cell: JCell) => {
+			const ccl = cell.info.cellClimate;
+			if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
+				if (annualMax < ccl.annualPrecip) annualMax = ccl.annualPrecip;
+			}
+		})
+		JCellClimate.maxAnnual = annualMax;
+
 	}
 
 	getClimateData(precipGrid: JPrecipGrid, tempGrid: JTempGrid) {

@@ -70,6 +70,12 @@ export default class JCell {
 		return out;
 	}
 
+	get verticesId(): string[] {
+		let out: string[] = [];
+		this.voronoiVertices.forEach((p: JPoint) => out.push(p.id))
+		return out;
+	}
+
 	get neighborsId(): number[] {
 		let out: number[] = [];
 		this._halfedges.forEach((he: JHalfEdge) => {
@@ -115,12 +121,16 @@ export default class JCell {
 		])
 	}
 
+	isPointIn(p: JPoint): boolean {
+		return turf.booleanPointInPolygon(turf.point(p.toTurfPosition()), this.toTurfPolygonSimple())
+	}
+
 	/*
 	 * Generic Information
 	 */
-	mark(): void { this._cellInformation!.mark = true }
-	dismark(): void { this._cellInformation!.mark = false }
-	isMarked(): boolean { return this._cellInformation!.mark }
+	mark(): void { this._cellInformation.mark = true }
+	dismark(): void { this._cellInformation.mark = false }
+	isMarked(): boolean { return this._cellInformation.mark }
 	/*
 	 * Height or relief Information
 	 */

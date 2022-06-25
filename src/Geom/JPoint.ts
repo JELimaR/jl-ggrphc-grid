@@ -59,6 +59,10 @@ export default class JPoint {
 		return new JPoint(-this._y, this._x);
 	}
 
+	get id(): string {
+		return `x${Math.round(1000000 * this._x)}-y${Math.round(1000000 * this._y)}`;
+	}
+
 	static equal(a: JPoint, b: JPoint): boolean {
 		return (
 			Math.abs(a._x - b._x) < 0.0001 &&
@@ -101,6 +105,10 @@ export default class JPoint {
 
 	static fromVertex(v: Vertex): JPoint {
 		return new JPoint(v.x, v.y);
+	}
+
+	static getIdfromVertex(v: Vertex): string {
+		return JPoint.fromVertex(v).id;
 	}
 
 	static pointToCoord(p: JPoint): JPoint { // o modificamos el JPoint

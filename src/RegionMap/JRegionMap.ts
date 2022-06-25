@@ -116,7 +116,7 @@ export default class JRegionMap extends JWMap  {
 		}
 		c.neighborsId.forEach((id: number) => {
 			const ncell = this.diagram.cells.get(id);
-			if (ncell && !this.isInRegion(ncell) && ncell.info.getHeightInfo()!.heightType !== 'deepocean') {
+			if (ncell && !this.isInRegion(ncell) /*&& ncell.info.getHeightInfo()!.heightType !== 'deepocean'*/) {
 				this._neighborList.add(id);
 			}
 		})

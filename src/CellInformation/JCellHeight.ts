@@ -10,7 +10,6 @@ import { MLRegs } from "../zones/MLRegs";*/
 import JCell from "../Voronoi/JCell";
 
 export type TypeCellheight =
-	| 'deepocean'
 	| 'ocean'
 	| 'land'
 
@@ -45,6 +44,7 @@ export default class JCellHeight {
 	get heightInMeters(): number { return 6121.258 * ((this._height - 0.2)/0.8) ** 1.8 } // corregir
 	get prevHeight(): number {return this._prevHeight}
 	get heightType(): TypeCellheight {return this._heightType}
+	set heightType(ht: TypeCellheight) {this._heightType = ht}
 	set height(h: number) {
 		if (this._heightType === 'land' && h < 0.2) {
 			this._prevHeight = this._height;
@@ -56,7 +56,6 @@ export default class JCellHeight {
 			this._height = 0.19;
 			return
 		}
-		if (this._heightType === 'deepocean') return;
 		this._prevHeight = this._height;
 		this._height = h;
 	}

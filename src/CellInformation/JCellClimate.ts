@@ -302,7 +302,11 @@ export default class JCellClimate {
 		return lifeZonesList[id]
 	}
 
+	// statics
+	private static _maxAnnual: number = -1;
 
+	static get maxAnnual(): number { return this._maxAnnual }
+	static set maxAnnual(maxAnnual: number) { this._maxAnnual = maxAnnual }
 
 }
 /*

@@ -17,11 +17,11 @@ export default class JHalfEdge {
 
 	get initialPoint(): JPoint {
 
-		return this.edge.lSite === this._site ? this.edge.vertexA : this.edge.vertexB;
+		return this._edge.lSite === this._site ? this._edge.vertexA : this._edge.vertexB;
 	}
 	get finalPoint(): JPoint {
 
-		return this.edge.lSite === this._site ? this.edge.vertexB : this.edge.vertexA;
+		return this._edge.lSite === this._site ? this._edge.vertexB : this._edge.vertexA;
 	}
 
 	get points(): JPoint[] {

@@ -9,6 +9,7 @@ import JCell from './Voronoi/JCell';
 export default class JWorld implements ICellContainer {
 	
 	private _diagram: JDiagram;
+	// private _primaryDiagram: JDiagram;
 	private _grid: JGrid;
 	private _heightMap: JHeightMap | undefined;
 	// private _temperatureMap: JTempMap | undefined;

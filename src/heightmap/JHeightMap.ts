@@ -29,22 +29,23 @@ export default class JHeightMap extends JWMap {
 		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(cellsMap.size);
 		const isLoaded: boolean = loadedHeightInfo.length !== 0;
 		if (!isLoaded) {
-			ard.hs().forEach((elem: { id: number, x: number, y: number, h: number }, idx: number) => {
+			const azgaarHeight = ard.hs();
+			azgaarHeight.forEach((elem: { id: number, x: number, y: number, h: number }, idx: number) => {
 				const cellId = this.diagram.getCellFromCenter(new JPoint(elem.x, elem.y)).id;
 				loadedHeightInfo[cellId] = {
 					id: cellId,
 					prevHeight: 0,
 					height: elem.h,
-					heightType: elem.h > 0.2 ? 'land' : 'ocean',
+					heightType: 'land',
 				};
 				if (idx % 1000 == 0) {
-					console.log(`van ${idx} de ${ard.hs().length}`)
+					console.log(`van ${idx} de ${azgaarHeight.length}`)
 					console.timeLog('set height info')
 				}
 			})
 		}
 		cellsMap.forEach((cell: JCell) => {
-			const hinf: IJCellHeightInfo | undefined = loadedHeightInfo[cell.site.id];
+			const hinf: IJCellHeightInfo = loadedHeightInfo[cell.id];
 			cell.info.setHeightInfo(hinf);
 		})
 
@@ -54,17 +55,13 @@ export default class JHeightMap extends JWMap {
 		console.timeEnd('set height info');
 		// guardar info
 		if (!isLoaded) {
+			console.log('set ocean cells')
+			this.setOceanTypeCell();
+			console.log('resolving depressions')
+			this.resolveDepressions();
 			dataInfoManager.saveCellsHeigth(cellsMap, cellsMap.size);
 		}
 
-		this.forEachCell((c: JCell) => {
-			if (c.info.isLand) {
-				const ns: JCell[] = this.diagram.getNeighbors(c);
-				let hnmin: number = 0;
-				ns.forEach((nc: JCell) => {if (hnmin > nc.info.height) hnmin = nc.info.height })
-				if (c.info.height < hnmin) c.info.height = hnmin*1.002;
-			}
-		})
 
 		/*
 		 * islands
@@ -94,7 +91,7 @@ export default class JHeightMap extends JWMap {
 			c.mark();
 			let ht: number = c.info.height;
 			let cant: number = 1;
-			let ns: JCell[] = this.diagram.getNeighbors(c)
+			let ns: JCell[] = this.diagram.getCellNeighbours(c)
 			ns.forEach((n: JCell) => {
 				cant++;
 				if (n.isMarked()) {
@@ -132,7 +129,7 @@ export default class JHeightMap extends JWMap {
 			cell.info.islandId = reg.id; // nuevo
 
 			let qeue: Map<number, JCell> = new Map<number, JCell>();
-			this.diagram.getNeighbors(cell).forEach((ncell: JCell) => {
+			this.diagram.getCellNeighbours(cell).forEach((ncell: JCell) => {
 				qeue.set(ncell.id, ncell)
 			});
 
@@ -147,7 +144,7 @@ export default class JHeightMap extends JWMap {
 				reg.addCell(neigh);
 				neigh.info.islandId = reg.id; // nuevo
 
-				this.diagram.getNeighbors(neigh).forEach((nnn: JCell) => {
+				this.diagram.getCellNeighbours(neigh).forEach((nnn: JCell) => {
 					if (nnn.info.isLand && !nnn.isMarked() && !qeue.has(nnn.id)) {
 						qeue.set(nnn.id, nnn);
 					}
@@ -164,6 +161,65 @@ export default class JHeightMap extends JWMap {
 		this._islands.sort((a: JIslandMap, b: JIslandMap) => { return b.area - a.area });
 
 		this.diagram.forEachCell((c: JCell) => { c.dismark(); })
+	}
+
+	private resolveDepressions() {
+		let cellArr: JCell[] = [];
+		this.forEachCell((c: JCell) => {
+			if (c.info.cellHeight.heightType !== 'ocean') {
+				cellArr.push(c);
+			}
+		})
+		let hay = true, it: number = 0;
+		while (it < 250 && hay) {
+			hay = false;
+			cellArr.forEach((c: JCell) => {
+				const mhn = this.getMinHeightNeighbour(c);
+				if (mhn.info.height >= c.info.height) {
+					hay = true;
+					c.info.height += (mhn.info.height - c.info.height) + 0.01011;
+				}			
+			})
+			it++;
+		}
+	}
+
+	private getMinHeightNeighbour(cell: JCell): JCell {
+    const narr: JCell[] = this.diagram.getCellNeighbours(cell);
+    let out: JCell = narr[0], minH = 2;
+    narr.forEach((nc: JCell) => {
+      if (nc.info.height < minH) {
+				out = nc;
+				minH = nc.info.height;
+			}
+    })
+    return out;
+  }
+
+	private setOceanTypeCell() {
+		this.diagram.dismarkAllCells();
+		const initCell = this.diagram.getCellFromPoint(new JPoint(-180,0));
+		if (initCell.info.height >= 0.2) throw new Error('en initCell de ocean type');
+		
+		let lista: JCell[] = [initCell];
+		initCell.mark();
+		let times: number = 0;
+		while (lista.length > 0 && times < this.diagram.cells.size) {
+			times++;
+			const currCell: JCell = lista.shift() as JCell;
+			currCell.info.cellHeight.heightType = 'ocean';
+			this.diagram.getCellNeighbours(currCell).forEach((neig: JCell) => {
+				if (!neig.isMarked() && neig.info.height <= 0.20) {
+					lista.push(neig);
+					neig.mark();
+				}
+			})
+		}
+
+		console.log('times', times);
+		console.log('lista', lista.length);
+
+		this.diagram.dismarkAllCells();
 	}
 
 	get islands() { return this._islands }
