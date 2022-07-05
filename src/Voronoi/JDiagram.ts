@@ -6,6 +6,7 @@ import JEdge from "./JEdge";
 import JSite from './JSite';
 import JVertex from './JVertex';
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
+// import JSubDiagram from './JSubDiagram';
 // import { IJCellInformation } from './JCellInformation';
 const dataInfoManager = DataInformationFilesManager.instance;
 
@@ -17,14 +18,29 @@ export default class JDiagram {
 	private _vertices2: Map<string, JVertex> = new Map<string, JVertex>();
 	private _edges: JEdge[] = []; //cambiar
 
-	constructor(d: Diagram) {
+	// private _subDiagram: JSubDiagram | undefined;
+	private _ancestor: JDiagram | undefined;
+
+	constructor(d: Diagram, ancestor?: {d: JDiagram, a: number}) {
 		console.log('Setting JDiagram values');
 		console.time('set JDiagram values');
 
 		this.setDiagramValuesContructed(d);
 
 		console.timeEnd('set JDiagram values');
+
+		if (ancestor) {
+			this._ancestor = ancestor.d;
+			const sitesMap: Map<string, {	p: JPoint; cid: number;	}> = this._ancestor.getSubSites(ancestor.a);
+			sitesMap.forEach((value: { p: JPoint; cid: number; }, key: string) => {
+				const subCell: JCell = this.getCellFromCenter(value.p);
+				const ancCell: JCell = ancestor.d.cells.get(value.cid) as JCell;
+				ancCell.addSubCell(subCell);
+			})
+		}
 	}
+
+	get ancestor(): JDiagram | undefined { return this._ancestor }
 
 	private setDiagramValuesContructed(d: Diagram): void {
 		// setear sites
@@ -237,16 +253,6 @@ export default class JDiagram {
 
 	getCellFromCenter(p: JPoint): JCell {
 		let out: JCell | undefined;
-		/*
-		let founded: boolean = false;
-		let i: number = 0;
-		while (!founded && i < this._cells.size) {
-			out = this._cells.get(i)!;
-			if (JPoint.equal(p, out.center)) {
-				founded = true;
-			}
-			i++;
-		}*/
 		out = this._cells2.get(p.id);
 		if (out)
 			return out;
@@ -361,5 +367,16 @@ export default class JDiagram {
 			v.dismark();
 		})	
 	}
+
+	getSubSites(AREA: number): Map<string, {p: JPoint, cid: number}> {
+		let out: Map<string, {p: JPoint, cid: number}> = new Map<string, {p: JPoint, cid: number}>();
+		this.forEachCell((cell: JCell) => {
+			cell.getSubSites(AREA).forEach((p: JPoint) => out.set(p.id, {p: p, cid: cell.id}));
+		})
+		return out;
+	}
+
+	// addSubDiagram(sd: JSubDiagram) { this._subDiagram = sd }
+	// get subDiagram(): JSubDiagram { if (this._subDiagram) return this._subDiagram; throw new Error(`no tiene subdiagram associado`)}
 }
 

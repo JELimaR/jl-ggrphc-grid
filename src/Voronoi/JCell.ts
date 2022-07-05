@@ -8,6 +8,8 @@ import * as turf from '@turf/turf';
 //import JCellInformation, { IJCellInformation } from "./JCellInformation";
 import JCellInformation from '../CellInformation/JCellInformation';
 import JCellHeight, { IJCellHeightInfo } from '../CellInformation/JCellHeight';
+import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
+// import JSubCell from './JSubCell';
 
 /**
  * En una cell:
@@ -25,6 +27,7 @@ export default class JCell {
 	private _site: JSite;
 	private _halfedges: JHalfEdge[] = [];
 	private /*readonly*/ _cellInformation: JCellInformation; // eliminar esto
+	private _subCells: JCell[] = [];
 
 	constructor(/*c: Cell,*/ s: JSite, arrEdges: JEdge[]) {
 		//this._cell = c;
@@ -125,6 +128,44 @@ export default class JCell {
 		return turf.booleanPointInPolygon(turf.point(p.toTurfPosition()), this.toTurfPolygonSimple())
 	}
 
+	private getBBoxLongs(): {xlong: number, ylong: number, xmin: number, xmax: number, ymin: number, ymax: number} {
+		const listPoints: JPoint[] = [];
+		const bbox: turf.Feature<turf.Polygon> = turf.envelope(this.toTurfPolygonSimple());
+		bbox.geometry.coordinates[0].forEach((pos: turf.Position) => {
+			listPoints.push(JPoint.fromTurfPosition(pos));
+		})
+		let xmin: number = 180, xmax: number = -180;
+		let ymin: number = 90, ymax: number = -90;
+		listPoints.forEach((p: JPoint) => {
+			if (p.x < xmin) xmin = p.x;
+			if (p.x > xmax) xmax = p.x;
+			if (p.y < ymin) ymin = p.y;
+			if (p.y > ymax) ymax = p.y;
+		})
+
+		return {
+			xlong: xmax - xmin,
+			ylong: ymax - ymin,
+			xmax,
+			xmin,
+			ymax,
+			ymin
+		}
+	}
+
+	getSubSites(AREA: number): JPoint[] {
+		const rfunc = RandomNumberGenerator.makeRandomFloat(this.id);
+		const cantSites: number = Math.round(this.area/AREA) + 1;
+		const bbl = this.getBBoxLongs();
+		let points: JPoint[] = [];
+		while (points.length < cantSites) {
+			const p = new JPoint( bbl.xlong * (rfunc() * 0.9 + 0.05) + bbl.xmin, bbl.ylong * (rfunc() * 0.9 + 0.05) + bbl.ymin );
+			if (this.isPointIn(p)) points.push(p);
+		}
+
+		return points;
+	}
+
 	/*
 	 * Generic Information
 	 */
@@ -147,5 +188,12 @@ export default class JCell {
 	// 		halfedges: this._halfedges.map((jhe: JHalfEdge) => {return jhe.getInterface()})
 	// 	}
 	// }
+
+	/**
+	 * sub cells functions
+	 */
+
+	get subCells(): JCell[] {return this._subCells}
+	addSubCell(sb: JCell) { this._subCells.push(sb)}
 
 }

@@ -75,7 +75,6 @@ export default class JRiverMap extends JWMap {
             break; // la celda es lake
           }
 					curr.mark();
-					road.push({ cell: curr, flux: 0 });
 					const cellClimate = curr.info.cellClimate;
 					currFlux += 100 * (cellClimate.annualPrecip/JCellClimate.maxAnnual);
 					road.push({ cell: curr, flux: 0 });
@@ -98,7 +97,7 @@ export default class JRiverMap extends JWMap {
 			road.forEach((wrp: IWaterRoadPoint) => {
 				const cell: JCell = wrp.cell;
 				const flux: number = this._fluxArr[cell.id] as number;
-				if (flux > FLUXLIMIT && !cell.isMarked()) {
+				if (flux > FLUXLIMIT/* && !cell.isMarked()*/) {
 					river.push({cell, flux })
 					cell.mark()
 				} else if (cell.isMarked()) {

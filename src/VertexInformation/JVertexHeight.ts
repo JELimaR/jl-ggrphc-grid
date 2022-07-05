@@ -4,6 +4,8 @@ export type TypeVertexheight =
 	| 'ocean'
 	| 'coast'
 	| 'land'
+	| 'lakeCoast'
+	| 'lake'
 
 export interface IJVertexHeightInfo {
 	id: string;
@@ -25,15 +27,16 @@ export default class JVertexHeight {
 	}
 
 	get height(): number { return this._height }
-	set height(h :number) { this._height = h }
+	set height(h: number) { this._height = h }
 	get heightType(): TypeVertexheight { return this._heightType }
+	set heightType(tvh: TypeVertexheight) { this._heightType = tvh }
 
 	getInterface(): IJVertexHeightInfo {
 		return {
 			id: this._vertex.point.id,
 
-	height: this._height,
-	heightType: this._heightType
+			height: this._height,
+			heightType: this._heightType
 		}
 	}
 }

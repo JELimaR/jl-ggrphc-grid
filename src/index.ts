@@ -32,8 +32,6 @@ import JClimateMap from './Climate/JClimateMap';
 import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
 import JRiverMap, {IWaterRoadPoint, JRiver} from './heightmap/JRiverMap';
 import fs from 'fs'
-import JHeightVertex from './heightmap/JHeightVertex';
-import JClimateVertex from './Climate/JClimateVertex';
 import JRiverVertex, { IWaterRoutePoint, JRiverFromVertex } from './heightmap/JRiverVertex';
 
 const tam: number = 3600;
@@ -51,8 +49,10 @@ const azgaarFolder: string[] = [
 	'Mont100', // 8
 	'Itri100', // 9
 	'Mones5', // 10
+	'Civaland1', // 11
+	'Shauland30', // 12
 ];
-const folderSelected: string = azgaarFolder[4];
+const folderSelected: string = azgaarFolder[12];
 
 console.log('folder:', folderSelected)
 
@@ -75,14 +75,15 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const TOTAL: number = 10;
+const AREA: number = 1955;
 const GRAN: number = 2;
-const world: JWorld = new JWorld(TOTAL, GRAN);
+const world: JWorld = new JWorld(AREA, GRAN);
 const tempStep = 5;
 // const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const monthArr = [1, 3, 5, 7, 9, 11];
 
 /*let jhm: JHeightMap = */world.generateHeightMap();
+world.generateHeightMap2();
 // console.log(world.diagram.cells.get(8)!.info.tempMonthArr)
 // /*let jtm: JTempMap = */world.generateTemperatureMap();
 
@@ -119,7 +120,7 @@ const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
 
 
 dm.drawFondo()
-dm.drawCellMap(world, JCellToDrawEntryFunctions.heighLand(1))
+dm.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1))
 dm.drawMeridianAndParallels();
 dm.saveDrawFile(`hh.png`);
 
@@ -327,7 +328,8 @@ let koppenArea = {
 let koppenBasicArea = { A: 0, B: 0, C: 0, D: 0, E: 0 }
 let totalArea: number = 0;
 let annualMax: number = 0;
-const jcm: JClimateMap = new JClimateMap(world.diagram, precipGrid, tempGrid);
+// const jcm: JClimateMap = new JClimateMap(world.diagram, precipGrid, tempGrid);
+const jcm2: JClimateMap = new JClimateMap(world.secondaryDiagram, precipGrid, tempGrid);
 /*
 dm2.clear();
 world.grid.forEachPoint((gp: JGridPoint, col: number, row: number) => {
@@ -347,28 +349,12 @@ dm2.saveDrawFile(`${GRAN}climateClass.png`)
 */
 
 let dmclim: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/climate`);
-dmclim.drawCellMap(world, JCellToDrawEntryFunctions.koppen(1)/*(cell: JCell) => {
-	const ccl = cell.info.cellClimate;
-	if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
-		color = koppenColors[ccl.koppenSubType() as TKoppenSubType]
-		koppenCant[ccl.koppenSubType() as TKoppenSubType]++;
-		koppenArea[ccl.koppenSubType() as TKoppenSubType] += cell.areaSimple;
-		koppenBasicArea[ccl.koppenType() as TKoppenType] += cell.areaSimple;
-		totalArea += cell.areaSimple;
-		if (annualMax < ccl.annualPrecip) annualMax = ccl.annualPrecip;
-	}
-	else
-		color = '#FFFFFF'
-	return {
-		fillColor: color,
-		strokeColor: color,
-	}
-}*/)
+dmclim.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.koppen(1))
 
 dmclim.drawMeridianAndParallels();
 dmclim.saveDrawFile(`${GRAN}climateClass.png`)
 
-world.forEachCell((cell: JCell) => {
+world.secondaryDiagram.forEachCell((cell: JCell) => {
 	const ccl = cell.info.cellClimate;
 	if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
 		koppenCant[ccl.koppenSubType() as TKoppenSubType]++;
@@ -478,15 +464,7 @@ dmclim.drawMeridianAndParallels();
 dmclim.saveDrawFile(`precipMedia.png`)
 for (let month of monthArr) {
 	dmclim.clear()
-	dmclim.drawCellMap(world, (cell: JCell) => {
-		const ccl = cell.info.cellClimate;
-		const val = Math.round(ccl.precipMonth[month - 1] / tempStep) * tempStep;
-		color = colorScale(val).hex();
-		return {
-			fillColor: color,
-			strokeColor: color,
-		}
-	})
+	dmclim.drawCellMap(world, JCellToDrawEntryFunctions.precipMonth(month))
 	dmclim.drawMeridianAndParallels();
 	dmclim.saveDrawFile(`precip${(month < 10 ? `0${month}` : `${month}`)}.png`)
 }
@@ -509,7 +487,7 @@ let lifeZonesCant = {
 }
 
 dmclim.clear()
-dmclim.drawCellMap(world, (cell: JCell) => {
+dmclim.drawCellMap(world.secondaryDiagram, (cell: JCell) => {
 	const ccl = cell.info.cellClimate;
 	if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
 		color = ccl.lifeZone.color;
@@ -529,20 +507,20 @@ for (let z = 1; z <= 38; z++) {
 	console.log(`${i}: ${lifeZonesList[i].desc}	-	${lifeZonesCant[i]}`)
 }
 
-/**** */
+/**
+ * RIVER
+ */
 
-const rm = new JRiverMap(world.diagram);
-const hv = new JHeightVertex(world.diagram);
-const cv = new JClimateVertex(world.diagram);
-const rv = new JRiverVertex(world.diagram);
+const rv = new JRiverVertex(world.secondaryDiagram);
 
 const dmr: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/river`);
 
 dmr.clear();
-dmr.drawCellMap(world, JCellToDrawEntryFunctions.heighLand(1))
+dmr.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1));
 rv._roads.forEach((route: IWaterRoutePoint[], key: number) => {
 	color = '#000000';
 	const points: JPoint[] = route.map((elem: IWaterRoutePoint) => elem.vertex.point)
+	// console.log(route.map((elem: IWaterRoutePoint) => elem.vertex.point))
 	dmr.draw(points, {
 		fillColor: 'none',
 		strokeColor: color
@@ -551,9 +529,11 @@ rv._roads.forEach((route: IWaterRoutePoint[], key: number) => {
 dmr.saveDrawFile(`roadsVertex.png`)
 
 dmr.clear();
-dmr.drawCellMap(world, JCellToDrawEntryFunctions.heighLand(1))
+dmr.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1));
 rv._rivers.forEach((river: JRiverFromVertex, key: number) => {
-	color = '#0000E1';
+	// color = '#0000E1';
+	color = chroma.random().hex();
+	// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
 	const points: JPoint[] = river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point)
 	dmr.draw(points, {
 		fillColor: 'none',
@@ -562,57 +542,21 @@ rv._rivers.forEach((river: JRiverFromVertex, key: number) => {
 })
 dmr.saveDrawFile(`riversVertex.png`)
 
-dmr.clear();
-colorScale = chroma.scale('Spectral').domain([1000, 0]);
-rv._fluxMap.forEach((flux: number, key: string) => {
-	color = colorScale(flux).hex();
-	const point: JPoint = world.diagram.vertices2.get(key)!.point;
-	dmr.drawDot(point, {
-		fillColor: color,
-		strokeColor: color
-	}, 0.25)
-})
-dmr.saveDrawFile(`fluxVertex.png`)
+// dmr.clear();
+// colorScale = chroma.scale('Spectral').domain([1000, 0]);
+// rv._fluxMap.forEach((flux: number, key: string) => {
+// 	color = colorScale(flux).hex();
+// 	const point: JPoint = world.diagram.vertices2.get(key)!.point;
+// 	dmr.drawDot(point, {
+// 		fillColor: color,
+// 		strokeColor: color
+// 	}, 0.25)
+// })
+// dmr.saveDrawFile(`fluxVertex.png`)
 
-
-dmr.clear();
-dmr.drawCellMap(world, JCellToDrawEntryFunctions.heighLand(1))
-rm._roads.forEach((road: IWaterRoadPoint[], key: number) => {
-	color = '#000000';
-	const points: JPoint[] = road.map((elem: IWaterRoadPoint) => elem.cell.center)
-	dmr.draw(points, {
-		fillColor: 'none',
-		strokeColor: color
-	})
-})
-dmr.saveDrawFile(`roads.png`)
-
-
-dmr.drawCellMap(world, JCellToDrawEntryFunctions.heighLand(1))
-rm._rivers.forEach((river: JRiver, key: number) => {
-	color = '#0000E1';
-	const points: JPoint[] = river._cells.map((elem: IWaterRoadPoint) => elem.cell.center)
-	dmr.draw(points, {
-		fillColor: 'none',
-		strokeColor: color
-	})
-})
-dmr.saveDrawFile(`rivers.png`)
-
-colorScale = chroma.scale('Spectral').domain([1000, 0]);
-dmr.clear();
-dmr.drawCellMap(world, (c: JCell) => {
-	const val = rm._fluxArr[c.id];
-	color = colorScale(val).hex();
-	return {
-		fillColor: color,
-		strokeColor: color
-	}
-})
-dmr.saveDrawFile(`flux.png`)
 
 const infoPrint: {v: JVertex, cs: number[]}[] = [];
-world.diagram.vertices2.forEach((vertex: JVertex) => {
+world.secondaryDiagram.forEachVertex((vertex: JVertex) => {
 	if (Math.random() < 1.1) {
 		const cellIds = vertex.cellIds;
 		const cells: JCell[] = [];
@@ -629,8 +573,8 @@ world.diagram.vertices2.forEach((vertex: JVertex) => {
 console.log('vertex cant', world.diagram.vertices2.size)
 
 dm.clear();
-dm.drawCellMap(world, JCellToDrawEntryFunctions.colors({
-	fillColor: 'none',
+dm.drawCellMap(world.diagram, JCellToDrawEntryFunctions.colors({
+	fillColor: chroma.random().hex(),
 	strokeColor: '#001410'
 }))
 let cl1: number = 0;
@@ -641,7 +585,7 @@ let el1: number = 0;
 let el2: number = 0;
 let el3: number = 0;
 let elmas: number = 0;
-world.diagram.vertices2.forEach((vertex: JVertex) => {
+world.diagram.forEachVertex((vertex: JVertex) => {
 	if (vertex.cellIds.length > 3) {
 		color = '#00000080'
 		clmas++;
@@ -656,17 +600,13 @@ world.diagram.vertices2.forEach((vertex: JVertex) => {
 		cl3++
 	}
 	if (vertex.edges.length > 3) {
-		
 		elmas++;
 		console.log(vertex)
 	}	if (vertex.edges.length == 3) {
-		
 		el1++;
 	} else if (vertex.edges.length == 2) {
-		
 		el2++
 	} else {
-		
 		el3++
 	}
 	
@@ -686,5 +626,17 @@ console.log(el2)
 console.log(el3)
 console.log(elmas)
 dm.saveDrawFile('diagram.png')
+
+dm.clear()
+dm.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1))
+dm.saveDrawFile('secDiagram.png')
+
+console.log(world.secondaryDiagram.cells.size)
+
+const eqcell = world.diagram.getCellFromPoint(new JPoint(11,0));
+const pocell = world.diagram.getCellFromPoint(new JPoint(11,85));
+
+console.log('eq', eqcell.subCells.length)
+console.log('po', pocell.subCells.length)
 
 console.timeEnd('all')

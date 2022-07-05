@@ -8,7 +8,7 @@ const sat: number = 6000;
 const roz = 0.71;
 const MAXEVAP = 200;
 const MAXRAIN = 100;
-const tempMin = -5;
+const tempMin = -15;
 
 
 export class JWindRoutePoint {

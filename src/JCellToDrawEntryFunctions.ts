@@ -91,6 +91,19 @@ export const lifeZones = (alpha = 1) => {
 	}
 }
 
+export const precipMonth = (month: number) => {
+	const colorScale = chroma.scale('Spectral').domain([2500, 0]);
+	return (cell: JCell) => {
+		const ccl = cell.info.cellClimate;
+		const val = Math.round(ccl.precipMonth[month - 1] / 5) * 5;
+		const color = colorScale(val).hex();
+		return {
+			fillColor: color,
+			strokeColor: color,
+		}
+	}
+}
+
 const verifyAlpha = (a: number): number => {
 	if (0 <= a && a <= 1) {
 		return a;

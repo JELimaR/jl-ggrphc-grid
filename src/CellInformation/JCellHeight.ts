@@ -11,6 +11,7 @@ import JCell from "../Voronoi/JCell";
 
 export type TypeCellheight =
 	| 'ocean'
+	| 'lake'
 	| 'land'
 
 export interface IJCellHeightInfo {
@@ -33,11 +34,9 @@ export default class JCellHeight {
 		this._cell = c;
 		// const turfPol = this._cell.toTurfPolygonSimple();
 		
-		this._height = /*(info.height < 0.2 && c.area > 17000) ? 0.05 :*/ info.height;
+		this._height = info.height;
 		this._prevHeight = info.prevHeight;
 		this._heightType = info.heightType;
-			
-
 	}
 
 	get height(): number {return this._height}

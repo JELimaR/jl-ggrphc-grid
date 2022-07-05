@@ -5,37 +5,45 @@ import JHeightMap from './heightmap/JHeightMap';
 import JGrid from './Geom/JGrid';
 import { ICellContainer } from './JWorldMap';
 import JCell from './Voronoi/JCell';
+// import JSubDiagram from './Voronoi/JSubDiagram';
 
-export default class JWorld implements ICellContainer {
+export default class JWorld {
 	
-	private _diagram: JDiagram;
-	// private _primaryDiagram: JDiagram;
+	private _primaryDiagram: JDiagram;
+	private _secondaryDiagram: JDiagram;
 	private _grid: JGrid;
 	private _heightMap: JHeightMap | undefined;
+	private _heightMap2: JHeightMap | undefined;
 	// private _temperatureMap: JTempMap | undefined;
 	
-	constructor(TOTAL: number, GRAN: number) {
-		if (TOTAL < 5) TOTAL = 5;
+	constructor(AREA: number, GRAN: number) {
+		// if (AREA < 5) AREA = 5;
 		console.log('init voronoi');
-		console.time('voronoi');
-		this._diagram = VoronoiDiagramCreator.createDiagram(TOTAL, 1);
-		console.timeEnd('voronoi');
+		console.time('primary voronoi');
+		this._primaryDiagram = VoronoiDiagramCreator.createDiagram(/*TOTAL, 1*/);
+		console.timeEnd('primary voronoi');
 		console.log('init grid');
 		console.time('grid');
-		this._grid = new JGrid(GRAN, this._diagram);
+		this._grid = new JGrid(GRAN, this._primaryDiagram);
 		console.timeEnd('grid');
+		console.time('secondary voronoi');
+		this._secondaryDiagram = VoronoiDiagramCreator.createSubDiagram(this._primaryDiagram, AREA);
+		console.timeEnd('secondary voronoi');
 	}
 
-	get diagram(): JDiagram { return this._diagram }
+	get diagram(): JDiagram { return this._primaryDiagram }
+	get secondaryDiagram(): JDiagram { return this._secondaryDiagram }
 	get grid(): JGrid { return this._grid }
-	forEachCell(func: (cell: JCell)=>void) {
-		this.diagram.forEachCell(func);
-	}
 
 	generateHeightMap(): JHeightMap {
 		if (!this._heightMap)
-			this._heightMap = new JHeightMap(this._diagram);
+			this._heightMap = new JHeightMap(this._primaryDiagram);
 		return this._heightMap;
+	}
+	generateHeightMap2(): JHeightMap {
+		if (!this._heightMap2)
+			this._heightMap2 = new JHeightMap(this._secondaryDiagram);
+		return this._heightMap2;
 	}
 	// generateTemperatureMap(): JTempMap {
 	// 	if (!this._temperatureMap)

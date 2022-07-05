@@ -10,7 +10,7 @@ const dataInfoManager = DataInformationFilesManager.instance;
 import JPoint from "../Geom/JPoint";
 import JVertex from "../Voronoi/JVertex";
 
-const FLUXMINRIVER = 50000;
+const FLUXMINRIVER = 200000;
 
 // cambiar road por otra cosa
 export interface IWaterRoutePoint { // puede ser una interface o una clase
@@ -53,7 +53,7 @@ export default class JRiverVertex extends JWMap {
 			}
 			this._fluxMap.set(v.id, 0);
     });
-    verticesArr.sort((a: JVertex, b: JVertex) => a.info.height - b.info.height);
+    verticesArr.sort((a: JVertex, b: JVertex) => b.info.height - a.info.height);
     let id = -1;
 
 		// generate roads
@@ -69,19 +69,19 @@ export default class JRiverVertex extends JWMap {
 				route.push({ vertex: curr, flux: 0 });
 				this._fluxMap.set(curr.id, this._fluxMap.get(curr.id)! + currFlux);
 
-        while (curr.info.vertexHeight.heightType == 'land' /*&& !curr.isMarked()*/) {
-          const mh: JVertex = this.getMinHeightNeighbour(curr);
-          if (mh.info.height < curr.info.height) {
-            curr = mh;
+        while (curr.info.vertexHeight.heightType !== 'coast' && curr.info.vertexHeight.heightType !== 'lakeCoast') {
+          const mhv: JVertex = this.getMinHeightNeighbour(curr);
+          if (mhv.info.height < curr.info.height) {
+            curr = mhv;
+						curr.mark();
+
+						const vertexClimate = curr.info.vertexClimate;
+						currFlux += 100 * (vertexClimate.annualPrecip/JCellClimate.maxAnnual);
+						route.push({ vertex: curr, flux: 0 });
+						this._fluxMap.set(curr.id, this._fluxMap.get(curr.id)! + currFlux);
           } else {
-            break; // la celda es lake
+            break; // el vertex es lake
           }
-					curr.mark();
-					route.push({ vertex: curr, flux: 0 });
-					const vertexClimate = curr.info.vertexClimate;
-					currFlux += 100 * (vertexClimate.annualPrecip/JCellClimate.maxAnnual);
-					route.push({ vertex: curr, flux: 0 });
-					this._fluxMap.set(curr.id, this._fluxMap.get(curr.id)! + currFlux);
         }
 
         this._roads.set(id, route);
@@ -93,24 +93,26 @@ export default class JRiverVertex extends JWMap {
 	}
 
 	private setRivers() {
-		let id: number = -1;
-		const FLUXLIMIT = 50//*this.diagram.vertices2.size/FLUXMINRIVER
-		this._roads.forEach((road: IWaterRoutePoint[]) => {
+		const FLUXLIMIT = 100*this.diagram.vertices2.size/FLUXMINRIVER;
+		this._roads.forEach((road: IWaterRoutePoint[], id: number) => {
+
 			let river: IWaterRoutePoint[] = [];
-			
-			road.forEach((wrp: IWaterRoutePoint) => {
+
+			let wrp: IWaterRoutePoint;
+			for (wrp of road) {
 				const vertex: JVertex = wrp.vertex;
 				const flux: number = this._fluxMap.get(vertex.id) as number;
-				if (flux > FLUXLIMIT && !vertex.isMarked()) {
+				if (flux > FLUXLIMIT && !vertex.isMarked()) { // el if no funciona como debe
 					river.push({vertex, flux })
 					vertex.mark()
 				} else if (vertex.isMarked()) {
-					
+					river.push({vertex, flux })
+					break;
 				}
-			})
+			}
 			
 			if (river.length > 0) {
-				this._rivers.set(id++, new JRiverFromVertex(id, river))
+				this._rivers.set(id, new JRiverFromVertex(id, river))
 			}
 		})
 
@@ -129,6 +131,5 @@ export default class JRiverVertex extends JWMap {
     })
     return out;
   }
-
 
 }
