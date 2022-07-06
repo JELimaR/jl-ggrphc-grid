@@ -1,5 +1,6 @@
 // import { Cell, Halfedge } from "voronoijs";
 import JPoint from '../Geom/JPoint';
+import JTriangle from '../Geom/JTriangle';
 import JEdge from './JEdge';
 import JHalfEdge from './JHalfEdge';
 import JSite, { IJSiteInfo } from './JSite';
@@ -28,6 +29,7 @@ export default class JCell {
 	private _halfedges: JHalfEdge[] = [];
 	private /*readonly*/ _cellInformation: JCellInformation; // eliminar esto
 	private _subCells: JCell[] = [];
+	private _subsites: JPoint[] = [];
 
 	constructor(/*c: Cell,*/ s: JSite, arrEdges: JEdge[]) {
 		//this._cell = c;
@@ -127,7 +129,7 @@ export default class JCell {
 	isPointIn(p: JPoint): boolean {
 		return turf.booleanPointInPolygon(turf.point(p.toTurfPosition()), this.toTurfPolygonSimple())
 	}
-
+	/*
 	private getBBoxLongs(): {xlong: number, ylong: number, xmin: number, xmax: number, ymin: number, ymax: number} {
 		const listPoints: JPoint[] = [];
 		const bbox: turf.Feature<turf.Polygon> = turf.envelope(this.toTurfPolygonSimple());
@@ -152,18 +154,50 @@ export default class JCell {
 			ymin
 		}
 	}
+	*/
+	private tesselate(): JTriangle[] {
+		let out: JTriangle[] = [];
+		const ts: turf.FeatureCollection<turf.Polygon> = turf.tesselate(this.toTurfPolygonSimple());
+		ts.features.forEach((t: turf.Feature<turf.Polygon>) => {
+			out.push(new JTriangle(t));
+		})
+		return out;
+	}
 
 	getSubSites(AREA: number): JPoint[] {
-		const rfunc = RandomNumberGenerator.makeRandomFloat(this.id);
-		const cantSites: number = Math.round(this.area/AREA) + 1;
-		const bbl = this.getBBoxLongs();
-		let points: JPoint[] = [];
-		while (points.length < cantSites) {
-			const p = new JPoint( bbl.xlong * (rfunc() * 0.9 + 0.05) + bbl.xmin, bbl.ylong * (rfunc() * 0.9 + 0.05) + bbl.ymin );
-			if (this.isPointIn(p)) points.push(p);
+		if (this._subsites.length == 0) {			
+			// const rfunc = RandomNumberGenerator.makeRandomFloat(this.id);
+			const cantSites: number = Math.round(this.area/AREA) + 1;
+			// const bbl = this.getBBoxLongs();
+			let points: JPoint[] = [];
+			/*while (points.length < cantSites) {
+				const p = new JPoint( bbl.xlong * (rfunc() * 0.9 + 0.05) + bbl.xmin, bbl.ylong * (rfunc() * 0.9 + 0.05) + bbl.ymin );
+				if (this.isPointIn(p)) points.push(p);
+			}*/
+	
+			let triangles: JTriangle[] = this.tesselate();
+			triangles = triangles.sort((a: JTriangle, b: JTriangle) => b.area - a.area); // de mayor a menor area
+
+			while(triangles.length < cantSites) {
+				const tri: JTriangle = triangles.shift() as JTriangle;
+				const div = tri.divide();
+				triangles.push(div.t1);
+				triangles.push(div.t2);
+				triangles = triangles.sort((a: JTriangle, b: JTriangle) => b.area - a.area); // de mayor a menor area
+			}
+
+			for (let i = 0; i < cantSites; i++) {
+				points.push(triangles[i].centroid)
+			}
+			
+			if (this.id == 3545) console.log(triangles.map((t: JTriangle) => t.area));
+			if (this.id == 3545) console.log(this.areaSimple)
+			if (this.id == 3545) console.log(points)
+
+			this._subsites = points;
 		}
 
-		return points;
+		return this._subsites;
 	}
 
 	/*

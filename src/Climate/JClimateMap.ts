@@ -5,7 +5,7 @@ import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
 import JWMap from "../JWMap";
 import JRegionMap from "../RegionMap/JRegionMap";
-const dataInfoManager = DataInformationFilesManager.instance;
+// const dataInfoManager = DataInformationFilesManager.instance;
 
 import JPoint from "../Geom/JPoint";
 import JPrecipGrid, { IPrecipData } from "../heightmap/JPrecipGrid";
@@ -20,18 +20,24 @@ const emptyMonthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 export default class JClimateMap extends JWMap {
 	constructor(d: JDiagram, precipGrid: JPrecipGrid, tempGrid: JTempGrid) {
+		const dataInfoManager = DataInformationFilesManager.instance;
 		super(d);
 
-		const climateData: IJCellClimateInfo[] = this.getClimateData(precipGrid, tempGrid);
+		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
+		const isLoaded: boolean = climateData.length !== 0;
+		if (!isLoaded) {
+			climateData = this.getClimateData(precipGrid, tempGrid);
+		}		
 
 		this.diagram.forEachCell((cell: JCell) => {
 			if (!climateData[cell.id]) throw new Error(`no hay datos para ${cell.id}`)
 			const cinfo = climateData[cell.id];
 			cell.info.setClimatetInfo(cinfo);
-			// cell.subCells.forEach((sc: JCell) => {
-			// 	sc.info.setClimatetInfo(cinfo)
-			// })
 		})
+
+		if (!isLoaded) {
+			dataInfoManager.saveCellsClimate(this.diagram.cells, this.diagram.secAreaProm)
+		}
 
 		this.setVertexInfo();
 
@@ -46,28 +52,27 @@ export default class JClimateMap extends JWMap {
 
 	}
 
-	getClimateData(precipGrid: JPrecipGrid, tempGrid: JTempGrid) {
-		const climateData: IJCellClimateInfo[] = []; // dataInfoManager
-		if (climateData.length == 0) {
-			
-			this.diagram.forEachCell((c: JCell) => { 
-				//if (!c.isMarked()) {
-					const gp = tempGrid._grid.getGridPoint(c.center);
-					const cidx = gp.colValue, ridx = gp.rowValue;
-					const precData: IPrecipData = precipGrid._precipData[cidx][ridx];
-					const temps = [...tempGrid._tempData[cidx][ridx].tempMonth];
-					const chf = c.info.isLand ? 6.5 * c.info.cellHeight.heightInMeters / 1000 : 0;
-					const ghf = gp._cell.info.isLand ? 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000 : 0;
-					climateData[c.id] = { 
-						id: c.id,
-						precipMonth: [...precData.precip],
-						tempMonth: temps.map((t: number, i: number) => t + precData.deltaTemps[i] + ghf - chf)
-					}
-				//}
-			})
+	getClimateData(precipGrid: JPrecipGrid, tempGrid: JTempGrid): IJCellClimateInfo[] {
 
-			this.diagram.dismarkAllCells();
-		}
+		let climateData: IJCellClimateInfo[] = [];
+			
+		this.diagram.forEachCell((c: JCell) => { 
+			//if (!c.isMarked()) {
+				const gp = tempGrid._grid.getGridPoint(c.center);
+				const cidx = gp.colValue, ridx = gp.rowValue;
+				const precData: IPrecipData = precipGrid._precipData[cidx][ridx];
+				const temps = [...tempGrid._tempData[cidx][ridx].tempMonth];
+				const chf = c.info.isLand ? 6.5 * c.info.cellHeight.heightInMeters / 1000 : 0;
+				const ghf = gp._cell.info.isLand ? 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000 : 0;
+				climateData[c.id] = { 
+					id: c.id,
+					precipMonth: [...precData.precip],
+					tempMonth: temps.map((t: number, i: number) => t + precData.deltaTemps[i] + ghf - chf)
+				}
+			//}
+		})
+
+		this.diagram.dismarkAllCells();
 
 		return climateData;
 

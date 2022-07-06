@@ -8,30 +8,32 @@ import JCellClimate from '../CellInformation/JCellClimate'
 const dataInfoManager = DataInformationFilesManager.instance;
 
 import JPoint from "../Geom/JPoint";
+import JVertex from "../Voronoi/JVertex";
 
-const FLUXMINRIVER = 50000;
+const FLUXMINRIVER = 200000;
 
 // cambiar road por otra cosa
-export interface IWaterRoadPoint { // puede ser una interface o una clase
-  cell: JCell;
+export interface IWaterRoutePoint { // puede ser una interface o una clase
+  vertex: JVertex;
   flux: number; // innecesario mantener
 }
 
 export class JRiver {
-  _cells: IWaterRoadPoint[]
-	_id: number
+  _vertices: IWaterRoutePoint[];
+	_allVertices: JPoint[] = [];
+	_id: number;
 
-  constructor(id: number, points: IWaterRoadPoint[]) {
+  constructor(id: number, points: IWaterRoutePoint[]) {
 		this._id = id;
-    this._cells = points;
+    this._vertices = points;
   }
 }
 
 export default class JRiverMap extends JWMap {
   // private _diagram: JDiagram;
-  _roads: Map<number, IWaterRoadPoint[]> = new Map<number, IWaterRoadPoint[]>();
+  _roads: Map<number, IWaterRoutePoint[]> = new Map<number, IWaterRoutePoint[]>();
   _rivers: Map<number, JRiver> = new Map<number, JRiver>();
-	_fluxArr: number[] = [];
+	_fluxMap: Map<string, number> = new Map<string, number>();
 
   constructor(d: JDiagram) {
     super(d);
@@ -44,80 +46,84 @@ export default class JRiverMap extends JWMap {
   }
 
 	private setFluxValuesAndRoads() {
-		let cellsArr: JCell[] = [];
-    this.forEachCell((c: JCell) => {
-			if (c.info.isLand) {
-	      cellsArr.push(c);
+		let verticesArr: JVertex[] = [];
+    this.forEachVertex((v: JVertex) => {
+			if (v.info.vertexHeight.heightType == 'land') {
+	      verticesArr.push(v);
 			}
-			this._fluxArr[c.id] = 0;
+			this._fluxMap.set(v.id, 0);
     });
-    cellsArr.sort((a: JCell, b: JCell) => a.info.height - b.info.height);
+    verticesArr.sort((a: JVertex, b: JVertex) => b.info.height - a.info.height);
     let id = -1;
 
 		// generate roads
-    cellsArr.forEach((c: JCell, i: number) => {
-      if (!c.isMarked() /*&& it < 800*/) {
+    verticesArr.forEach((v: JVertex, i: number) => {
+      if (!v.isMarked() /*&& it < 800*/) {
         id++;
-        let road: IWaterRoadPoint[] = [];
-        let curr: JCell = c;
+        let route: IWaterRoutePoint[] = [];
+        let curr: JVertex = v;
 				
 				curr.mark();
-				const cellClimate = curr.info.cellClimate;
-				let currFlux: number = 100 * (cellClimate.annualPrecip/JCellClimate.maxAnnual); // 0
-				road.push({ cell: curr, flux: 0 });
-				this._fluxArr[curr.id] += currFlux;
+				const vertexClimate = curr.info.vertexClimate;
+				let currFlux: number = 100 * (vertexClimate.annualPrecip/JCellClimate.maxAnnual); // 0
+				route.push({ vertex: curr, flux: 0 });
+				this._fluxMap.set(curr.id, this._fluxMap.get(curr.id)! + currFlux);
 
-        while (curr.info.isLand /*&& !curr.isMarked()*/) {
-          const mh: JCell = this.getMinHeightNeighbour(curr);
-          if (mh.info.height < curr.info.height) {
-            curr = mh;
+        while (curr.info.vertexHeight.heightType !== 'coast' && curr.info.vertexHeight.heightType !== 'lakeCoast') {
+          const mhv: JVertex = this.getMinHeightNeighbour(curr);
+          if (mhv.info.height < curr.info.height) {
+            curr = mhv;
+						curr.mark();
+
+						const vertexClimate = curr.info.vertexClimate;
+						currFlux += 100 * (vertexClimate.annualPrecip/JCellClimate.maxAnnual);
+						route.push({ vertex: curr, flux: 0 });
+						this._fluxMap.set(curr.id, this._fluxMap.get(curr.id)! + currFlux);
           } else {
-            break; // la celda es lake
+            break; // el vertex es lake
           }
-					curr.mark();
-					const cellClimate = curr.info.cellClimate;
-					currFlux += 100 * (cellClimate.annualPrecip/JCellClimate.maxAnnual);
-					road.push({ cell: curr, flux: 0 });
-					this._fluxArr[curr.id] += currFlux;
         }
 
-        this._roads.set(id, road);
+        this._roads.set(id, route);
       }
     })
 
-		this.diagram.dismarkAllCells();
+		console.log('roads cant', this._roads.size)
+		this.diagram.dismarkAllVertices();
 	}
 
 	private setRivers() {
-		let id: number = -1;
-		const FLUXLIMIT = 100*this.diagram.cells.size/FLUXMINRIVER;
-		this._roads.forEach((road: IWaterRoadPoint[]) => {
-			let river: IWaterRoadPoint[] = [];
-			
-			road.forEach((wrp: IWaterRoadPoint) => {
-				const cell: JCell = wrp.cell;
-				const flux: number = this._fluxArr[cell.id] as number;
-				if (flux > FLUXLIMIT/* && !cell.isMarked()*/) {
-					river.push({cell, flux })
-					cell.mark()
-				} else if (cell.isMarked()) {
-					
+		const FLUXLIMIT = 100*this.diagram.vertices2.size/FLUXMINRIVER;
+		this._roads.forEach((road: IWaterRoutePoint[], id: number) => {
+
+			let river: IWaterRoutePoint[] = [];
+
+			let wrp: IWaterRoutePoint;
+			for (wrp of road) {
+				const vertex: JVertex = wrp.vertex;
+				const flux: number = this._fluxMap.get(vertex.id) as number;
+				if (flux > FLUXLIMIT && !vertex.isMarked()) { // el if no funciona como debe
+					river.push({vertex, flux })
+					vertex.mark()
+				} else if (vertex.isMarked()) {
+					river.push({vertex, flux })
+					break;
 				}
-			})
+			}
 			
 			if (river.length > 0) {
-				this._rivers.set(id++, new JRiver(id, river))
+				this._rivers.set(id, new JRiver(id, river))
 			}
 		})
 
-		this.diagram.dismarkAllCells();
+		this.diagram.dismarkAllVertices();
 		console.log('river cant', this._rivers.size)
 	}
 
-  private getMinHeightNeighbour(cell: JCell): JCell {
-    const narr: JCell[] = this.diagram.getCellNeighbours(cell);
-    let out: JCell = narr[0], minH = 2;
-    narr.forEach((nc: JCell) => {
+  private getMinHeightNeighbour(vertex: JVertex): JVertex {
+    const narr: JVertex[] = this.diagram.getVertexNeighbours(vertex);
+    let out: JVertex = narr[0], minH = 2;
+    narr.forEach((nc: JVertex) => {
       if (nc.info.height < minH) {
 				out = nc;
 				minH = nc.info.height;
@@ -125,6 +131,5 @@ export default class JRiverMap extends JWMap {
     })
     return out;
   }
-
 
 }

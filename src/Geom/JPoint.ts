@@ -3,7 +3,7 @@ import * as turf from '@turf/turf'
 import { Vertex } from 'voronoijs';
 import Coord from './Coord';
 
-interface IPoint {
+export interface IPoint {
 	x: number, y: number
 }
 

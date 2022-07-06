@@ -1,6 +1,6 @@
 import { Cell, Diagram, Halfedge, Edge, Vertex } from 'voronoijs';
 import * as turf from '@turf/turf';
-import JPoint, { JVector } from '../Geom/JPoint';
+import JPoint, { IPoint, JVector } from '../Geom/JPoint';
 import JCell from "./JCell";
 import JEdge from "./JEdge";
 import JSite from './JSite';
@@ -20,29 +20,36 @@ export default class JDiagram {
 
 	// private _subDiagram: JSubDiagram | undefined;
 	private _ancestor: JDiagram | undefined;
+	private _secAreaProm: number | undefined;
 
-	constructor(d: Diagram, ancestor?: {d: JDiagram, a: number}) {
+	constructor(d: Diagram, ancestor?: {d: JDiagram, a: number, s: {p: IPoint, cid: number}[]}) {
 		console.log('Setting JDiagram values');
 		console.time('set JDiagram values');
 
 		this.setDiagramValuesContructed(d);
-
-		console.timeEnd('set JDiagram values');
-
+		
 		if (ancestor) {
 			this._ancestor = ancestor.d;
-			const sitesMap: Map<string, {	p: JPoint; cid: number;	}> = this._ancestor.getSubSites(ancestor.a);
-			sitesMap.forEach((value: { p: JPoint; cid: number; }, key: string) => {
-				const subCell: JCell = this.getCellFromCenter(value.p);
+			this._secAreaProm = ancestor.a;
+			
+			ancestor.s.forEach((value: { p: IPoint; cid: number; }) => {
+// 				console.log(JPoint.fromInterface(value.p), value.cid)
+				const subCell: JCell = this.getCellFromCenter(JPoint.fromInterface(value.p));
 				const ancCell: JCell = ancestor.d.cells.get(value.cid) as JCell;
+				
 				ancCell.addSubCell(subCell);
 			})
+			
 		}
+		
+		console.timeEnd('set JDiagram values');
 	}
 
 	get ancestor(): JDiagram | undefined { return this._ancestor }
+	get secAreaProm(): number | undefined { return this._secAreaProm }
 
 	private setDiagramValuesContructed(d: Diagram): void {
+		if (d.cells.length == 0) throw new Error(`no hay cells`)
 		// setear sites
 		let sites: Map<number, JSite> = new Map<number, JSite>();
 		d.cells.forEach((c: Cell) => {
@@ -173,6 +180,21 @@ export default class JDiagram {
 		return out;
 	}
 
+	getTwoLevelsCellNeighbours(cell: JCell): JCell[] { 
+		let mapOut: Map<number,JCell> = new Map<number,JCell>();
+		let ns: JCell[] = this.getCellNeighbours(cell);
+		ns.forEach((neig: JCell) => {
+			mapOut.set(neig.id, neig);
+			this.getCellNeighbours(neig).forEach((nn: JCell) => {
+				if (cell.id !== nn.id)
+					mapOut.set(nn.id, nn);
+			})
+		})
+		let out: JCell[] = [];
+		mapOut.forEach((c: JCell) => {			out.push(c)		}) 
+		return out;
+	}
+
 	getCellsAssociated(v: JVertex) {
 		let out: JCell[] = [];
 		for (let id of v.cellIds) {
@@ -229,6 +251,7 @@ export default class JDiagram {
 		if (out)
 			return out;
 		else {
+			console.log('cells', this._cells.size)
 			throw new Error('no se encontro cell');
 		}
 	}
@@ -326,7 +349,7 @@ export default class JDiagram {
 		}
 
 
-		this.forEachCell((cell: JCell) => cell.dismark())
+		this.forEachCell((cell: JCell) => cell.dismark()) // cambiar
 		//console.log(cell.id, 'out', out.length)
 
 		return out;
@@ -368,10 +391,15 @@ export default class JDiagram {
 		})	
 	}
 
-	getSubSites(AREA: number): Map<string, {p: JPoint, cid: number}> {
-		let out: Map<string, {p: JPoint, cid: number}> = new Map<string, {p: JPoint, cid: number}>();
+	getSubSites(AREA: number): {p: IPoint, cid: number}[] {
+		let out: {p: IPoint, cid: number}[] = [];
 		this.forEachCell((cell: JCell) => {
-			cell.getSubSites(AREA).forEach((p: JPoint) => out.set(p.id, {p: p, cid: cell.id}));
+			let b: boolean = false;
+			this.getTwoLevelsCellNeighbours(cell).forEach((nc: JCell) => b = b || nc.info.isLand)
+			if (b || cell.info.isLand)
+				cell.getSubSites(AREA).forEach((p: JPoint) => out.push({p: p.getInterface(), cid: cell.id}));
+			else
+				out.push({p: cell.center.getInterface(), cid: cell.id})
 		})
 		return out;
 	}

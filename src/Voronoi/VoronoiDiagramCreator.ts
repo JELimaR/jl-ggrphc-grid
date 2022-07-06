@@ -1,55 +1,60 @@
 import { Voronoi, BoundingBox, Site, Cell, Diagram } from 'voronoijs';
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 // import GenerateMapVoronoiSites from './GenerateMapVoronoiSites';
-const dataInfoManager = DataInformationFilesManager._instance;
+
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 
-const ard: AzgaarReaderData = AzgaarReaderData.instance;
 
 import JDiagram from './JDiagram';
-// import JSubDiagram from './JSubDiagram';
-import JPoint from '../Geom/JPoint';
+import JPoint, { IPoint } from '../Geom/JPoint';
 import JCell from './JCell';
 
 export default class VoronoiDiagramCreator {
 
 	static createDiagram(/*tam: number, rel: number = 0*/): JDiagram {
-		console.time('compute')
+		const ard: AzgaarReaderData = AzgaarReaderData.instance;
+		console.time('compute prim')
 
 		let diagram: Diagram;
 		
 		let bbox: BoundingBox = { xl: -180, xr: 180, yt: -90, yb: 90 };
 		let vor = new Voronoi();
 		console.time('Generate Sites');
-
 		let sites: Site[] = ard.sites();
+		console.timeEnd('Generate Sites');
 		
 		diagram = vor.compute(sites, bbox);
-		console.timeEnd('compute')
+		console.timeEnd('compute prim')
 
 		return new JDiagram(diagram);
 	}
 
 	static createSubDiagram(jd: JDiagram, AREA: number): JDiagram {
-
-		console.time('compute')
+		const dataInfoManager = DataInformationFilesManager._instance;
+		console.time('compute sec')
 
 		let diagram: Diagram;
 		
 		let bbox: BoundingBox = { xl: -180, xr: 180, yt: -90, yb: 90 };
 		let vor = new Voronoi();
-		console.time('Generate sub sites');
-
-		let sites: Site[] = [];
-		const subSites = jd.getSubSites(AREA);
-		subSites.forEach((elem: {p: JPoint, cid: number}) => {
-			sites.push({id: 0, x: elem.p.x, y: elem.p.y})
-		})
 		
-		diagram = vor.compute(sites, bbox);
-		console.timeEnd('compute')
+		console.time('Generate sub sites');
+		let subSitesData: {p: IPoint, cid: number}[] = dataInfoManager.loadSites(AREA);
+		if (subSitesData.length == 0) {
+			
+			subSitesData = jd.getSubSites(AREA);
 
-		return new JDiagram(diagram, {d: jd, a: AREA})
+			dataInfoManager.saveSites(subSitesData, AREA);
+		}
+		console.timeEnd('Generate sub sites');
+
+		const sites: Site[] = subSitesData.map((elem: {p: IPoint, cid: number}) => {
+			return {id: 0, x: elem.p.x, y: elem.p.y}
+		})
+		diagram = vor.compute(sites, bbox);
+		console.timeEnd('compute sec')
+
+		return new JDiagram(diagram, {d: jd, a: AREA, s: subSitesData})
 	}
 
 }

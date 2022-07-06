@@ -4,7 +4,7 @@ import fs from 'fs';
 import * as turf from '@turf/turf';
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
-const colorScale = chroma.scale('Spectral').domain([1, 0]);
+
 
 import JPoint, { JVector } from './Geom/JPoint';
 import JWorldMap, { createICellContainerFromCellArray, ICellContainer } from './JWorldMap';

@@ -10,7 +10,7 @@ export default abstract class JWMap implements ICellContainer {
     this._diagram = d;
   }
   get diagram(): JDiagram { return this._diagram }
-	get cells(): any { return this._diagram.cells }
+	// get cells(): any { return this._diagram.cells }
 	
 	forEachCell(func: (c: JCell) => void) {
 		this._diagram.forEachCell(func);

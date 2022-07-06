@@ -18,8 +18,8 @@ export default class JVertexClimate {
 		this._precipMonth = [...info.precipMonth]
 	}
 
-	get tempMonth() {return this._tempMonth}
-	get precipMonth() {return this._precipMonth}
+	get tempMonth() { return this._tempMonth }
+	get precipMonth() { return this._precipMonth }
 
 	get annualPrecip(): number { return this._precipMonth.reduce((c: number, p: number) => c+p, 0) }
 

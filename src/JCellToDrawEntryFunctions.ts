@@ -91,11 +91,50 @@ export const lifeZones = (alpha = 1) => {
 	}
 }
 
-export const precipMonth = (month: number) => {
+export const precipitationMedia = () => {
+	const colorScale = chroma.scale('Spectral').domain([2500, 0]);
+	return (cell: JCell) => {
+		const ccl = cell.info.cellClimate;
+		const val = Math.round(ccl.mediaPrecip / 5) * 5;
+		const color = colorScale(val).hex();
+		return {
+			fillColor: color,
+			strokeColor: color,
+		}
+	}
+}
+
+export const precipitationMonth = (month: number) => {
 	const colorScale = chroma.scale('Spectral').domain([2500, 0]);
 	return (cell: JCell) => {
 		const ccl = cell.info.cellClimate;
 		const val = Math.round(ccl.precipMonth[month - 1] / 5) * 5;
+		const color = colorScale(val).hex();
+		return {
+			fillColor: color,
+			strokeColor: color,
+		}
+	}
+}
+
+export const temperatureMedia = () => {
+	const colorScale = chroma.scale('Spectral').domain([30, -35]);
+	return (cell: JCell) => {
+		const ccl = cell.info.cellClimate;
+		const val = Math.round(ccl.tmed / 5) * 5;
+		const color = colorScale(val).hex();
+		return {
+			fillColor: color,
+			strokeColor: color,
+		}
+	}
+}
+
+export const temperatureMonth = (month: number) => {
+	const colorScale = chroma.scale('Spectral').domain([30, -35]);
+	return (cell: JCell) => {
+		const ccl = cell.info.cellClimate;
+		const val = Math.round(ccl.tempMonth[month - 1] / 5) * 5;
 		const color = colorScale(val).hex();
 		return {
 			fillColor: color,

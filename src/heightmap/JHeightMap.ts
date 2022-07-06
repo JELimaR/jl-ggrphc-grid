@@ -5,7 +5,6 @@ import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
 import JWMap from "../JWMap";
 import JRegionMap, { IJIslandInfo, JIslandMap } from "../RegionMap/JRegionMap";
-const dataInfoManager = DataInformationFilesManager.instance;
 
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 import JPoint from "../Geom/JPoint";
@@ -21,55 +20,68 @@ export default class JHeightMap extends JWMap {
 	private _islands: JIslandMap[] = [];
 
 	constructor(d: JDiagram) {
+		const dataInfoManager = DataInformationFilesManager.instance;
 		super(d);
 		/*
 		 * height cells
 		 */
 		console.log('calculate and setting height');
-		console.time('set height info');
+		console.time(`${d.ancestor ? 's' : 'p'}-set height info`);
 		// ver como se debe hacer esto
-		let loadedHeightInfo: IJCellHeightInfo[] = (d.ancestor) ? this.getCellsDataFromAncestor() :  dataInfoManager.loadCellsHeigth(this.cells.size);
+		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(this.diagram.secAreaProm);
+
 		const isLoaded: boolean = loadedHeightInfo.length !== 0;
 		if (!isLoaded) {
-			loadedHeightInfo = this.getCellsData();
+			if (d.ancestor) {
+				loadedHeightInfo = this.getCellsDataFromAncestor();
+			} else {
+				loadedHeightInfo = this.getCellsData();
+			}
 		}
-		this.forEachCell((cell: JCell) => {
-			
+		this.forEachCell((cell: JCell) => {			
 			const hinf: IJCellHeightInfo = loadedHeightInfo[cell.id];
 			cell.info.setHeightInfo(hinf);
-			// ver como se debe hacer realmente
-			/*
-			cell.subCells.forEach((sc: JCell) => {
-				let h: number = hinf.height * (1.05 - 0.1*randFunc());
-				if (h > 0.2 && hinf.height <= 0.2) h = hinf.height;
-				if (h <= 0.2 && hinf.height > 0.2) h = hinf.height;
-				sc.info.setHeightInfo({...hinf, height: h});
-			})
-			*/
 		})
-
-		if (d.ancestor) this.smootData()
 
 		// guardar info
 		if (!isLoaded) {
 			console.log('set ocean cells')
 			this.setOceanTypeCell();
 			this.setLakeTypeCell();
-			console.log('resolving depressions');
+			console.log('resolving cells depressions');
 			this.resolveCellsDepressions();
+			if (d.ancestor) this.smootData()
 
-			// dataInfoManager.saveCellsHeigth(this.cells, this.cells.size);
+			dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
 		}
 
-		this.setVertexValues();
-		this.resolveVertexDepressions();
-		console.timeEnd('set height info');
+		// vertices
+		let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesHeigth(this.diagram.secAreaProm);
+		const isVertexLoaded: boolean = loadedVertexInfo.length !== 0;
+		if (!isVertexLoaded) {
+			loadedVertexInfo = this.getVertexValues();
+		}
+
+		loadedVertexInfo.forEach((info: IJVertexHeightInfo) => {
+			const vertex: JVertex = this.diagram.vertices2.get(info.id) as JVertex;
+			if (!vertex) console.log(this.diagram.vertices2.size)
+			vertex.info.setHeightInfo(info);
+		})
+
+		// guardar info
+		if (!isVertexLoaded) {
+			console.log('resolving vertices depressions');
+			this.resolveVertexDepressions();
+			dataInfoManager.saveVerticesHeigth(this.diagram.vertices2, this.diagram.secAreaProm);
+		}
+		
+		console.timeEnd(`${d.ancestor ? 's' : 'p'}-set height info`);
 
 		/*
 		 * islands
 		 */
 		console.log('calculate and setting island')
-		console.time('set Islands');
+		console.time(`${d.ancestor ? 's' : 'p'}-set Islands`);
 		/*
 		let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.cells.size);
 		if (regionInfoArr.length > 0) {
@@ -81,13 +93,12 @@ export default class JHeightMap extends JWMap {
 		} else {
 			this.generateIslandList();
 		}
-		console.timeEnd('set Islands');
-
 		// guardar info
 		if (regionInfoArr.length === 0) {
 			dataInfoManager.saveIslandsInfo(this._islands, cellsMap.size);
 		}
 		*/
+		console.timeEnd(`${d.ancestor ? 's' : 'p'}-set Islands`);
 	}
 
 	private getCellsData(): IJCellHeightInfo[] {
@@ -103,7 +114,7 @@ export default class JHeightMap extends JWMap {
 			};
 			if (idx % 1000 == 0) {
 				console.log(`van ${idx} de ${azgaarHeight.length}`)
-				console.timeLog('set height info')
+				console.timeLog('p-set height info')
 			}
 		})
 		return out;
@@ -118,15 +129,20 @@ export default class JHeightMap extends JWMap {
 				let h: number = hinf.height * (1.05 - 0.1*randFunc());
 				if (h > 0.2 && hinf.height <= 0.2) h = hinf.height;
 				if (h <= 0.2 && hinf.height > 0.2) h = hinf.height;
-				out[sc.id] = {...hinf, height: h};
+				out[sc.id] = {...hinf, height: h, heightType: 'land'};
 			})
+			if (cell.id % 1000 == 0) {
+				console.log(`van ${cell.id} de ${this.diagram.ancestor!.cells.size}`)
+				console.timeLog('s-set height info')
+			}
 		})
 		return out;
 	}
 
-	private setVertexValues() {
+	private getVertexValues(): IJVertexHeightInfo[] {
+		let out: IJVertexHeightInfo[] = [];
 		this.diagram.forEachVertex((vertex: JVertex) => {
-			let info: IJVertexHeightInfo;//  = { height: 0, heightType: 'land' }
+			let info: IJVertexHeightInfo// = { id: vertex.id, height: 0, heightType: 'ocean' }
 			let hmin: number = 2, hprom: number = 0;
 			let cantLand: number = 0, cantOcean: number = 0, cantLake: number = 0;
 			const cells: JCell[] = this.diagram.getCellsAssociated(vertex);
@@ -155,8 +171,10 @@ export default class JHeightMap extends JWMap {
 				info = { id: vertex.id, height: 0.2, heightType: (cantOcean > 0) ? 'coast' : 'lakeCoast' }
 			}
 
-			vertex.info.setHeightInfo(info)
+			out.push(info);
 		})
+
+		return out;
 	}
 
 	private resolveVertexDepressions() {
@@ -208,7 +226,7 @@ export default class JHeightMap extends JWMap {
 				const mhn = this.getMinHeightCellNeighbour(c);
 				if (mhn.info.height >= c.info.height) {
 					hay = true;
-					c.info.height = c.info.height /*(mhn.info.height - c.info.height)*/ + 0.000122;
+					c.info.height = mhn.info.height /*c.info.height /*(mhn.info.height - c.info.height)*/ + 0.000122;
 				}
 			})
 			it++;
@@ -230,7 +248,7 @@ export default class JHeightMap extends JWMap {
 	private setOceanTypeCell() {
 		// this.diagram.dismarkAllCells();
 		const initCell = this.diagram.getCellFromPoint(new JPoint(-180, 0));
-		if (initCell.info.height >= 0.2) throw new Error('en initCell de ocean type');
+		if (initCell.info.height > 0.2) throw new Error('en initCell de ocean type');
 
 		let lista: JCell[] = [initCell];
 		initCell.mark();

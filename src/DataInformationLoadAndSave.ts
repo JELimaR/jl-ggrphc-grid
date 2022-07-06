@@ -2,8 +2,9 @@ import { Site } from 'voronoijs';
 import fs from 'fs';
 
 import JCell from './Voronoi/JCell';
+import JVertex from './Voronoi/JVertex';
 import { IJContinentInfo, IJCountryInfo, IJIslandInfo, IJStateInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/JRegionMap';
-import JPoint, { JVector } from './Geom/JPoint';
+import JPoint, { IPoint, JVector } from './Geom/JPoint';
 // import { IJDiagramInfo } from './Voronoi/JDiagram';
 // import { IJEdgeInfo } from './Voronoi/JEdge';
 import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
@@ -14,6 +15,8 @@ import { IJCellHeightInfo } from './CellInformation/JCellHeight';
 import { IPressureDataGrid } from './heightmap/JPressureGrid';
 import { IPrecipData } from './heightmap/JPrecipGrid'
 import { ITempDataGrid } from './heightmap/JTempGrid';
+import { IJCellClimateInfo } from './CellInformation/JCellClimate';
+import { IJVertexHeightInfo } from './VertexInformation/JVertexHeight';
 
 
 export default class DataInformationFilesManager {
@@ -54,7 +57,6 @@ export default class DataInformationFilesManager {
 		}
 		return out;
 	}
-
 	private loadVertices(tam: number): {x: number, y:number}[]  {
 		let out: {x: number, y: number}[] = [];
 		try {
@@ -65,7 +67,6 @@ export default class DataInformationFilesManager {
 		}
 		return out;	
 	}
-
 	private loadCells(tam: number): IJCellInfo[]  {
 		let out: IJCellInfo[] = [];
 		try {
@@ -76,7 +77,6 @@ export default class DataInformationFilesManager {
 		}
 		return out;	
 	}
-
 	private loadEdges(tam: number): IJEdgeInfo[]  {
 		let out: IJEdgeInfo[] = [];
 		try {
@@ -87,7 +87,6 @@ export default class DataInformationFilesManager {
 		}
 		return out;	
 	}
-
 	saveDiagram(diagram: IJDiagramInfo, tam: number): void {
 		let dirpathName: string = `${this._dirPath}/VoronoiDiagram`;
 		fs.mkdirSync(dirpathName, {recursive: true});
@@ -95,42 +94,38 @@ export default class DataInformationFilesManager {
 		this.saveCells(diagram.cells, dirpathName);
 		this.saveEdges(diagram.edges, dirpathName);
 	}
-
 	private saveVertices(verts: {x: number, y:number}[], dirpathName: string): void {
 		let pathName: string = `${dirpathName}/vertices.json`;
 		fs.writeFileSync(pathName, JSON.stringify(verts));
 	}
-
 	private saveCells(cells: IJCellInfo[], dirpathName: string): void {
 		let pathName: string = `${dirpathName}/cells.json`;
 		fs.writeFileSync(pathName, JSON.stringify(cells));
 	}
-
 	private saveEdges(edges: IJEdgeInfo[], dirpathName: string): void {
 		let pathName: string = `${dirpathName}/edges.json`;
 		fs.writeFileSync(pathName, JSON.stringify(edges));
 	}
 	*/
 	// voronoi diagram sites
-	/*
-	loadSites(tam: number): Site[] {
+	
+	loadSites(area: number | undefined): {p: IPoint, cid: number}[] {
 		if (this._dirPath === '') throw new Error('non configurated path');
-		let out: Site[] = [];
+		let out: {p: IPoint, cid: number}[] = [];
 		try {
-			let pathFile: string = `${this._dirPath}/GeneratedSites.json`;
+			let pathFile: string = `${this._dirPath}/${area ? area : ''}secSites.json`;
 			out = JSON.parse(fs.readFileSync(pathFile).toString());
 		} catch (e) {
 			
 		}
 		return out;
 	}
-
-	saveSites(sites: Site[], tam: number): void {
+	saveSites(sites: {p: IPoint, cid: number}[], area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}`, {recursive: true});
-		let pathName: string = `${this._dirPath}/GeneratedSites.json`;
+		let pathName: string = `${this._dirPath}/${area ? area : ''}secSites.json`;
 		fs.writeFileSync(pathName, JSON.stringify(sites));
 	}
-*/
+
 	// grid
 	loadGridPoints(gran: number, tam: number): IJGridPointInfo[][] {
 		let out: IJGridPointInfo[][] = [];
@@ -156,12 +151,12 @@ export default class DataInformationFilesManager {
 	 * cells information
 	 */
 	
-	// heigth info cell
+	// height info cell
 	// loadCellsHeigth(tam: number): IJCellInformation[] {
-	loadCellsHeigth(tam: number): IJCellHeightInfo[] {
+	loadCellsHeigth(area: number | undefined): IJCellHeightInfo[] {
 		let out: IJCellHeightInfo[] = [];
 		try {
-			let pathName: string = `${this._dirPath}/CellsInfo/heigth.json`;
+			let pathName: string = `${this._dirPath}/CellsInfo/${area ? area : ''}height.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
 			
@@ -169,9 +164,9 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveCellsHeigth(mapCells: Map<number, JCell>, tam: number): void {
+	saveCellsHeigth(mapCells: Map<number, JCell>, area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
-		let pathName: string = `${this._dirPath}/CellsInfo/heigth.json`;
+		let pathName: string = `${this._dirPath}/CellsInfo/${area ? area : ''}height.json`;
 		let data: IJCellHeightInfo[] = [];
 		mapCells.forEach( (cell: JCell) => {
 			data[cell.id] = cell.info.getHeightInfo()!;
@@ -180,27 +175,54 @@ export default class DataInformationFilesManager {
 	}
 
 	// climate info cell
-	// loadCellsTemperature(tam: number): IJCellTempInfo[] {
-	// 	let out: IJCellTempInfo[] = [];
-	// 	try {
-	// 		let pathName: string = `${this._dirPath}/CellsInfo/temperature.json`;
-	// 		out = JSON.parse(fs.readFileSync(pathName).toString());
-	// 	} catch (e) {
+	loadCellsClimate(area: number | undefined): IJCellClimateInfo[] {
+		let out: IJCellClimateInfo[] = [];
+		try {
+			let pathName: string = `${this._dirPath}/CellsInfo/${area ? area : ''}climate.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
 			
-	// 	}
-	// 	return out;
-	// }
+		}
+		return out;
+	}
 
-	// saveCellsTemperature(mapCells: Map<number, JCell>, tam: number): void {
-	// 	fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
-	// 	let pathName: string = `${this._dirPath}/CellsInfo/temperature.json`;
-	// 	let data: IJCellTempInfo[] = [];
-	// 	mapCells.forEach( (cell: JCell) => {
-	// 		data[cell.id] = cell.info.getTempInfo()!;
-	// 	})
-	// 	fs.writeFileSync(pathName, JSON.stringify(data));
-	// }
+	saveCellsClimate(mapCells: Map<number, JCell>, area: number | undefined): void {
+		fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
+		let pathName: string = `${this._dirPath}/CellsInfo/${area ? area : ''}climate.json`;
+		let data: IJCellClimateInfo[] = [];
+		mapCells.forEach( (cell: JCell) => {
+			data[cell.id] = cell.info.getClimateInfo()!;
+		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
 
+	/**
+	 * vertex information
+	 */
+	loadVerticesHeigth(area: number | undefined): IJVertexHeightInfo[] {
+		let out: IJVertexHeightInfo[] = [];
+		try {
+			let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}height.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+			
+		}
+		return out;
+	}
+
+	saveVerticesHeigth(mapCells: Map<string, JVertex>, area: number | undefined): void {
+		fs.mkdirSync(`${this._dirPath}/VerticesInfo`, {recursive: true});
+		let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}height.json`;
+		let data: IJVertexHeightInfo[] = [];
+		mapCells.forEach( (cell: JVertex) => {
+			data.push(cell.info.getHeightInfo()!);
+		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+
+	/**
+	 * grid information
+	 */
 	loadGridTemperature(gran: number): ITempDataGrid[][] {
 		let out: ITempDataGrid[][] = [];
 		try {
@@ -346,3 +368,4 @@ export default class DataInformationFilesManager {
 export type TypeDivisionRegion = 
 	| 'country'
 	| 'state'
+

@@ -33,7 +33,7 @@ export default class JVertexHeight {
 
 	getInterface(): IJVertexHeightInfo {
 		return {
-			id: this._vertex.point.id,
+			id: this._vertex.id,
 
 			height: this._height,
 			heightType: this._heightType

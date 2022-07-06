@@ -28,7 +28,6 @@ export default class JVertexInformation {
 	
 	// get isLand(): boolean { return this._height!.heightType === 'land' }
 	get height(): number { return this._height!.height }
-	
 	set height(h: number) { this._height!.height = h }
 
 	// set islandId(id: number) { this._height!.island = id; }

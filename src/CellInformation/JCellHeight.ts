@@ -45,14 +45,14 @@ export default class JCellHeight {
 	get heightType(): TypeCellheight {return this._heightType}
 	set heightType(ht: TypeCellheight) {this._heightType = ht}
 	set height(h: number) {
-		if (this._heightType === 'land' && h < 0.2) {
+		if (this._heightType === 'land' && h <= 0.2) {
 			this._prevHeight = this._height;
-			this._height = 0.2;
+			this._height = 0.2001;
 			return;
 		}
-		if (this._heightType === 'ocean' && h > 0.19) {
+		if (this._heightType === 'ocean' && h > 0.20) {
 			this._prevHeight = this._height;
-			this._height = 0.19;
+			this._height = 0.20;
 			return
 		}
 		this._prevHeight = this._height;
