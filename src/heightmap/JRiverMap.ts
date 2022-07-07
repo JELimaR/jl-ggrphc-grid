@@ -15,7 +15,7 @@ const FLUXMINRIVER = 200000;
 // cambiar road por otra cosa
 export interface IWaterRoutePoint { // puede ser una interface o una clase
   vertex: JVertex;
-  flux: number; // innecesario mantener
+  flux: number;
 }
 
 export class JRiver {
@@ -23,13 +23,17 @@ export class JRiver {
   _vertices: IWaterRoutePoint[];
 	_allVertices: JPoint[] = [];
 
+	_length: number;
+
   constructor(id: number, points: IWaterRoutePoint[]) {
 		this._id = id;
     this._vertices = points;
-		this.length();
+		this._length = this.calcLength();
   }
 
-	length() {
+	get length() { return this._length }
+
+	private calcLength() {
 		let out: number = 0;
 		this._vertices.forEach((wrp: IWaterRoutePoint, i: number, a: IWaterRoutePoint[]) => {
 			if (i < a.length-1) {
@@ -56,6 +60,13 @@ export default class JRiverMap extends JWMap {
     this.setFluxValuesAndRoads();
 		this.setRivers();
   }
+
+	get riverLengthSorted(): JRiver[] {
+		let out: JRiver[] = [];
+		this._rivers.forEach((river: JRiver) => out.push(river));
+		out = out.sort((a: JRiver, b: JRiver) => b.length - a.length)
+		return out;
+	}
 
 	private setFluxValuesAndRoads() {
 		let verticesArr: JVertex[] = [];

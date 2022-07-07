@@ -531,7 +531,7 @@ for (let z = 1; z <= 38; z++) {
  * RIVER
  */
 const rm = new JRiverMap(world.secondaryDiagram);
-
+let riverLongers = 0;
 const dmr: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/river`);
 
 dmr.clear();
@@ -551,17 +551,20 @@ dmr.saveDrawFile(`${AREA}roads.png`)
 dmr.clear();
 dmr.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1));
 rm._rivers.forEach((river: JRiver, key: number) => {
-	// color = '#0000E1';
-	color = chroma.random().hex();
-	// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
-	const points: JPoint[] = river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point)
-	dmr.draw(points, {
-		fillColor: 'none',
-		strokeColor: color
-	})
+	if (river.length > 1000) {
+		// color = '#0000E1';
+		riverLongers++;
+		color = chroma.random().hex();
+		// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
+		const points: JPoint[] = river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point)
+		dmr.draw(points, {
+			fillColor: 'none',
+			strokeColor: color
+		})
+	}
 })
 dmr.saveDrawFile(`${AREA}rivers.png`)
-
+console.log('rivers longer than 1000 km', riverLongers)
 // dmr.clear();
 // colorScale = chroma.scale('Spectral').domain([1000, 0]);
 // rv._fluxMap.forEach((flux: number, key: string) => {
