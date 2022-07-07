@@ -26,7 +26,9 @@ export default class JEdge {
 	private _rSite: JSite | undefined;
 	private _vertexA: JPoint;
 	private _vertexB: JPoint;
+	
 	private _points: JPoint[] = [];
+	private _length: number | undefined;
 	//static _diagramSize: number;
 
 	constructor({/*e,*/ ls, rs, va, vb}: IJEdgeConstructor) {
@@ -76,6 +78,19 @@ export default class JEdge {
 		}
 	}
 
+	get length(): number {
+		if (!this._length) {
+			let out: number = 0;
+			this.points.forEach((p: JPoint, i: number, a: JPoint[]) => {
+				if (i > 0) {
+					out += JPoint.geogDistance(p, a[i-1]);
+				}
+			})
+			this._length = out;
+		}
+		return this._length;
+	}
+
 	get points(): JPoint[] {
 		if (this._points.length === 0) {
 			let out: JPoint[] = [];
@@ -92,10 +107,9 @@ export default class JEdge {
 			} else {
 				out = [this._vertexA, this._vertexB];
 			}
-			return out;
-		} else {
-			return this._points;
-		}
+			this._points = out;
+		} 
+		return this._points;
 	}
 
 	// getInterface(): IJEdgeInfo {

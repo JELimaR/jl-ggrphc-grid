@@ -34,7 +34,7 @@ export interface IJCellClimateInfo {
 }
 
 export default class JCellClimate {
-	_cell: JCell;
+	private _cell: JCell;
 	_tempMonth: number[];
 	_precipMonth: number[];
 	constructor(cell: JCell, info: IJCellClimateInfo) {
@@ -74,7 +74,7 @@ export default class JCellClimate {
 	 * Pumbral = 20 * T + 140   si el 70 % o más de las precipitaciones anuales caen en un lapso que abarca 	ambos semestres;
 	 * Pumbral = 20 * T         si menos del 30 % de las precipitaciones anuales caen en el semestre 	más cálido;
 	 */
-	private get pumbral(): number {
+	get pumbral(): number {
 		let constante: number;
 		if (this.precipSemCalido >= 0.7 * this.mediaPrecip) constante = 280;
 		else if (this.precipSemCalido < 0.3 * this.mediaPrecip) constante = 0;

@@ -43,7 +43,7 @@ export default class JVertex {
 		return out;
 	}
 
-	getEdgeFromNeighbour(v: JVertex) {
+	getEdgeFromNeighbour(v: JVertex): JEdge {
 		let out: JEdge | undefined;
 		this._edges.forEach((e: JEdge) => {
 			if (e.vertexA.id == v.point.id || e.vertexB.id == v.point.id) {

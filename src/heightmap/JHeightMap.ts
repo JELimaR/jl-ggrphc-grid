@@ -45,11 +45,13 @@ export default class JHeightMap extends JWMap {
 
 		// guardar info
 		if (!isLoaded) {
-			console.log('set ocean cells')
+			console.log('set ocean and lake cells')
 			this.setOceanTypeCell();
 			this.setLakeTypeCell();
 			console.log('resolving cells depressions');
+			console.time(`${d.ancestor ? 's' : 'p'}-resolve cells depressions`)
 			this.resolveCellsDepressions();
+			console.timeEnd(`${d.ancestor ? 's' : 'p'}-resolve cells depressions`)
 			if (d.ancestor) this.smootData()
 
 			dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
@@ -71,7 +73,9 @@ export default class JHeightMap extends JWMap {
 		// guardar info
 		if (!isVertexLoaded) {
 			console.log('resolving vertices depressions');
-			this.resolveVertexDepressions();
+			console.time(`${d.ancestor ? 's' : 'p'}-resolve vertices depressions`)
+			this.resolveVertexDepressions();			
+			console.timeEnd(`${d.ancestor ? 's' : 'p'}-resolve vertices depressions`)
 			dataInfoManager.saveVerticesHeigth(this.diagram.vertices2, this.diagram.secAreaProm);
 		}
 		

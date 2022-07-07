@@ -51,7 +51,7 @@ const azgaarFolder: string[] = [
 	'Civaland1', // 11
 	'Shauland30', // 12
 ];
-const folderSelected: string = azgaarFolder[4];
+const folderSelected: string = azgaarFolder[10];
 
 console.log('folder:', folderSelected)
 
@@ -358,7 +358,7 @@ let totalArea: number = 0;
 let annualMax: number = 0;
 // const jcm: JClimateMap = new JClimateMap(world.diagram, precipGrid, tempGrid);
 const jcm2: JClimateMap = new JClimateMap(world.secondaryDiagram, precipGrid, tempGrid);
-
+/*
 monthArr.forEach((month: number) => {
 	dm2.clear();
 	dm2.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.precipitationMonth(month))
@@ -366,23 +366,6 @@ monthArr.forEach((month: number) => {
 	dm2.drawMeridianAndParallels();
 	dm2.saveDrawFile(`${AREA}precip${(month < 10 ? `0${month}` : `${month}`)}.png`)
 })
-
-/*
-dm2.clear();
-world.grid.forEachPoint((gp: JGridPoint, col: number, row: number) => {
-	const ccl = gp._cell.info.cellClimate;
-	if (ccl.koppenSubType() !== 'O') {
-		color = koppenColors[ccl.koppenSubType() as TKoppenSubType];
-		dm2.drawDot(gp._point, {
-			strokeColor: color,
-			fillColor: color,
-		}, GRAN)
-	}
-})
-
-dm2.drawMeridianAndParallels();
-dm2.saveDrawFile(`${GRAN}climateClass.png`)
-// console.log('anual max:', max)
 */
 
 let dmclim: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/climate`);
@@ -553,10 +536,11 @@ const dmr: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected
 
 dmr.clear();
 dmr.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1));
-rm._roads.forEach((route: IWaterRoutePoint[], key: number) => {
-	color = '#000000';
-	const points: JPoint[] = route.map((elem: IWaterRoutePoint) => elem.vertex.point)
-	// console.log(route.map((elem: IWaterRoutePoint) => elem.vertex.point))
+rm._fluxRoutes.forEach((route: JVertex[], key: number) => {
+	// color = '#000000';
+	color = chroma.random().hex();
+	const points: JPoint[] = route.map((elem: JVertex) => elem.point)
+	// console.log(route.map((elem: JVertex) => elem.point))
 	dmr.draw(points, {
 		fillColor: 'none',
 		strokeColor: color

@@ -18,8 +18,47 @@ export default class JVertexClimate {
 		this._precipMonth = [...info.precipMonth]
 	}
 
-	get tempMonth() { return this._tempMonth }
-	get precipMonth() { return this._precipMonth }
+	get tempMonth(): number[] { return this._tempMonth }
+	// set tempMonth(tempArr: number[]) { this._tempMonth = [...tempArr] }
+	get precipMonth(): number[] { return this._precipMonth }
+
+	// temp
+	get tmin() { return Math.min(...this._tempMonth) }
+	get tmax() { return Math.max(...this._tempMonth) }
+	get tmed() { return this._tempMonth.reduce((p: number, c: number) => c + p, 0) / 12 }
+
+	// precip
+	get mediaPrecip(): number { return this.annualPrecip / 12 }
+	get precipSemCalido(): number {
+		let out: number = 0;
+		for (let m of this.getMonthsSet().calido) {
+			out += this._precipMonth[m - 1];
+		}
+		return out;
+	}
+	get precipSemFrio() {
+		let out: number = 0;
+		for (let m of this.getMonthsSet().frio) {
+			out += this._precipMonth[m - 1];
+		}
+		return out;
+	}
+
+	//
+	get pumbral(): number {
+		let constante: number;
+		if (this.precipSemCalido >= 0.7 * this.mediaPrecip) constante = 280;
+		else if (this.precipSemCalido < 0.3 * this.mediaPrecip) constante = 0;
+		else constante = 140;
+		return (20 * this.tmed + constante);
+	}
+
+	getMonthsSet(): { calido: number[], frio: number[] } {
+		return {
+			calido: (this._vertex.point.y < 0) ? [1, 2, 3, 4, 11, 12] : [5, 6, 7, 8, 9, 10],
+			frio: (this._vertex.point.y < 0) ? [5, 6, 7, 8, 9, 10] : [1, 2, 3, 4, 11, 12]
+		}
+	}
 
 	get annualPrecip(): number { return this._precipMonth.reduce((c: number, p: number) => c+p, 0) }
 

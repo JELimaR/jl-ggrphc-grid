@@ -1,6 +1,7 @@
 import chroma from 'chroma-js';
-import { koppenColors, TKoppenSubType } from './CellInformation/JCellClimate';
+//import { koppenColors, TKoppenSubType } from './CellInformation/JCellClimate';
 const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1,0]);
+import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
 
 import {IDrawEntry} from './DrawerMap';
 import JCell from './Voronoi/JCell';
