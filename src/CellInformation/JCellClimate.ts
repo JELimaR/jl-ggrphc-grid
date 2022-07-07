@@ -165,8 +165,8 @@ export default class JCellClimate {
 		switch (this.koppenType()) {
 			// A
 			case 'A':
-				if (this.pseco >= 60) return 'Af'
-				if (this.pseco >= 125 - this.annualPrecip / 25) return 'Am'//100 - this.annualPrecip/25 return 'Am'
+				if (this.pseco > 60) return 'Af'
+				if (this.pseco >= 200 - this.annualPrecip / 25) return 'Am'//100 - this.annualPrecip/25 return 'Am'
 				return 'AwAs';
 			// B
 			case 'B':

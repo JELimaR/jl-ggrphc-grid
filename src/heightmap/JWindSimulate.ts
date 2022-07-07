@@ -17,17 +17,17 @@ export class JWindRoutePoint {
 		public precipOut: number,
 		public evapOut: number,
 		public accOut: number
-	) {}
+	) { }
 
 	static fromInterface(wr: IWindRoute) {
 		return new JWindRoutePoint(
-			JPoint.fromInterface(wr.point), wr.precipOut,	wr.evapOut, wr.accOut
+			JPoint.fromInterface(wr.point), wr.precipOut, wr.evapOut, wr.accOut
 		)
 	}
 
 	getInterface(): IWindRoute {
 		return {
-			point: {x: this.point.x, y: this.point.y},
+			point: { x: this.point.x, y: this.point.y },
 			precipOut: this.precipOut,
 			evapOut: this.evapOut,
 			accOut: this.accOut,
@@ -36,13 +36,13 @@ export class JWindRoutePoint {
 }
 
 export interface IWindRoute {
-	point: {x: number, y: number},
+	point: { x: number, y: number },
 	precipOut: number,
 	evapOut: number,
 	accOut: number,
 }
 
-export interface IPrecipDataGenerated { 
+export interface IPrecipDataGenerated {
 	precipValue: number;
 	precipCant: number
 	deltaTempValue: number;
@@ -53,12 +53,12 @@ export default class JWindSimulate {
 
 	private _pressGrid: JPressureGrid;
 	private _tempGrid: JTempGrid;
-	
+
 	constructor(pressGrid: JPressureGrid, tempGrid: JTempGrid) {
 		this._pressGrid = pressGrid;
 		this._tempGrid = tempGrid;
 	}
-	
+
 	windSim() {
 		let precipOut: Map<number, IPrecipDataGenerated[][]> = new Map<number, IPrecipDataGenerated[][]>();
 		let routeOut: Map<number, Array<JWindRoutePoint>[][]> = new Map<number, Array<JWindRoutePoint>[][]>();
@@ -89,13 +89,13 @@ export default class JWindSimulate {
 
 				let route: JWindRoutePoint[] = [];
 				const currPos: JPoint = new JPoint(gp._point.x, gp._point.y);
-				let wsOut: { dataPrecip: IPrecipDataGenerated[][], route: JWindRoutePoint[] } = {dataPrecip: [], route: []}
+				let wsOut: { dataPrecip: IPrecipDataGenerated[][], route: JWindRoutePoint[] } = { dataPrecip: [], route: [] }
 				// if (pressGrid._pressureCentersLocationGrid.get(m)![gp.colValue][gp.rowValue] !== 1) {
-					wsOut = this.windSimIteration(currPos, m, dataPrecip, route);
-					dataPrecip = wsOut.dataPrecip;
-					// dataRoutes[gp.colValue][gp.rowValue] = wsOut.route;
+				wsOut = this.windSimIteration(currPos, m, dataPrecip, route);
+				dataPrecip = wsOut.dataPrecip;
+				// dataRoutes[gp.colValue][gp.rowValue] = wsOut.route;
 				//}
-				
+
 			}
 			this._pressGrid._grid.forEachPoint((gp: JGridPoint) => {
 				gp._cell.dismark();
@@ -142,27 +142,27 @@ export default class JWindSimulate {
 			// calc iter : evap and precip for currPos
 
 			// if (gpprev !== gpnew) {
-				const {
-					precipOut,
-					evapOut,
-					accOut,
-					deltaTempOut,
-				} = this.calcMoistureValuesIter(gpnew, gpprev, acc, month);
-				acc = accOut;
-				if (gpprev !== gpnew)
-					route.push( new JWindRoutePoint( currPos, accOut, evapOut, precipOut ));
-	
-				// asignar
-				dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += ((Math.cos(gpprev._point.y * Math.PI / 180)*0.8 + 0.2 ) ** 1.0 )* precipOut;
-				dataPrecip[gpprev.colValue][gpprev.rowValue].precipCant++;
-				dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempValue += deltaTempOut;
-				dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempCant++;
-	/*
-				this._grid.getGridPointsInWindowGrade(currPos, this._grid._granularity).forEach((gpn: JGridPoint) => {
-					dataPrecip[gpn.colValue][gpn.rowValue].value += Math.cos(gpprev!._point.y * Math.PI / 180) * precipOut * 0.65;
-					dataPrecip[gpn.colValue][gpn.rowValue].cant++;
-				})
-				*/
+			const {
+				precipOut,
+				evapOut,
+				accOut,
+				deltaTempOut,
+			} = this.calcMoistureValuesIter(gpnew, gpprev, acc, month);
+			acc = accOut;
+			if (gpprev !== gpnew)
+				route.push(new JWindRoutePoint(currPos, accOut, evapOut, precipOut));
+
+			// asignar
+			dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += /*((Math.cos(gpprev._point.y * Math.PI / 180) * 0.7 + 0.3) ** 1.0) */ precipOut;
+			dataPrecip[gpprev.colValue][gpprev.rowValue].precipCant++;
+			dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempValue += deltaTempOut;
+			dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempCant++;
+			/*
+						this._grid.getGridPointsInWindowGrade(currPos, this._grid._granularity).forEach((gpn: JGridPoint) => {
+							dataPrecip[gpn.colValue][gpn.rowValue].value += Math.cos(gpprev!._point.y * Math.PI / 180) * precipOut * 0.65;
+							dataPrecip[gpn.colValue][gpn.rowValue].cant++;
+						})
+						*/
 			// }
 		}
 
@@ -182,8 +182,8 @@ export default class JWindSimulate {
 		// variables de entrada
 		const nextHeight: number = gpnew._cell.info.height;
 		const currHeight: number = gpprev._cell.info.height;
-		const nextPress: number = this._pressGrid.getPointInfo(gpnew._point).pots[month-1];
-		const currPress: number = this._pressGrid.getPointInfo(gpprev._point).pots[month-1];
+		const nextPress: number = this._pressGrid.getPointInfo(gpnew._point).pots[month - 1];
+		const currPress: number = this._pressGrid.getPointInfo(gpprev._point).pots[month - 1];
 		const nextTemp: number = this._tempGrid.getPointInfo(gpprev._point).tempMonth[month - 1];
 		const currTemp: number = this._tempGrid.getPointInfo(gpnew._point).tempMonth[month - 1];
 		const tempParam: number = currTemp < tempMin ? 0 : (currTemp - tempMin) / (35 - tempMin);
@@ -197,13 +197,13 @@ export default class JWindSimulate {
 		// pressValue
 		let pval: number = 0;
 		if (currPress == 0) throw new Error('pressValue es 0')
-		pval = (currPress > 0) ? currPress/mmm.max: -mmm.min/currPress; // entre -1 y 1
-		if (Math.abs(pval) < 0.02) 
+		pval = (currPress > 0) ? currPress / mmm.max : -mmm.min / currPress; // entre -1 y 1
+		if (Math.abs(pval) < 0.02)
 			pval = (pval > 0) ? 0.02 : -0.02;
-		
-		pval = ((pval > 0) ? 1/pval : 100 + 1/pval) / 100;// (mmm.max - mmm.min)
+
+		pval = ((pval > 0) ? 1 / pval : 100 + 1 / pval) / 100;// (mmm.max - mmm.min)
 		if (pval < 0) console.log(pval)
-		pval = (0.95 * pval + 0.05) ** 2.4;
+		pval = (0.95 * pval + 0.05) ** 3;
 
 
 		// nextHeight		
@@ -211,17 +211,15 @@ export default class JWindSimulate {
 			precipOut = (nextHeight ** 0.45) * acc;
 		} else if (nextHeight >= 0.2) {
 			let exponent = (nextHeight < 0.5) ? 2 : ((nextHeight < 0.7) ? 1.5 : 0.45);
-			precipOut = ((currHeight <= nextHeight) ? 0.5 : 0.01) * (nextHeight ** exponent + pval) * acc //MAXRAIN; // acc?
+			precipOut = ((currHeight <= nextHeight) ? 0.5 : 0.0) * (nextHeight ** exponent + pval) * acc;
 			if (precipOut > acc) precipOut = acc;
 			if (precipOut > MAXRAIN) precipOut = MAXRAIN;
 
-			// if (currTemp - tempMin > 0) {
-				evapOut = (tempParam + pval * 0.11 + 0.095) * ( precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5); // adaptar mejor este valor (el valor constante debe estar entre 0.07 y 0.1)
-			// }
+			evapOut = (tempParam + pval * 0.11 + 0.08) * (precipOut < 10 ? 10 : precipOut + MAXEVAP * 0.5); // adaptar 
 		} else {
 			precipOut = 0.1 * ((0.1 ** 3) + pval) * acc;
 			if (currTemp - tempMin > 0)
-				evapOut = (tempParam + pval * 0.11 + 0.095) * ( MAXEVAP * 1.5);
+				evapOut = (tempParam + pval * 0.11 + 0.095) * (MAXEVAP * 1.5);
 		}
 
 		// precip real value
@@ -231,7 +229,7 @@ export default class JWindSimulate {
 		if (evapOut > MAXEVAP) evapOut = MAXEVAP;
 
 		accOut = (nextHeight >= 0.84) ? 0 : acc + evapOut - precipOut;
-		if (accOut > sat * (0.1 + 0.9*tempParam)) accOut = sat * (0.1 + 0.9*tempParam);
+		if (accOut > sat * (0.1 + 0.9 * tempParam)) accOut = sat * (0.1 + 0.9 * tempParam);
 		if (accOut < 0) accOut = 0;
 
 		return {

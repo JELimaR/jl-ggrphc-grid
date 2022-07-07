@@ -67,7 +67,9 @@ export default class JRiverMap extends JWMap {
 				const vertexClimate = curr.info.vertexClimate;
 				let currFlux: number = 100 * (vertexClimate.annualPrecip/JCellClimate.maxAnnual); // 0
 				route.push({ vertex: curr, flux: 0 });
-				this._fluxMap.set(curr.id, this._fluxMap.get(curr.id)! + currFlux);
+				// update flux
+				const newFlux: number = this._fluxMap.get(curr.id)! + currFlux;
+				this._fluxMap.set(curr.id, newFlux);
 
         while (curr.info.vertexHeight.heightType !== 'coast' && curr.info.vertexHeight.heightType !== 'lakeCoast') {
           const mhv: JVertex = this.getMinHeightNeighbour(curr);
@@ -78,7 +80,9 @@ export default class JRiverMap extends JWMap {
 						const vertexClimate = curr.info.vertexClimate;
 						currFlux += 100 * (vertexClimate.annualPrecip/JCellClimate.maxAnnual);
 						route.push({ vertex: curr, flux: 0 });
-						this._fluxMap.set(curr.id, this._fluxMap.get(curr.id)! + currFlux);
+						// update flux
+						const newFlux: number = this._fluxMap.get(curr.id)! + currFlux;
+						this._fluxMap.set(curr.id, newFlux);
           } else {
             break; // el vertex es lake
           }
@@ -101,8 +105,9 @@ export default class JRiverMap extends JWMap {
 			let wrp: IWaterRoutePoint;
 			for (wrp of road) {
 				const vertex: JVertex = wrp.vertex;
-				const flux: number = this._fluxMap.get(vertex.id) as number;
-				if (flux > FLUXLIMIT && !vertex.isMarked()) { // el if no funciona como debe
+				const vertexFlux = this._fluxMap.get(vertex.id) as number;
+				const flux: number = vertexFlux;
+				if (flux > FLUXLIMIT && !vertex.isMarked()) {
 					river.push({vertex, flux })
 					vertex.mark()
 				} else if (vertex.isMarked()) {

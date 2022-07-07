@@ -60,7 +60,7 @@ export default class JPrecipGrid {
 			})
 
 			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
-				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => ((r/100) ** 1.5) * 3644.1 * (0.1 + 0.9*Math.cos(gp._point.y * Math.PI/180)))
+				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => ((r/100) ** 1.6) * 3544.1 * (0.2 + 0.8*Math.cos(gp._point.y * Math.PI/180)))
 			})
 
 			dataInfoManager.saveGridPrecip(out, this._grid._granularity);

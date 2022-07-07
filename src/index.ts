@@ -74,7 +74,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 4100; // 1100
+const AREA: number = 12100; // 1100
 const GRAN: number = 2;
 const world: JWorld = new JWorld(AREA, GRAN);
 const tempStep = 5;
@@ -358,6 +358,15 @@ let totalArea: number = 0;
 let annualMax: number = 0;
 // const jcm: JClimateMap = new JClimateMap(world.diagram, precipGrid, tempGrid);
 const jcm2: JClimateMap = new JClimateMap(world.secondaryDiagram, precipGrid, tempGrid);
+
+monthArr.forEach((month: number) => {
+	dm2.clear();
+	dm2.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.precipitationMonth(month))
+	
+	dm2.drawMeridianAndParallels();
+	dm2.saveDrawFile(`${AREA}precip${(month < 10 ? `0${month}` : `${month}`)}.png`)
+})
+
 /*
 dm2.clear();
 world.grid.forEachPoint((gp: JGridPoint, col: number, row: number) => {

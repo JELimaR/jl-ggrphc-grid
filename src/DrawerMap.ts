@@ -1,10 +1,8 @@
-
 import { createCanvas } from 'canvas';
 import fs from 'fs';
 import * as turf from '@turf/turf';
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
-
 
 import JPoint, { JVector } from './Geom/JPoint';
 import JWorldMap, { createICellContainerFromCellArray, ICellContainer } from './JWorldMap';
