@@ -19,21 +19,21 @@ export default class JHeightMap extends JWMap {
 
 	private _islands: JIslandMap[] = [];
 
-	constructor(d: JDiagram) {
+	constructor(d: JDiagram, a?: JDiagram) {
 		super(d);
 		const dataInfoManager = DataInformationFilesManager.instance;
 		/*
 		 * height cells
 		 */
 		console.log('calculate and setting height');
-		console.time(`${d.ancestor ? 's' : 'p'}-set height info`);
+		console.time(`${a ? 's' : 'p'}-set height info`);
 		// ver como se debe hacer esto
 		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(this.diagram.secAreaProm);
 
 		const isLoaded: boolean = loadedHeightInfo.length !== 0;
 		if (!isLoaded) {
-			if (d.ancestor) {
-				loadedHeightInfo = this.getCellsDataFromAncestor();
+			if (a) {
+				loadedHeightInfo = this.getCellsDataFromAncestor(a);
 			} else {
 				loadedHeightInfo = this.getCellsData();
 			}
@@ -49,10 +49,10 @@ export default class JHeightMap extends JWMap {
 			this.setOceanTypeCell();
 			this.setLakeTypeCell();
 			console.log('resolving cells depressions');
-			console.time(`${d.ancestor ? 's' : 'p'}-resolve cells depressions`)
+			console.time(`${a ? 's' : 'p'}-resolve cells depressions`)
 			this.resolveCellsDepressions();
-			console.timeEnd(`${d.ancestor ? 's' : 'p'}-resolve cells depressions`)
-			if (d.ancestor) this.smootData()
+			console.timeEnd(`${a ? 's' : 'p'}-resolve cells depressions`)
+			if (a) this.smootData()
 
 			dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
 		}
@@ -73,19 +73,19 @@ export default class JHeightMap extends JWMap {
 		// guardar info
 		if (!isVertexLoaded) {
 			console.log('resolving vertices depressions');
-			console.time(`${d.ancestor ? 's' : 'p'}-resolve vertices depressions`)
+			console.time(`${a ? 's' : 'p'}-resolve vertices depressions`)
 			this.resolveVertexDepressions();
-			console.timeEnd(`${d.ancestor ? 's' : 'p'}-resolve vertices depressions`)
+			console.timeEnd(`${a ? 's' : 'p'}-resolve vertices depressions`)
 			dataInfoManager.saveVerticesHeigth(this.diagram.vertices2, this.diagram.secAreaProm);
 		}
 
-		console.timeEnd(`${d.ancestor ? 's' : 'p'}-set height info`);
+		console.timeEnd(`${a ? 's' : 'p'}-set height info`);
 
 		/*
 		 * islands
 		 */
 		console.log('calculate and setting island')
-		console.time(`${d.ancestor ? 's' : 'p'}-set Islands`);
+		console.time(`${a ? 's' : 'p'}-set Islands`);
 		/*
 		let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.cells.size);
 		if (regionInfoArr.length > 0) {
@@ -102,7 +102,7 @@ export default class JHeightMap extends JWMap {
 			dataInfoManager.saveIslandsInfo(this._islands, cellsMap.size);
 		}
 		*/
-		console.timeEnd(`${d.ancestor ? 's' : 'p'}-set Islands`);
+		console.timeEnd(`${a ? 's' : 'p'}-set Islands`);
 	}
 
 	private getCellsData(): IJCellHeightInfo[] {
@@ -116,17 +116,13 @@ export default class JHeightMap extends JWMap {
 				height: elem.h,
 				heightType: 'land',
 			};
-			if (idx % 1000 == 0) {
-				console.log(`van ${idx} de ${azgaarHeight.length}`)
-				console.timeLog('p-set height info')
-			}
 		})
 		return out;
 	}
 
-	private getCellsDataFromAncestor(): IJCellHeightInfo[] {
+	private getCellsDataFromAncestor(ancestor: JDiagram): IJCellHeightInfo[] {
 		let out: IJCellHeightInfo[] = [];
-		this.diagram.ancestor!.forEachCell((cell: JCell) => {
+		ancestor.forEachCell((cell: JCell) => {
 			const randFunc = RandomNumberGenerator.makeRandomFloat(this.diagram.cells.size);
 			const hinf: IJCellHeightInfo = cell.info.getHeightInfo()!;
 			cell.subCells.forEach((sc: JCell) => {
@@ -135,10 +131,6 @@ export default class JHeightMap extends JWMap {
 				if (h <= 0.2 && hinf.height > 0.2) h = hinf.height;
 				out[sc.id] = { ...hinf, height: h, heightType: 'land' };
 			})
-			if (cell.id % 1000 == 0) {
-				console.log(`van ${cell.id} de ${this.diagram.ancestor!.cells.size}`)
-				console.timeLog('s-set height info')
-			}
 		})
 		return out;
 	}
@@ -190,7 +182,7 @@ export default class JHeightMap extends JWMap {
 		})
 		let hay = true, it: number = 0;
 		let cantHay: number = 0, cantAug: number = 0;
-		while (it < 100 && hay) {
+		while (/*it < 100 &&*/ hay) {
 			hay = false;
 			let cantHayIt: number = 0;
 			verticesArr.forEach((v: JVertex) => {
@@ -237,7 +229,7 @@ export default class JHeightMap extends JWMap {
 		})
 		let hay = true, it: number = 0;
 		let cantHay: number = 0, cantAug: number = 0;
-		while (it < 2000 && hay) {
+		while (/*it < 2000 &&*/ hay) {
 			hay = false;
 			let cantHayIt: number = 0;
 			cellArr.forEach((c: JCell) => {

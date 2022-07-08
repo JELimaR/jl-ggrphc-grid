@@ -19,7 +19,7 @@ export default class JDiagram {
 	// private _edges: JEdge[] = []; //cambiar
 
 	// private _subDiagram: JSubDiagram | undefined;
-	private _ancestor: JDiagram | undefined;
+	// private _ancestor: JDiagram | undefined;
 	private _secAreaProm: number | undefined;
 
 	constructor(d: Diagram, ancestor?: {d: JDiagram, a: number, s: {p: IPoint, cid: number}[]}) {
@@ -28,8 +28,8 @@ export default class JDiagram {
 
 		this.setDiagramValuesContructed(d);
 		if (ancestor) {
-			console.log('llegue')
-			this._ancestor = ancestor.d;
+			// console.log('llegue')
+			// this._ancestor = ancestor.d;
 			this._secAreaProm = ancestor.a;
 			
 			ancestor.s.forEach((value: { p: IPoint; cid: number; }) => {
@@ -45,7 +45,7 @@ export default class JDiagram {
 		console.timeEnd('set JDiagram values');
 	}
 
-	get ancestor(): JDiagram | undefined { return this._ancestor }
+	// get ancestor(): JDiagram | undefined { return this._ancestor }
 	get secAreaProm(): number | undefined { return this._secAreaProm }
 
 	private setDiagramValuesContructed(d: Diagram): void {
@@ -407,4 +407,3 @@ export default class JDiagram {
 	// addSubDiagram(sd: JSubDiagram) { this._subDiagram = sd }
 	// get subDiagram(): JSubDiagram { if (this._subDiagram) return this._subDiagram; throw new Error(`no tiene subdiagram associado`)}
 }
-

@@ -1,4 +1,3 @@
-
 import JDiagram from "../Voronoi/JDiagram";
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 import JCell from "../Voronoi/JCell";

@@ -10,10 +10,10 @@ import JCell from './Voronoi/JCell';
 export default class JWorld {
 	
 	private _primaryDiagram: JDiagram;
-	private _secondaryDiagram: JDiagram | undefined;
+	private _secondaryDiagram: JDiagram;
 	private _grid: JGrid;
-	private _heightMap: JHeightMap | undefined;
-	private _heightMap2: JHeightMap | undefined;
+	private _heightMap: JHeightMap;
+	private _heightMap2: JHeightMap;
 	private _cellAreaProm: number;
 	// private _temperatureMap: JTempMap | undefined;
 	
@@ -24,16 +24,26 @@ export default class JWorld {
 		console.time('primary voronoi');
 		this._primaryDiagram = VoronoiDiagramCreator.createDiagram(/*TOTAL, 1*/);
 		console.timeEnd('primary voronoi');
+
+		// construir diagrama secundario
+		this._heightMap = new JHeightMap(this._primaryDiagram);
+		console.time('secondary voronoi');
+		this._secondaryDiagram = VoronoiDiagramCreator.createSubDiagram(this._primaryDiagram, this._cellAreaProm);
+		console.timeEnd('secondary voronoi');	
+
+		// generar heightMap2
+		this._heightMap2 = new JHeightMap(this._secondaryDiagram, this._primaryDiagram);
+		
 		console.log('init grid');
 		console.time('grid');
-		this._grid = new JGrid(GRAN, this._primaryDiagram);
+		this._grid = new JGrid(GRAN, this._secondaryDiagram);
 		console.timeEnd('grid');
 	}
 
-	get diagram(): JDiagram { return this._primaryDiagram }
+	// get diagram(): JDiagram { return this._primaryDiagram }
 	get secondaryDiagram(): JDiagram { return this._secondaryDiagram! }
 	get grid(): JGrid { return this._grid }
-
+	/*
 	generateHeightMap(): JHeightMap {
 		if (!this._heightMap) {
 			this._heightMap = new JHeightMap(this._primaryDiagram);
@@ -43,11 +53,12 @@ export default class JWorld {
 		}
 		return this._heightMap;
 	}
+	*/
+	/*
 	generateHeightMap2(): JHeightMap {
-		if (!this._heightMap2)
-			this._heightMap2 = new JHeightMap(this._secondaryDiagram!);
 		return this._heightMap2;
 	}
+	*/
 	// generateTemperatureMap(): JTempMap {
 	// 	if (!this._temperatureMap)
 	// 		this._temperatureMap = new JTempMap(this._diagram, this.generateHeightMap());

@@ -62,10 +62,10 @@ export default class JGrid {
 	constructor(gran: number, diagram: JDiagram) {
 		this._granularity = gran;
 		JGridPoint.gran = gran;
-		const loadedData = dataInfoManager.loadGridPoints(this._granularity, diagram.cells.size);
+		const loadedData = dataInfoManager.loadGridPoints(this._granularity, diagram.secAreaProm);
 		if (loadedData.length === 0) {
 			this._points = this.createGridPoints(diagram);
-			dataInfoManager.saveGridPoints(this._points, this._granularity, diagram.cells.size)
+			dataInfoManager.saveGridPoints(this._points, this._granularity, diagram.secAreaProm)
 		} else {
 			this._points = loadedData.map((coli: IJGridPointInfo[]) => {
 				return coli.map((info: IJGridPointInfo) => {

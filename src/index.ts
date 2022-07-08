@@ -52,7 +52,7 @@ const azgaarFolder: string[] = [
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
 ];
-const folderSelected: string = azgaarFolder[13];
+const folderSelected: string = azgaarFolder[10];
 
 console.log('folder:', folderSelected)
 
@@ -75,15 +75,15 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 810; // 1100
+const AREA: number = 12100; // 810
 const GRAN: number = 2;
 const world: JWorld = new JWorld(AREA, GRAN);
 const tempStep = 5;
 // const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const monthArr = [1, 3, 5, 7, 9, 11];
 
-/*let jhm: JHeightMap = */world.generateHeightMap();
-world.generateHeightMap2();
+/*let jhm: JHeightMap = world.generateHeightMap();*/
+//world.generateHeightMap2();
 // console.log(world.diagram.cells.get(8)!.info.tempMonthArr)
 // /*let jtm: JTempMap = */world.generateTemperatureMap();
 console.log('cells cant', world.secondaryDiagram.cells.size)
@@ -138,12 +138,12 @@ const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
 // const gcg = new GeoCoordGrid();
 // const hgd = new HeightGridData(gcg);
 
-
+/*
 dm.drawFondo()
 dm.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1))
 dm.drawMeridianAndParallels();
 dm.saveDrawFile(`hh.png`);
-
+*/
 dm.drawFondo()
 dm.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1))
 dm.drawCellMap(createICellContainerFromCellArray([minAreaLand, maxAreaLand]), JCellToDrawEntryFunctions.colors({
@@ -233,18 +233,14 @@ for (let i of monthArr) {
 /*
 dm2.clear()
 // dm2.drawFondo()
-
 tempGrid.getPressureCenters(month).pressCenter.forEach((val: any) => {
 	color = (val.mag < 0) ? '#00FF0020' : '#FF000020';
 	dm2.drawDot(val.point, {
 		strokeColor: color, fillColor: color
 	}, GRAN)
 })
-
 colorScale = chroma.scale('Spectral').domain([1, 0]);
-
 dataPrecip = ws.precip.get(month) as { value: number; cant: number; }[][];
-
 // dm2.drawMeridianAndParallels();
 dm2.saveDrawFile(`tempWind.png`);
 */
@@ -252,26 +248,18 @@ dm2.saveDrawFile(`tempWind.png`);
 /*
 const dataPrecip = precipGrid._precipData;
 colorScale = chroma.scale('Spectral').domain([750, 0]);
-
 for (let month of monthArr) {
 	dm2.clear();
-
 	world.grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
-
 		const val: number = dataPrecip[cidx][ridx].precip[month - 1];
 		if (val === -Infinity || val == Infinity || val == undefined) console.log(cidx, ridx, val)
-
 		const alpha = (gp._cell.info.isLand) ? 1 : 0.5;
-
 		color = colorScale(val).alpha(alpha).hex();
-
 		dm2.drawDot(gp._point, {
 			strokeColor: color,
 			fillColor: color,
 		}, GRAN)
-
 	})
-
 	dm2.drawMeridianAndParallels();
 	dm2.saveDrawFile(`${GRAN}moisture${(month < 10 ? `0${month}` : `${month}`)}.png`);
 }
@@ -285,7 +273,6 @@ let max: number = 0;
 world.grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 	let val = 0;
 	precipGrid._precipData[cidx][ridx].precip.forEach((m: number) => val += m);
-
 	if (max < val) max = val;
 	const alpha = (gp._cell.info.isLand) ? 1 : 0.8;
 	color = colorScale(val).alpha(alpha).hex();
@@ -412,7 +399,6 @@ dmclim.drawCellMap(world, (cell: JCell) => {
 		strokeColor: color,
 	}
 })
-
 dmclim.drawMeridianAndParallels();
 dmclim.saveDrawFile(`${GRAN}altitudinalBelts.png`)
 */
@@ -432,7 +418,6 @@ dmclim.drawCellMap(world, (cell: JCell) => {
 		strokeColor: color,
 	}
 })
-
 dmclim.drawMeridianAndParallels();
 dmclim.saveDrawFile(`${GRAN}humidityProvinces.png`)
 */
@@ -576,25 +561,25 @@ dmr.saveDrawFile(`${AREA}rivers.png`)
 console.log('rivers longer than 1000 km', riverLongers)
 
 console.log('vertex cant', world.secondaryDiagram.vertices2.size)
-
+/*
 dm.clear();
 dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 	fillColor: chroma.random().hex(),
 	strokeColor: '#001410'
 }}))
 dm.saveDrawFile('diagram.png')
-
+*/
 dm.clear()
 dm.drawCellMap(world.secondaryDiagram, ((cell: JCell) => {return {
 	fillColor: chroma.random().hex(),
 	strokeColor: '#001410'
 }}))
 dm.saveDrawFile(`${AREA}secDiagram.png`)
-
+/*
 const eqcell = world.diagram.getCellFromPoint(new JPoint(11,0));
 const pocell = world.diagram.getCellFromPoint(new JPoint(11,85));
 
 console.log('eq', eqcell.subCells.length)
 console.log('po', pocell.subCells.length)
-
+*/
 console.timeEnd('all')

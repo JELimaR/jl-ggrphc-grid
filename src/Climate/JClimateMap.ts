@@ -26,7 +26,7 @@ export default class JClimateMap extends JWMap {
 		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
 		const isLoaded: boolean = climateData.length !== 0;
 		if (!isLoaded) {
-			climateData = this.getClimateData(precipGrid, tempGrid);
+			climateData = this.generateClimateData(precipGrid, tempGrid);
 		}		
 
 		this.diagram.forEachCell((cell: JCell) => {
@@ -52,7 +52,7 @@ export default class JClimateMap extends JWMap {
 
 	}
 
-	getClimateData(precipGrid: JPrecipGrid, tempGrid: JTempGrid): IJCellClimateInfo[] {
+	generateClimateData(precipGrid: JPrecipGrid, tempGrid: JTempGrid): IJCellClimateInfo[] {
 
 		let climateData: IJCellClimateInfo[] = [];
 			

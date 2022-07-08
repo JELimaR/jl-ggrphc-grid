@@ -127,10 +127,10 @@ export default class DataInformationFilesManager {
 	}
 
 	// grid
-	loadGridPoints(gran: number, tam: number): IJGridPointInfo[][] {
+	loadGridPoints(gran: number, area: number | undefined): IJGridPointInfo[][] {
 		let out: IJGridPointInfo[][] = [];
 		try {
-			let pathFile: string = `${this._dirPath}/G${gran}_grid.json`;
+			let pathFile: string = `${this._dirPath}/${area ? area : ''}G${gran}_grid.json`;
 			out = JSON.parse(fs.readFileSync(pathFile).toString());
 		} catch (e) {
 			
@@ -138,12 +138,12 @@ export default class DataInformationFilesManager {
 		return out;		
 	}
 
-	saveGridPoints(gridPoints: JGridPoint[][], gran: number, tam: number) {
+	saveGridPoints(gridPoints: JGridPoint[][], gran: number, area: number | undefined) {
 		const data: IJGridPointInfo[][] = gridPoints.map((col: JGridPoint[]) => {
 			return col.map((gp: JGridPoint) => gp.getInterface());
 		})
 		fs.mkdirSync(`${this._dirPath}`, {recursive: true});
-		let pathName: string = `${this._dirPath}/G${gran}_grid.json`;
+		let pathName: string = `${this._dirPath}/${area ? area : ''}G${gran}_grid.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));		
 	}
 
