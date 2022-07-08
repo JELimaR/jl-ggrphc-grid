@@ -86,11 +86,11 @@ const monthArr = [1, 3, 5, 7, 9, 11];
 //world.generateHeightMap2();
 // console.log(world.diagram.cells.get(8)!.info.tempMonthArr)
 // /*let jtm: JTempMap = */world.generateTemperatureMap();
-console.log('cells cant', world.secondaryDiagram.cells.size)
+console.log('cells cant', world.diagram.cells.size)
 let areaLand: number = 0, cantLand: number = 0;
-let maxAreaLand: JCell = world.secondaryDiagram.cells.get(3255)!;
-let minAreaLand: JCell = world.secondaryDiagram.cells.get(3255)!;
-world.secondaryDiagram.forEachCell((c: JCell) => {
+let maxAreaLand: JCell = world.diagram.cells.get(3255)!;
+let minAreaLand: JCell = world.diagram.cells.get(3255)!;
+world.diagram.forEachCell((c: JCell) => {
 	if (c.info.isLand) {
 		areaLand += c.areaSimple;
 		cantLand ++;		
@@ -130,11 +130,11 @@ for (let i of monthArr) {
 	dm2.saveDrawFile(`tempGrid${(month < 10 ? `0${month}` : `${month}`)}-prev.png`);
 }
 */
-
+/*
 const tempGrid = new JTempGrid(world.grid);
 const pressGrid = new JPressureGrid(world.grid, tempGrid);
 const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
-
+*/
 // const gcg = new GeoCoordGrid();
 // const hgd = new HeightGridData(gcg);
 
@@ -145,7 +145,7 @@ dm.drawMeridianAndParallels();
 dm.saveDrawFile(`hh.png`);
 */
 dm.drawFondo()
-dm.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1))
+dm.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1))
 dm.drawCellMap(createICellContainerFromCellArray([minAreaLand, maxAreaLand]), JCellToDrawEntryFunctions.colors({
 	fillColor: '#000000',
 	strokeColor: '#000000',
@@ -205,7 +205,7 @@ for (let i of monthArr) {
 // nuevo
 const month = 1;
 
-let mmm = pressGrid.getMaxMedMin(month);
+//let mmm = pressGrid.getMaxMedMin(month);
 dm.clear()
 dm.drawFondo()
 
@@ -345,11 +345,11 @@ let koppenBasicArea = { A: 0, B: 0, C: 0, D: 0, E: 0 }
 let totalArea: number = 0;
 let annualMax: number = 0;
 // const jcm: JClimateMap = new JClimateMap(world.diagram, precipGrid, tempGrid);
-const jcm2: JClimateMap = new JClimateMap(world.secondaryDiagram, precipGrid, tempGrid);
+
 /*
 monthArr.forEach((month: number) => {
 	dm2.clear();
-	dm2.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.precipitationMonth(month))
+	dm2.drawCellMap(world.diagram, JCellToDrawEntryFunctions.precipitationMonth(month))
 	
 	dm2.drawMeridianAndParallels();
 	dm2.saveDrawFile(`${AREA}precip${(month < 10 ? `0${month}` : `${month}`)}.png`)
@@ -357,12 +357,12 @@ monthArr.forEach((month: number) => {
 */
 
 let dmclim: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/climate`);
-dmclim.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.koppen(1))
+dmclim.drawCellMap(world.diagram, JCellToDrawEntryFunctions.koppen(1))
 
 dmclim.drawMeridianAndParallels();
 dmclim.saveDrawFile(`${AREA}climateClass.png`)
 
-world.secondaryDiagram.forEachCell((cell: JCell) => {
+world.diagram.forEachCell((cell: JCell) => {
 	const ccl = cell.info.cellClimate;
 	if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
 		koppenCant[ccl.koppenSubType() as TKoppenSubType]++;
@@ -493,7 +493,7 @@ let lifeZonesCant = {
 }
 
 dmclim.clear()
-dmclim.drawCellMap(world.secondaryDiagram, (cell: JCell) => {
+dmclim.drawCellMap(world.diagram, (cell: JCell) => {
 	const ccl = cell.info.cellClimate;
 	if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
 		color = ccl.lifeZone.color;
@@ -516,12 +516,12 @@ for (let z = 1; z <= 38; z++) {
 /**
  * RIVER
  */
-const rm = new JRiverMap(world.secondaryDiagram);
+const rm = new JRiverMap(world.diagram);
 let riverLongers = 0;
 const dmr: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/river`);
 
 dmr.clear();
-dmr.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1));
+dmr.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1));
 rm._fluxRoutes.forEach((route: JVertex[], key: number) => {
 	// color = '#000000';
 	color = chroma.random().hex();
@@ -535,7 +535,7 @@ rm._fluxRoutes.forEach((route: JVertex[], key: number) => {
 dmr.saveDrawFile(`${AREA}roads.png`)
 
 dmr.clear();
-dmr.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1));
+dmr.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1));
 rm._rivers.forEach((river: JRiver, key: number) => {
 	if (river.length > 1000) {
 		color = '#0000E1';
@@ -560,7 +560,7 @@ rm._rivers.forEach((river: JRiver, key: number) => {
 dmr.saveDrawFile(`${AREA}rivers.png`)
 console.log('rivers longer than 1000 km', riverLongers)
 
-console.log('vertex cant', world.secondaryDiagram.vertices2.size)
+console.log('vertex cant', world.diagram.vertices2.size)
 /*
 dm.clear();
 dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
@@ -570,7 +570,7 @@ dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 dm.saveDrawFile('diagram.png')
 */
 dm.clear()
-dm.drawCellMap(world.secondaryDiagram, ((cell: JCell) => {return {
+dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 	fillColor: chroma.random().hex(),
 	strokeColor: '#001410'
 }}))
