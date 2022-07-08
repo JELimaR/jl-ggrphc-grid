@@ -3,7 +3,7 @@ var newDate = new Date();
 console.log(newDate.toLocaleTimeString());
 
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions';
-import DrawerMap, { IDrawEntry } from './DrawerMap'
+import DrawerMap, { IDrawEntry } from './Drawer/DrawerMap'
 
 import JPoint from './Geom/JPoint';
 import JGrid, { JGridPoint } from './Geom/JGrid';

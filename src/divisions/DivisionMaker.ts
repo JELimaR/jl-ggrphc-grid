@@ -1,4 +1,4 @@
-import DrawerMap from "../DrawerMap";
+import DrawerMap from "../Drawer/DrawerMap";
 import JPoint from "../Geom/JPoint";
 import JWorldMap, { createICellContainerFromCellArray } from "../JWorldMap";
 import JCell from "../Voronoi/JCell";

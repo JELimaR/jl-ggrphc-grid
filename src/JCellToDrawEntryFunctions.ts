@@ -3,7 +3,7 @@ import chroma from 'chroma-js';
 const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1,0]);
 import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
 
-import {IDrawEntry} from './DrawerMap';
+import {IDrawEntry} from './Drawer/DrawerMap';
 import JCell from './Voronoi/JCell';
 
 
