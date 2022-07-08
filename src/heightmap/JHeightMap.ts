@@ -189,8 +189,11 @@ export default class JHeightMap extends JWMap {
 				const mhn = this.getMinHeightVertexNeighbour(v);
 				if (mhn.info.height >= v.info.height) {
 					hay = true;
-					const difH = 0.00022//(mhn.info.height - v.info.height)*3.04;
-					v.info.height = v.info.height + difH;
+					const nh = mhn.info.height + 0.00022;
+					const difH = nh - v.info.height;
+					v.info.height = nh;
+					// const difH = 0.00022//(mhn.info.height - v.info.height)*3.04;
+					// v.info.height = v.info.height + difH;
 					this.diagram.getCellsAssociated(v).forEach((c: JCell) => c.info.height = c.info.height + difH);
 					cantHayIt++;
 				}
