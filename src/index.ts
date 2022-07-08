@@ -150,7 +150,7 @@ dm.drawCellMap(createICellContainerFromCellArray([minAreaLand, maxAreaLand]), JC
 	fillColor: '#000000',
 	strokeColor: '#000000',
 }))
-dm.drawMeridianAndParallels();
+// dm.drawMeridianAndParallels();
 dm.saveDrawFile(`${AREA}sechh.png`);
 
 /****************************************************/

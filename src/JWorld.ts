@@ -90,13 +90,15 @@ export default class JWorld {
 	 * GENERATE NATURAL WORLD
 	 */
 	private generateNaturalWorld(GRAN: number, AREA: number): {d: JDiagram, g: JGrid, h: JHeightMap, c: JClimateMap, r: JRiverMap} {
+		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
 		const iniHeightMap: JHeightMap = new JHeightMap(iniDiagram);
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		const grid = this.createGrid(diagram, GRAN)
 		const heightMap = new JHeightMap(diagram, iniDiagram);
-		const climateMap = this.generateClimate(diagram);
+		const climateMap = this.generateClimate(diagram, grid);
 		const riverMap = this.generateRivers(diagram);
+		console.timeEnd('Generate Natural World')
 		return {
 			d: diagram,
 			g: grid,
@@ -126,9 +128,9 @@ export default class JWorld {
 		console.timeEnd('grid');
 		return grid;
 	}
-	private generateClimate(diagram: JDiagram): JClimateMap {
-		const tempGrid = new JTempGrid(this.grid);
-		const pressGrid = new JPressureGrid(this.grid, tempGrid);
+	private generateClimate(diagram: JDiagram, grid: JGrid): JClimateMap {
+		const tempGrid = new JTempGrid(grid);
+		const pressGrid = new JPressureGrid(grid, tempGrid);
 		const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
 
 		return new JClimateMap(diagram, precipGrid, tempGrid);

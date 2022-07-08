@@ -1,4 +1,4 @@
-import * as PImage from 'pureimage';
+// import * as PImage from 'pureimage';
 import { Canvas, createCanvas } from 'canvas';
 import fs from 'fs';
 import * as turf from '@turf/turf';
@@ -9,6 +9,8 @@ import JPoint from './Geom/JPoint';
 import JWorldMap, { createICellContainerFromCellArray, ICellContainer } from './JWorldMap';
 import JCell from './Voronoi/JCell';
 import JRegionMap from './RegionMap/JRegionMap';
+// import { Bitmap } from 'pureimage/types/bitmap';
+// import { Context } from 'pureimage/types/context';
 
 export interface IDrawEntry {
 	fillColor: string | 'none';
@@ -137,16 +139,16 @@ export class JPanzoom {
 export default class DrawerMap {
 
 	private _size: JPoint;
-	// private _cnvs: Canvas// any;
-	private _cnvs: any;
+	private _cnvs: Canvas;
+	// private _cnvs: Bitmap;
 
 	private _panzoom: JPanzoom;
 	private _dirPath: string;
 
 	constructor(SIZE: JPoint, dirPath: string) {
 		this._size = SIZE;
-		// this._cnvs = createCanvas(SIZE.x, SIZE.y);
-		this._cnvs = PImage.make(SIZE.x, SIZE.y, {});
+		this._cnvs = createCanvas(SIZE.x, SIZE.y);
+		// this._cnvs = PImage.make(SIZE.x, SIZE.y, {});
 
 		this._panzoom = new JPanzoom(this._size);
 		this._dirPath = dirPath;
@@ -301,27 +303,32 @@ export default class DrawerMap {
 
 	/** uso del canvas */
 	private get context(): CanvasRenderingContext2D {
+	// private get context(): Context {
 		return this._cnvs.getContext('2d');
 	}
 
 	draw(points: JPoint[], ent: IDrawEntry): void {
 		let len: number = points.length;
 
-		this.context.beginPath();
+		let context: CanvasRenderingContext2D = this.context;
+		// let context: Context = this.context;
+
+		context.beginPath();
 
 		const initialPoint: JPoint = this._panzoom.convertPointToDrawer(points[len - 1]);
-		//this.context.moveTo(initialPoint.x, initialPoint.y);
-		for (let vert of points) {
-			const vertex: JPoint = this._panzoom.convertPointToDrawer(vert);
-			this.context.lineTo(vertex.x, vertex.y);
+		// context.moveTo(initialPoint.x, initialPoint.y);
+		for (let point of points) {
+			const p: JPoint = this._panzoom.convertPointToDrawer(point);
+			// console.log(p)
+			context.lineTo(p.x, p.y);
 		}
 
-		if (ent.dashPattern) this.context.setLineDash(ent.dashPattern);
-		this.context.strokeStyle = ent.strokeColor;
-		if (ent.strokeColor !== 'none') this.context.stroke();
-		this.context.fillStyle = ent.fillColor;
-		if (ent.fillColor !== 'none') this.context.fill();
-		this.context.closePath();
+		if (ent.dashPattern) context.setLineDash(ent.dashPattern);
+		context.strokeStyle = ent.strokeColor;
+		if (ent.strokeColor !== 'none') context.stroke();
+		context.fillStyle = ent.fillColor;
+		if (ent.fillColor !== 'none') context.fill();
+		context.closePath();
 	}
 
 	saveDrawStream(fileName: string) {
@@ -333,7 +340,7 @@ export default class DrawerMap {
 	getBuffer(): Buffer { return this._cnvs.toBuffer() }
 
 	saveDrawFile(fileName: string) {
-		fs.writeFileSync(`${this._dirPath}/${fileName}`, this._cnvs.toBuffer());
+		fs.writeFileSync(`${this._dirPath}/${fileName}`, this.getBuffer());
 	}
 
 	/**/

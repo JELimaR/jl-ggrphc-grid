@@ -36,7 +36,6 @@
     "chroma-js": "^2.1.2",
     "jimp": "^0.16.1",
     "jl-utlts": "^1.1.3",
-    "pureimage": "^0.3.14",
     "voronoijs": "^1.0.0"
   }
 }
