@@ -1,6 +1,6 @@
 import { Cell, Diagram, Halfedge, Edge, Vertex } from 'voronoijs';
 import * as turf from '@turf/turf';
-import JPoint, { IPoint, JVector } from '../Geom/JPoint';
+import JPoint, { IPoint } from '../Geom/JPoint';
 import JCell from "./JCell";
 import JEdge from "./JEdge";
 import JSite from './JSite';

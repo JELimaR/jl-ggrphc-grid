@@ -1,5 +1,5 @@
 import { Edge } from 'voronoijs';
-import JPoint, {JVector} from '../Geom/JPoint';
+import JPoint from '../Geom/JPoint';
 import JSite from './JSite';
 
 import RandomNumberGenerator from '../Geom/RandomNumberGenerator';

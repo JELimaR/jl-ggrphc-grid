@@ -93,10 +93,10 @@ export default class JWorld {
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
 		const iniHeightMap: JHeightMap = new JHeightMap(iniDiagram);
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
-		const grid = this.createGrid(this._diagram, GRAN)
-		const heightMap = new JHeightMap(this._diagram, iniDiagram);
-		const climateMap = this.generateClimate();
-		const riverMap = this.generateRivers();
+		const grid = this.createGrid(diagram, GRAN)
+		const heightMap = new JHeightMap(diagram, iniDiagram);
+		const climateMap = this.generateClimate(diagram);
+		const riverMap = this.generateRivers(diagram);
 		return {
 			d: diagram,
 			g: grid,
@@ -126,15 +126,15 @@ export default class JWorld {
 		console.timeEnd('grid');
 		return grid;
 	}
-	private generateClimate(): JClimateMap {
+	private generateClimate(diagram: JDiagram): JClimateMap {
 		const tempGrid = new JTempGrid(this.grid);
 		const pressGrid = new JPressureGrid(this.grid, tempGrid);
 		const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
 
-		return new JClimateMap(this._diagram, precipGrid, tempGrid);
+		return new JClimateMap(diagram, precipGrid, tempGrid);
 
 	}
-	private generateRivers(): JRiverMap {
-		return new JRiverMap(this._diagram)
+	private generateRivers(diagram: JDiagram): JRiverMap {
+		return new JRiverMap(diagram)
 	}
 }

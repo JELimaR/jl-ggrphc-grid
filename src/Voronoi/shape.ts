@@ -1,6 +1,6 @@
 import * as turf from '@turf/turf'
 import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
-import JPoint, {JVector} from '../Geom/JPoint';
+import JPoint from '../Geom/JPoint';
 
 
 export const genUni = (center: JPoint, rad: number, m: number): JPoint[] => {

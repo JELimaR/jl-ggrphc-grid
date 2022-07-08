@@ -5,7 +5,7 @@ console.log(newDate.toLocaleTimeString());
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions';
 import DrawerMap, { IDrawEntry } from './DrawerMap'
 
-import JPoint, { JVector } from './Geom/JPoint';
+import JPoint from './Geom/JPoint';
 import JGrid, { JGridPoint } from './Geom/JGrid';
 import JWorld from './JWorld';
 import { createICellContainerFromCellArray } from './JWorldMap';
@@ -34,7 +34,7 @@ import fs from 'fs'
 import JRiverMap, { IWaterRoutePoint, JRiver } from './heightmap/JRiverMap';
 
 const tam: number = 3600;
-let SIZE: JVector = new JVector({ x: tam, y: tam / 2 });
+let SIZE: JPoint = new JPoint(tam, tam / 2);
 
 const azgaarFolder: string[] = [
 	'Latiyia30', // 0

@@ -1,4 +1,4 @@
-import JPoint, { JVector } from '../Geom/JPoint';
+import JPoint from '../Geom/JPoint';
 import JVertexInformation from '../VertexInformation/JVertexInformation';
 import JCell from "./JCell";
 import JEdge from "./JEdge";

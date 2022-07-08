@@ -151,16 +151,3 @@ export default class JPoint {
 		}
 	}
 }
-
-export class JVector extends JPoint {
-	// private _beg: Point;
-	// private _end: Point;
-
-	constructor( ends: JPoint | {x:number, y:number}, begins: JPoint | {x: number, y: number} = {x:0,y:0} ) {
-		super(ends.x - begins.x, ends.y - begins.y )
-		// this._end = JSON.parse( JSON.stringify(ends) );
-		// this._beg = JSON.parse( JSON.stringify(begins) );
-	}
-
-
-}

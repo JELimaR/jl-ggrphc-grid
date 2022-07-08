@@ -4,7 +4,7 @@ import fs from 'fs';
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import { IJContinentInfo, IJCountryInfo, IJIslandInfo, IJStateInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/JRegionMap';
-import JPoint, { IPoint, JVector } from './Geom/JPoint';
+import JPoint, { IPoint } from './Geom/JPoint';
 // import { IJDiagramInfo } from './Voronoi/JDiagram';
 // import { IJEdgeInfo } from './Voronoi/JEdge';
 import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';

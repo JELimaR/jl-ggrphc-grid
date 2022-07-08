@@ -1,10 +1,11 @@
-import { createCanvas } from 'canvas';
+import * as PImage from 'pureimage';
+import { Canvas, createCanvas } from 'canvas';
 import fs from 'fs';
 import * as turf from '@turf/turf';
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
 
-import JPoint, { JVector } from './Geom/JPoint';
+import JPoint from './Geom/JPoint';
 import JWorldMap, { createICellContainerFromCellArray, ICellContainer } from './JWorldMap';
 import JCell from './Voronoi/JCell';
 import JRegionMap from './RegionMap/JRegionMap';
@@ -20,9 +21,9 @@ export class JPanzoom {
 	private _zoom: number;
 	private _centerX: number;
 	private _centerY: number;
-	private _elementSize: JVector;
+	private _elementSize: JPoint;
 
-	constructor(size: JVector) {
+	constructor(size: JPoint) {
 		this._elementSize = size;
 		this._zoom = Math.pow(1.25, 0);
 		this._centerX = this._elementSize.x / 2;
@@ -135,15 +136,17 @@ export class JPanzoom {
 
 export default class DrawerMap {
 
-	private _size: JVector;
+	private _size: JPoint;
+	// private _cnvs: Canvas// any;
 	private _cnvs: any;
 
 	private _panzoom: JPanzoom;
 	private _dirPath: string;
 
-	constructor(SIZE: JVector, dirPath: string) {
+	constructor(SIZE: JPoint, dirPath: string) {
 		this._size = SIZE;
-		this._cnvs = createCanvas(SIZE.x, SIZE.y);
+		// this._cnvs = createCanvas(SIZE.x, SIZE.y);
+		this._cnvs = PImage.make(SIZE.x, SIZE.y, {});
 
 		this._panzoom = new JPanzoom(this._size);
 		this._dirPath = dirPath;
@@ -327,7 +330,7 @@ export default class DrawerMap {
 		stream.pipe(out);
 	}
 
-	getBuffer(): Buffer[] { return this._cnvs.toBuffer() }
+	getBuffer(): Buffer { return this._cnvs.toBuffer() }
 
 	saveDrawFile(fileName: string) {
 		fs.writeFileSync(`${this._dirPath}/${fileName}`, this._cnvs.toBuffer());
