@@ -107,7 +107,6 @@ console.log('area min', minAreaLand.area);
 console.log(minAreaLand)
 console.log(minAreaLand.info.isLand)
 
-let tempGrid = new JTempGrid(world.grid);
 // temperatura antes del cambio por precip
 
 let dm2: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/${GRAN}temp`);
@@ -132,6 +131,7 @@ for (let i of monthArr) {
 }
 */
 
+const tempGrid = new JTempGrid(world.grid);
 const pressGrid = new JPressureGrid(world.grid, tempGrid);
 const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
 

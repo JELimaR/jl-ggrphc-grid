@@ -296,19 +296,21 @@ export default class JTempGrid {
 			if (!pressureCentersLocation[cidx]) pressureCentersLocation[cidx] = [];
 			pressureCentersLocation[cidx][ridx] = 0;
 		})
-		let magProm: number = 0;
-		let posProm: number = 0;
-		let negProm: number = 0;
+		// let magProm: number = 0;
+		// let posProm: number = 0;
+		// let negProm: number = 0;
 		const landDiff = 0.25;
 
 		// high press zones 
 		// ITZC
 		const itcz = this.getITCZPoints(month);
-		let tempMedITCZ: number = 0;
+		// let tempMedITCZ: number = 0;
 		// itcz.forEach((gp: JGridPoint) => tempMedITCZ += this.getPointInfo(gp._point).tempMonth[month - 1] / this._grid.colsNumber);
+		/*
 		itcz.sort((a: JGridPoint, b: JGridPoint) => {
 			return this.getPointInfo(a._point).tempMonth[month - 1] - this.getPointInfo(b._point).tempMonth[month - 1];
 		})
+		*/
 		itcz.forEach((gp: JGridPoint, i: number) => { // ver criterio para agregar
 			// if (gp._cell.info.isLand) {
 			// if (gp._cell.info.tempMonthArr[month - 1] >= tempMedITCZ) {
@@ -323,7 +325,7 @@ export default class JTempGrid {
 		for (let hemisf of ['n', 's']) {
 			// polar Front
 			const polarFront = this.getPolarFrontPoints(month, hemisf as 's' | 'n');
-			let tempMedPF: number = 0;
+			// let tempMedPF: number = 0;
 			// polarFront.forEach((gp: JGridPoint) => tempMedPF += this.getPointInfo(gp._point).tempMonth[month - 1] / this._grid.colsNumber);
 			polarFront.sort((a: JGridPoint, b: JGridPoint) => {
 				return this.getPointInfo(a._point).tempMonth[month - 1] - this.getPointInfo(b._point).tempMonth[month - 1];
@@ -343,7 +345,7 @@ export default class JTempGrid {
 			// low press zones 
 			// horse lat
 			const horseLat = this.getHorseLatPoints(month, hemisf as 's' | 'n')//.concat(this.getHorseLatPoints(month, 's'));
-			let tempMedHL: number = 0;
+			// let tempMedHL: number = 0;
 			// horseLat.forEach((gp: JGridPoint) => tempMedHL += this.getPointInfo(gp._point).tempMonth[month - 1] / this._grid.colsNumber);
 			horseLat.sort((a: JGridPoint, b: JGridPoint) => {
 				return this.getPointInfo(b._point).tempMonth[month - 1] - this.getPointInfo(a._point).tempMonth[month - 1];
@@ -361,9 +363,9 @@ export default class JTempGrid {
 			})
 
 			// polarLine
-			const polarLine = this.getPolarLinePoints(month, hemisf as 's' | 'n')//.concat(this.getPolarLinePoints(month, 's'));
-			let tempMedPL: number = 0;
-			polarLine.forEach((gp: JGridPoint) => tempMedPL += this.getPointInfo(gp._point).tempMonth[month - 1] / this._grid.colsNumber);
+			const polarLine = this.getPolarLinePoints(month, hemisf as 's' | 'n');
+			// let tempMedPL: number = 0;
+			// polarLine.forEach((gp: JGridPoint) => tempMedPL += this.getPointInfo(gp._point).tempMonth[month - 1] / this._grid.colsNumber);
 			polarLine.forEach((gp: JGridPoint) => { // ver criterio para agregar
 				out.push({
 					point: new JPoint(gp._point.x, (gp._point.y < 0) ? -90 : 90),
@@ -412,11 +414,13 @@ export default class JTempGrid {
 		
 		*/
 
+		/*
 		out.forEach((val: IPressureZone) => {
 			magProm += val.mag;
 			if (val.mag > 0) posProm += val.mag;
 			else negProm += val.mag;
 		})
+		*/
 
 		// out.forEach((val: IPressureZone) => {
 		// 	if (val.mag < 0) {
