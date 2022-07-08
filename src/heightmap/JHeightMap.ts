@@ -16,12 +16,12 @@ import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 const ard: AzgaarReaderData = AzgaarReaderData.instance;
 
 export default class JHeightMap extends JWMap {
-	
+
 	private _islands: JIslandMap[] = [];
 
 	constructor(d: JDiagram) {
-		const dataInfoManager = DataInformationFilesManager.instance;
 		super(d);
+		const dataInfoManager = DataInformationFilesManager.instance;
 		/*
 		 * height cells
 		 */
@@ -38,7 +38,7 @@ export default class JHeightMap extends JWMap {
 				loadedHeightInfo = this.getCellsData();
 			}
 		}
-		this.forEachCell((cell: JCell) => {			
+		this.forEachCell((cell: JCell) => {
 			const hinf: IJCellHeightInfo = loadedHeightInfo[cell.id];
 			cell.info.setHeightInfo(hinf);
 		})
@@ -74,11 +74,11 @@ export default class JHeightMap extends JWMap {
 		if (!isVertexLoaded) {
 			console.log('resolving vertices depressions');
 			console.time(`${d.ancestor ? 's' : 'p'}-resolve vertices depressions`)
-			this.resolveVertexDepressions();			
+			this.resolveVertexDepressions();
 			console.timeEnd(`${d.ancestor ? 's' : 'p'}-resolve vertices depressions`)
 			dataInfoManager.saveVerticesHeigth(this.diagram.vertices2, this.diagram.secAreaProm);
 		}
-		
+
 		console.timeEnd(`${d.ancestor ? 's' : 'p'}-set height info`);
 
 		/*
@@ -130,10 +130,10 @@ export default class JHeightMap extends JWMap {
 			const randFunc = RandomNumberGenerator.makeRandomFloat(this.diagram.cells.size);
 			const hinf: IJCellHeightInfo = cell.info.getHeightInfo()!;
 			cell.subCells.forEach((sc: JCell) => {
-				let h: number = hinf.height * (1.05 - 0.1*randFunc());
+				let h: number = hinf.height * (1.05 - 0.1 * randFunc());
 				if (h > 0.2 && hinf.height <= 0.2) h = hinf.height;
 				if (h <= 0.2 && hinf.height > 0.2) h = hinf.height;
-				out[sc.id] = {...hinf, height: h, heightType: 'land'};
+				out[sc.id] = { ...hinf, height: h, heightType: 'land' };
 			})
 			if (cell.id % 1000 == 0) {
 				console.log(`van ${cell.id} de ${this.diagram.ancestor!.cells.size}`)
@@ -169,7 +169,7 @@ export default class JHeightMap extends JWMap {
 				}
 			}
 			else if (cantLand == 0) {
-				info = { id: vertex.id, height: hprom / cells.length, heightType: (cantOcean > 0) ? 'ocean' : 'lake'}
+				info = { id: vertex.id, height: hprom / cells.length, heightType: (cantOcean > 0) ? 'ocean' : 'lake' }
 			}
 			else {
 				info = { id: vertex.id, height: 0.2, heightType: (cantOcean > 0) ? 'coast' : 'lakeCoast' }
@@ -189,8 +189,10 @@ export default class JHeightMap extends JWMap {
 			}
 		})
 		let hay = true, it: number = 0;
+		let cantHay: number = 0, cantAug: number = 0;
 		while (it < 100 && hay) {
 			hay = false;
+			let cantHayIt: number = 0;
 			verticesArr.forEach((v: JVertex) => {
 				const mhn = this.getMinHeightVertexNeighbour(v);
 				if (mhn.info.height >= v.info.height) {
@@ -198,23 +200,33 @@ export default class JHeightMap extends JWMap {
 					const difH = 0.00022//(mhn.info.height - v.info.height)*3.04;
 					v.info.height = v.info.height + difH;
 					this.diagram.getCellsAssociated(v).forEach((c: JCell) => c.info.height = c.info.height + difH);
-				}			
+					cantHayIt++;
+				}
 			})
 			it++;
+			if (cantHayIt > cantHay) cantAug++;
+			cantHay = cantHayIt;
+			if (it % 5 == 0) {
+				console.log(`hay cant: ${cantHayIt} depresiones y van: ${it} iteraciones`)
+			}
 		}
+		console.log('------------------------')
+		console.log('hay cant', cantHay)
+		console.log(`van ${it} iteraciones`)
+		console.log(`cant de veces que aumento: ${cantAug}`)
 	}
 
 	private getMinHeightVertexNeighbour(vertex: JVertex): JVertex {
-    const narr: JVertex[] = this.diagram.getVertexNeighbours(vertex);
-    let out: JVertex = narr[0], minH = 2;
-    narr.forEach((nc: JVertex) => {
-      if (nc.info.height < minH) {
+		const narr: JVertex[] = this.diagram.getVertexNeighbours(vertex);
+		let out: JVertex = narr[0], minH = 2;
+		narr.forEach((nc: JVertex) => {
+			if (nc.info.height < minH) {
 				out = nc;
 				minH = nc.info.height;
 			}
-    })
-    return out;
-  }
+		})
+		return out;
+	}
 
 	private resolveCellsDepressions() {
 		let cellArr: JCell[] = [];
@@ -224,17 +236,29 @@ export default class JHeightMap extends JWMap {
 			}
 		})
 		let hay = true, it: number = 0;
-		while (/*it < 1 &&*/ hay) {
+		let cantHay: number = 0, cantAug: number = 0;
+		while (it < 2000 && hay) {
 			hay = false;
+			let cantHayIt: number = 0;
 			cellArr.forEach((c: JCell) => {
 				const mhn = this.getMinHeightCellNeighbour(c);
 				if (mhn.info.height >= c.info.height) {
 					hay = true;
 					c.info.height = mhn.info.height /*c.info.height /*(mhn.info.height - c.info.height)*/ + 0.000122;
+					cantHayIt++;
 				}
 			})
 			it++;
+			if (cantHayIt > cantHay) cantAug++;
+			cantHay = cantHayIt;
+			if (it % 10 == 0) {
+				console.log(`hay cant: ${cantHayIt} depresiones y van: ${it} iteraciones`)
+			}
 		}
+		console.log('------------------------')
+		console.log('hay cant', cantHay)
+		console.log(`van ${it} iteraciones`)
+		console.log(`cant de veces que aumento: ${cantAug}`)
 	}
 
 	private getMinHeightCellNeighbour(cell: JCell): JCell {
@@ -270,7 +294,7 @@ export default class JHeightMap extends JWMap {
 		}
 
 		console.log('times', times);
-		
+
 		this.diagram.dismarkAllCells();
 	}
 
@@ -288,9 +312,9 @@ export default class JHeightMap extends JWMap {
 			let h: number = 0, cant = 0;
 			this.diagram.getCellNeighbours(c).forEach((n: JCell) => {
 				cant++;
-				h+= (n.isMarked()) ? n.info.prevHeight : n.info.height;
+				h += (n.isMarked()) ? n.info.prevHeight : n.info.height;
 			})
-			c.info.height = 0.5 * h/cant + 0.5 * c.info.height;
+			c.info.height = 0.5 * h / cant + 0.5 * c.info.height;
 		})
 	}
 

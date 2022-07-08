@@ -14,7 +14,8 @@ export default class JVertex {
 		if (!(edges.length == 2 || edges.length == 3)) {
 			console.log(point)
 			console.log(edges)
-			throw new Error(`deben haber 3 edges o 2 edges bordes y hay: ${edges.length}`)
+			if (edges.length !== 6) // borrar esto
+				throw new Error(`deben haber 3 edges o 2 edges bordes y hay: ${edges.length}`)
 		}
 		this._edges = edges;
 

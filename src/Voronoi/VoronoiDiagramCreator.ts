@@ -51,6 +51,7 @@ export default class VoronoiDiagramCreator {
 		const sites: Site[] = subSitesData.map((elem: {p: IPoint, cid: number}) => {
 			return {id: 0, x: elem.p.x, y: elem.p.y}
 		})
+		console.log('sites cant', sites.length)
 		diagram = vor.compute(sites, bbox);
 		console.timeEnd('compute sec')
 

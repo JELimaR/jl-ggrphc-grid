@@ -14,7 +14,8 @@
     "build": "tsc",
     "clean": "node ./scripts/clean.js",
     "dev:tsc": "tsc --watch",
-    "dev:nodemon": "nodemon --max-old-space-size=1024 ./dist/index.js ",
+    "dev:nodemon": "nodemon ./dist/index.js ",
+    "dev:nodemon4096": "nodemon --max-old-space-size=4096 ./dist/index.js ",
     "test": "jest"
   },
   "author": "JELimaR",

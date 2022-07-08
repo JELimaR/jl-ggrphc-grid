@@ -50,8 +50,9 @@ const azgaarFolder: string[] = [
 	'Mones5', // 10
 	'Civaland1', // 11
 	'Shauland30', // 12
+	'Lenzkirch50', // 13
 ];
-const folderSelected: string = azgaarFolder[10];
+const folderSelected: string = azgaarFolder[13];
 
 console.log('folder:', folderSelected)
 
@@ -74,7 +75,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 12100; // 1100
+const AREA: number = 810; // 1100
 const GRAN: number = 2;
 const world: JWorld = new JWorld(AREA, GRAN);
 const tempStep = 5;
@@ -552,8 +553,16 @@ dmr.clear();
 dmr.drawCellMap(world.secondaryDiagram, JCellToDrawEntryFunctions.heighLand(1));
 rm._rivers.forEach((river: JRiver, key: number) => {
 	if (river.length > 1000) {
-		// color = '#0000E1';
+		color = '#0000E1';
 		riverLongers++;
+		// color = chroma.random().hex();
+		// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
+		const points: JPoint[] = river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point)
+		dmr.draw(points, {
+			fillColor: 'none',
+			strokeColor: color
+		})
+	} else {
 		color = chroma.random().hex();
 		// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
 		const points: JPoint[] = river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point)
@@ -565,34 +574,7 @@ rm._rivers.forEach((river: JRiver, key: number) => {
 })
 dmr.saveDrawFile(`${AREA}rivers.png`)
 console.log('rivers longer than 1000 km', riverLongers)
-// dmr.clear();
-// colorScale = chroma.scale('Spectral').domain([1000, 0]);
-// rv._fluxMap.forEach((flux: number, key: string) => {
-// 	color = colorScale(flux).hex();
-// 	const point: JPoint = world.diagram.vertices2.get(key)!.point;
-// 	dmr.drawDot(point, {
-// 		fillColor: color,
-// 		strokeColor: color
-// 	}, 0.25)
-// })
-// dmr.saveDrawFile(`fluxVertex.png`)
 
-
-const infoPrint: {v: JVertex, cs: number[]}[] = [];
-world.secondaryDiagram.forEachVertex((vertex: JVertex) => {
-	if (Math.random() < 1.1) {
-		const cellIds = vertex.cellIds;
-		const cells: JCell[] = [];
-		cellIds.forEach((i: number) => {
-			cells.push(world.diagram.cells.get(i)!)
-		})
-		infoPrint.push({
-			v: vertex, cs: cellIds//cells
-		})
-	}
-})
-
-// fs.writeFileSync(__dirname + '/../prueba.txt', JSON.stringify(infoPrint, null, 2));
 console.log('vertex cant', world.secondaryDiagram.vertices2.size)
 
 dm.clear();

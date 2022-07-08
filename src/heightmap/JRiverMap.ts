@@ -31,7 +31,7 @@ export class JRiver {
 		this._length = this.calcLength();
   }
 
-	get length() { return this._length }
+	get length(): number { return this._length }
 
 	private calcLength() {
 		let out: number = 0;

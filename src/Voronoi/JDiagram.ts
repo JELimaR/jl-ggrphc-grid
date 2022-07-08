@@ -16,7 +16,7 @@ export default class JDiagram {
 	private _cells2: Map<string, JCell> = new Map<string, JCell>();
 	// private _vertices: JPoint[] = [];
 	private _vertices2: Map<string, JVertex> = new Map<string, JVertex>();
-	private _edges: JEdge[] = []; //cambiar
+	// private _edges: JEdge[] = []; //cambiar
 
 	// private _subDiagram: JSubDiagram | undefined;
 	private _ancestor: JDiagram | undefined;
@@ -27,8 +27,8 @@ export default class JDiagram {
 		console.time('set JDiagram values');
 
 		this.setDiagramValuesContructed(d);
-		
 		if (ancestor) {
+			console.log('llegue')
 			this._ancestor = ancestor.d;
 			this._secAreaProm = ancestor.a;
 			
@@ -99,7 +99,7 @@ export default class JDiagram {
 				rs: rs
 			});
 
-			this._edges.push(je);
+			// this._edges.push(je);
 			edgesMap.set(e, je);
 			//
 			if (!verticesEdgeMap.get(vaId)) verticesEdgeMap.set(vaId, []);
@@ -150,7 +150,7 @@ export default class JDiagram {
 	}
 	//get vertices(): JPoint[] { return this._vertices }
 	get vertices2(): Map<string, JVertex> { return this._vertices2 }
-	get edges(): JEdge[] { return this._edges }
+	// get edges(): JEdge[] { return this._edges }
 	get cells(): Map<number, JCell> { return this._cells }
 	getCellsMapStringKey(): Map<string, JCell> {
 		return this._cells2;
