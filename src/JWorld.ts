@@ -64,6 +64,8 @@ export default class JWorld {
 	get diagram(): JDiagram { return this._diagram/*this._primaryDiagram*/ }
 	// get secondaryDiagram(): JDiagram { return this._secondaryDiagram! }
 	get grid(): JGrid { return this._grid }
+
+	get riverMap(): JRiverMap { return this._riverMap } // borrar
 	/*
 	generateHeightMap(): JHeightMap {
 		if (!this._heightMap) {

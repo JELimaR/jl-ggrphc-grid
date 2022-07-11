@@ -52,7 +52,7 @@ const azgaarFolder: string[] = [
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
 ];
-const folderSelected: string = azgaarFolder[10];
+const folderSelected: string = azgaarFolder[12];
 
 console.log('folder:', folderSelected)
 
@@ -77,13 +77,11 @@ console.log(dm.getPointsBuffCenterLimits());
 
 const AREA: number = 12100; // 810
 const GRAN: number = 2;
-const world: JWorld = new JWorld(AREA, GRAN);
+const world: JWorld = new JWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 const tempStep = 5;
 // const monthArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const monthArr = [1, 3, 5, 7, 9, 11];
 
-/*let jhm: JHeightMap = world.generateHeightMap();*/
-//world.generateHeightMap2();
 // console.log(world.diagram.cells.get(8)!.info.tempMonthArr)
 // /*let jtm: JTempMap = */world.generateTemperatureMap();
 console.log('cells cant', world.diagram.cells.size)
@@ -516,7 +514,7 @@ for (let z = 1; z <= 38; z++) {
 /**
  * RIVER
  */
-const rm = new JRiverMap(world.diagram);
+const rm = world.riverMap;
 let riverLongers = 0;
 const dmr: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}/river`);
 

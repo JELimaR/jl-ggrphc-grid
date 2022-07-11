@@ -301,7 +301,7 @@ export default class JHeightMap extends JWMap {
 		})
 	}
 
-	smootData() {
+	private smootData() {
 		this.forEachCell((c: JCell) => {
 			c.mark();
 			let h: number = 0, cant = 0;
