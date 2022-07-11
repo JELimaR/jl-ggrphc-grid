@@ -20,18 +20,11 @@ import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import chroma from 'chroma-js';
 
-import JTempGrid from './heightmap/JTempGrid'
-import JPressureGrid, { PressureData } from './heightmap/JPressureGrid'
-
-import * as turf from '@turf/turf';
-import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
-
-import JPrecipGrid from './heightmap/JPrecipGrid';
-import JClimateMap from './Climate/JClimateMap';
 import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
 
 import fs from 'fs'
 import JRiverMap, { IWaterRoutePoint, JRiver } from './heightmap/JRiverMap';
+import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
 
 const tam: number = 3600;
 let SIZE: JPoint = new JPoint(tam, tam / 2);
@@ -483,6 +476,8 @@ dmr.saveDrawFile(`${AREA}roads.png`)
 
 dmr.clear();
 dmr.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1));
+const riverSorted = rm.riverLengthSorted;
+console.log('sorted')
 rm._rivers.forEach((river: JRiver, key: number) => {
 	if (river.length > 1000) {
 		color = '#0000E1';
@@ -506,6 +501,16 @@ rm._rivers.forEach((river: JRiver, key: number) => {
 })
 dmr.saveDrawFile(`${AREA}rivers.png`)
 console.log('rivers longer than 1000 km', riverLongers)
+console.log('logngers rivers')
+const arr = [];
+for (let i = 0; i<50;i++) {
+	arr.push({
+		riverId: riverSorted[i].id,
+		length: riverSorted[i].length
+	})
+}
+console.table(arr)
+//console.log(riverSorted[3599])
 
 console.log('vertex cant', world.diagram.vertices2.size)
 /*

@@ -37,13 +37,12 @@ export default class VoronoiDiagramCreator {
 		
 		let bbox: BoundingBox = { xl: -180, xr: 180, yt: -90, yb: 90 };
 		let vor = new Voronoi();
-		
+
+		console.log('Generating sub sites');
 		console.time('Generate sub sites');
 		let subSitesData: {p: IPoint, cid: number}[] = dataInfoManager.loadSites(AREA);
 		if (subSitesData.length == 0) {
-			
 			subSitesData = jd.getSubSites(AREA);
-
 			dataInfoManager.saveSites(subSitesData, AREA);
 		}
 		console.timeEnd('Generate sub sites');

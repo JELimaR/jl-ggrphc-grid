@@ -30,6 +30,7 @@ export class JRiver {
 		this._length = this.calcLength();
   }
 
+	get id(): number { return this._id }
 	get length(): number { return this._length }
 
 	private calcLength() {

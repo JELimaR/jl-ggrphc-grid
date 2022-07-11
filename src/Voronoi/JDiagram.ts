@@ -396,8 +396,10 @@ export default class JDiagram {
 		this.forEachCell((cell: JCell) => {
 			let b: boolean = false;
 			this.getTwoLevelsCellNeighbours(cell).forEach((nc: JCell) => b = b || nc.info.isLand)
-			if (b || cell.info.isLand)
-				cell.getSubSites(AREA).forEach((p: JPoint) => out.push({p: p.getInterface(), cid: cell.id}));
+			if (b || cell.info.isLand) {
+				const ss: JPoint[] = cell.getSubSites(AREA);
+				ss.forEach((p: JPoint) => out.push({p: p.getInterface(), cid: cell.id}));
+			}
 			else
 				out.push({p: cell.center.getInterface(), cid: cell.id})
 		})
