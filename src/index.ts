@@ -476,6 +476,7 @@ dmr.saveDrawFile(`${AREA}roads.png`)
 
 dmr.clear();
 dmr.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1));
+dmr.drawMeridianAndParallels();
 const riverSorted = rm.riverLengthSorted;
 console.log('sorted')
 rm._rivers.forEach((river: JRiver, key: number) => {
@@ -487,7 +488,8 @@ rm._rivers.forEach((river: JRiver, key: number) => {
 		const points: JPoint[] = river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point)
 		dmr.draw(points, {
 			fillColor: 'none',
-			strokeColor: color
+			strokeColor: color,
+			dashPattern: [1, 0]
 		})
 	} else {
 		color = chroma.random().hex();
@@ -504,13 +506,21 @@ console.log('rivers longer than 1000 km', riverLongers)
 console.log('logngers rivers')
 const arr = [];
 for (let i = 0; i<50;i++) {
+	const rs: JRiver = riverSorted[i];
+	const l = rs._vertices.length;
 	arr.push({
-		riverId: riverSorted[i].id,
-		length: riverSorted[i].length
+		riverId: rs.id,
+		length: rs.length.toLocaleString('de-DE'),
+		vertices: rs._vertices.length,
+		iniX: rs._vertices[0].vertex.point.x.toLocaleString('de-DE'),
+		iniY: rs._vertices[0].vertex.point.y.toLocaleString('de-DE'),
+		finX: rs._vertices[l-1].vertex.point.x.toLocaleString('de-DE'),
+		finY: rs._vertices[l-1].vertex.point.y.toLocaleString('de-DE'),
+		desemb: rs._vertices[l-1].vertex.info.vertexHeight.heightType
 	})
 }
 console.table(arr)
-console.log(riverSorted[3599])
+
 
 console.log('vertex cant', world.diagram.vertices2.size)
 /*

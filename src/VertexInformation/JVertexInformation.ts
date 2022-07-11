@@ -1,11 +1,13 @@
 import JVertex from "../Voronoi/JVertex";
 import JVertexHeight, {IJVertexHeightInfo} from "./JVertexHeight";
 import JVertexClimate, {IJVertexClimateInfo} from "./JVertexClimate";
+import JVertexFlux, { IJVertexFluxInfo } from "./JVertexFlux";
 
 export default class JVertexInformation {
 	_vertex: JVertex
 	_height: JVertexHeight | undefined;
 	_climate: JVertexClimate | undefined;
+	_flux: JVertexFlux | undefined;
 
 	private _mark: boolean = false;
 
@@ -66,4 +68,15 @@ export default class JVertexInformation {
 	// 	this._temp!.tempMonth.forEach((t: number) => out += t)
 	// 	return out/12;
 	// }
+
+	/*
+	 * flux
+	 */
+	
+	setFluxInfo(f: IJVertexFluxInfo) { this._flux = new JVertexFlux(this._vertex, f);	}
+	getFluxInfo(): IJVertexFluxInfo | undefined { return this._flux!.getInterface(); }	
+	get vertexFlux(): JVertexFlux {
+		return this._flux!;
+	}
+
 }
