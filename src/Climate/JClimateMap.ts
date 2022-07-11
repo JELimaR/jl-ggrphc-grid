@@ -12,21 +12,22 @@ import JPrecipGrid, { IPrecipData } from "../heightmap/JPrecipGrid";
 
 import JCellClimate, { IJCellClimateInfo } from '../CellInformation/JCellClimate'
 import JTempGrid from "../heightmap/JTempGrid";
-import { JGridPoint } from '../Geom/JGrid';
+import JGrid, { JGridPoint } from '../Geom/JGrid';
 import { IJVertexClimateInfo } from "../VertexInformation/JVertexClimate";
 import JVertex from "../Voronoi/JVertex";
+import JPressureGrid from "../heightmap/JPressureGrid";
 
 const emptyMonthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 export default class JClimateMap extends JWMap {
-	constructor(d: JDiagram, precipGrid: JPrecipGrid, tempGrid: JTempGrid) {
+	constructor(d: JDiagram, grid: JGrid/*precipGrid: JPrecipGrid, tempGrid: JTempGrid*/) {
 		const dataInfoManager = DataInformationFilesManager.instance;
 		super(d);
 
 		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
 		const isLoaded: boolean = climateData.length !== 0;
 		if (!isLoaded) {
-			climateData = this.generateClimateData(precipGrid, tempGrid);
+			climateData = this.generateClimateData(grid/*, precipGrid, tempGrid*/);
 		}		
 
 		this.diagram.forEachCell((cell: JCell) => {
@@ -52,7 +53,11 @@ export default class JClimateMap extends JWMap {
 
 	}
 
-	generateClimateData(precipGrid: JPrecipGrid, tempGrid: JTempGrid): IJCellClimateInfo[] {
+	generateClimateData(grid: JGrid/*, precipGrid: JPrecipGrid, tempGrid: JTempGrid*/): IJCellClimateInfo[] {
+
+		const tempGrid = new JTempGrid(grid);
+		const pressGrid = new JPressureGrid(grid, tempGrid);
+		const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
 
 		let climateData: IJCellClimateInfo[] = [];
 			

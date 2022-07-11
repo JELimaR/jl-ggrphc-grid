@@ -132,11 +132,12 @@ export default class JWorld {
 		return grid;
 	}
 	private generateClimate(diagram: JDiagram, grid: JGrid): JClimateMap {
+		/*
 		const tempGrid = new JTempGrid(grid);
 		const pressGrid = new JPressureGrid(grid, tempGrid);
 		const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
-
-		return new JClimateMap(diagram, precipGrid, tempGrid);
+		*/
+		return new JClimateMap(diagram, grid/*precipGrid, tempGrid*/);
 
 	}
 	private generateRivers(diagram: JDiagram): JRiverMap {

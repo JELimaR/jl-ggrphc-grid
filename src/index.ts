@@ -510,7 +510,7 @@ for (let i = 0; i<50;i++) {
 	})
 }
 console.table(arr)
-//console.log(riverSorted[3599])
+console.log(riverSorted[3599])
 
 console.log('vertex cant', world.diagram.vertices2.size)
 /*
