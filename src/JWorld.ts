@@ -94,11 +94,12 @@ export default class JWorld {
 	private generateNaturalWorld(GRAN: number, AREA: number): {d: JDiagram, g: JGrid, h: JHeightMap, c: JClimateMap, r: JRiverMap} {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
+		const iniGrid: JGrid = this.createGrid(iniDiagram, GRAN)
 		const iniHeightMap: JHeightMap = new JHeightMap(iniDiagram);
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		const grid = this.createGrid(diagram, GRAN)
 		const heightMap = new JHeightMap(diagram, iniDiagram);
-		const climateMap = this.generateClimate(diagram, grid);
+		const climateMap = this.generateClimate(diagram, iniGrid);
 		const riverMap = this.generateRivers(diagram);
 		console.timeEnd('Generate Natural World')
 		return {

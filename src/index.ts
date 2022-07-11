@@ -52,7 +52,7 @@ const azgaarFolder: string[] = [
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
 ];
-const folderSelected: string = azgaarFolder[12];
+const folderSelected: string = azgaarFolder[10];
 
 console.log('folder:', folderSelected)
 
