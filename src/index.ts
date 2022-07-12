@@ -5,7 +5,7 @@ console.log(newDate.toLocaleTimeString());
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions';
 import DrawerMap, { IDrawEntry } from './Drawer/DrawerMap'
 
-import JPoint from './Geom/JPoint';
+import JPoint, { IPoint } from './Geom/JPoint';
 import JGrid, { JGridPoint } from './Geom/JGrid';
 import JWorld from './JWorld';
 import { createICellContainerFromCellArray } from './JWorldMap';
@@ -46,7 +46,7 @@ const azgaarFolder: string[] = [
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
 ];
-const folderSelected: string = azgaarFolder[4];
+const folderSelected: string = azgaarFolder[10];
 
 console.log('folder:', folderSelected)
 
@@ -69,7 +69,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 810; // 810
+const AREA: number = 12100; // 810
 const GRAN: number = 2;
 const world: JWorld = new JWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 const tempStep = 5;
@@ -93,11 +93,8 @@ world.diagram.forEachCell((c: JCell) => {
 console.log('area total', areaLand);
 console.log('area prom', areaLand/cantLand);
 console.log('area max', maxAreaLand.area);
-console.log(maxAreaLand)
 
 console.log('area min', minAreaLand.area);
-console.log(minAreaLand)
-console.log(minAreaLand.info.isLand)
 
 // temperatura antes del cambio por precip
 
@@ -508,30 +505,30 @@ console.log('logngers rivers')
 const arr = [];
 for (let i = 0; i<50;i++) {
 	const rs: JRiver = riverSorted[i];
-	const l = rs._vertices.length;
+	const rlength = rs._vertices.length;
+	const ini: IPoint = rs._vertices[0].vertex.point.getInterface();
+	const fin: IPoint = rs._vertices[rlength-1].vertex.point.getInterface();
 	arr.push({
 		riverId: rs.id,
-		length: rs.length.toLocaleString('de-DE'),
-		vertices: rs._vertices.length,
-		iniX: rs._vertices[0].vertex.point.x.toLocaleString('de-DE'),
-		iniY: rs._vertices[0].vertex.point.y.toLocaleString('de-DE'),
-		finX: rs._vertices[l-1].vertex.point.x.toLocaleString('de-DE'),
-		finY: rs._vertices[l-1].vertex.point.y.toLocaleString('de-DE'),
-		desemb: rs._vertices[l-1].vertex.info.vertexHeight.heightType
+		len: Math.round(rs.length),
+		verts: rs._vertices.length,
+		ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
+		fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
+		desemb: rs._vertices[rlength-1].vertex.info.vertexHeight.heightType
 	})
 }
-for (let i = 383; i<423;i++) {
+for (let i = riverSorted.length-40; i<riverSorted.length;i++) {
 	const rs: JRiver = riverSorted[i];
-	const l = rs._vertices.length;
+	const rlength = rs._vertices.length;
+	const ini: IPoint = rs._vertices[0].vertex.point.getInterface();
+	const fin: IPoint = rs._vertices[rlength-1].vertex.point.getInterface();
 	arr.push({
 		riverId: rs.id,
-		length: rs.length.toLocaleString('de-DE'),
-		vertices: rs._vertices.length,
-		iniX: rs._vertices[0].vertex.point.x.toLocaleString('de-DE'),
-		iniY: rs._vertices[0].vertex.point.y.toLocaleString('de-DE'),
-		finX: rs._vertices[l-1].vertex.point.x.toLocaleString('de-DE'),
-		finY: rs._vertices[l-1].vertex.point.y.toLocaleString('de-DE'),
-		desemb: rs._vertices[l-1].vertex.info.vertexHeight.heightType
+		len: Math.round(rs.length),
+		verts: rs._vertices.length,
+		ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
+		fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
+		desemb: rs._vertices[rlength-1].vertex.info.vertexHeight.heightType
 	})
 }
 console.table(arr)

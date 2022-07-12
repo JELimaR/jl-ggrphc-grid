@@ -4,11 +4,12 @@ import JCell from "../Voronoi/JCell";
 import JWMap from "../JWMap";
 import JRegionMap, { IJIslandInfo, JIslandMap } from "../RegionMap/JRegionMap";
 import JCellClimate from '../CellInformation/JCellClimate'
-const dataInfoManager = DataInformationFilesManager.instance;
 
 import JPoint from "../Geom/JPoint";
 import JVertex from "../Voronoi/JVertex";
 import JRiver, { IWaterRoutePoint } from "./JRiver";
+import { IJVertexFluxInfo } from "../VertexInformation/JVertexFlux";
+import { getArrayOfN } from "../utilFunctions";
 
 const FLUXMINRIVER = 200000;
 
@@ -16,7 +17,8 @@ export default class JRiverMap extends JWMap {
   // private _diagram: JDiagram;
   _fluxRoutes: Map<number, JVertex[]> = new Map<number, JVertex[]>();
   _rivers: Map<number, JRiver> = new Map<number, JRiver>();
-	_fluxValuesVertices: Map<string, number> = new Map<string, number>();
+	// _fluxValuesVertices: Map<string, number> = new Map<string, number>();
+	// _fluxValuesVertices2: Map<string, IJVertexFluxInfo> = new Map<string, IJVertexFluxInfo>();
 
   constructor(d: JDiagram) {
     super(d);
@@ -24,6 +26,8 @@ export default class JRiverMap extends JWMap {
   }
 
   generate(): void {
+		const dataInfoManager = DataInformationFilesManager.instance;
+		const fluxVerticesDataLoaded = dataInfoManager.loadVerticesFlux(this.diagram.secAreaProm);
     this.setFluxValuesAndRoads();
 		this.setRivers();
   }
@@ -41,7 +45,15 @@ export default class JRiverMap extends JWMap {
 			if (v.info.vertexHeight.heightType == 'land') {
 	      verticesArr.push(v);
 			}
-			this._fluxValuesVertices.set(v.id, 0);
+			// this._fluxValuesVertices.set(v.id, 0);
+			let finfo: IJVertexFluxInfo = {
+				id: v.id,
+				fluxMonth: getArrayOfN(12, 0),
+				fluxRoute: [],
+				riverIds: [],
+			};
+			// this._fluxValuesVertices2.set(v.id, finfo);
+			v.info.setFluxInfo(finfo);
     });
     verticesArr.sort((a: JVertex, b: JVertex) => b.info.height - a.info.height);
     let id = -1;
@@ -52,16 +64,17 @@ export default class JRiverMap extends JWMap {
         id++;
         let route: JVertex[] = [];
         let curr: JVertex = v;
-				let currFlux: number = 0;				
+				// let currFlux: number = 0;
+				let currFluxArr: number[] = getArrayOfN(12, 0);
 
-				currFlux = this.fluxCalcIteration(curr, currFlux, route);
+				/*currFlux = */this.fluxCalcIteration(curr, /*currFlux,*/ currFluxArr, route);
 
         while (curr.info.vertexHeight.heightType !== 'coast' && curr.info.vertexHeight.heightType !== 'lakeCoast') {
           const mhv: JVertex = this.getMinHeightNeighbour(curr);
           if (mhv.info.height < curr.info.height) {
             curr = mhv;
 
-						currFlux = this.fluxCalcIteration(curr, currFlux, route);
+						/*currFlux = */this.fluxCalcIteration(curr, /*currFlux,*/ currFluxArr, route);
           } else {
             break; // el vertex es lake
           }
@@ -75,16 +88,30 @@ export default class JRiverMap extends JWMap {
 		this.diagram.dismarkAllVertices();
 	}
 
-	private fluxCalcIteration(curr: JVertex, currFlux: number, route: JVertex[]): number {
+	private fluxCalcIteration(curr: JVertex, /*currFlux: number,*/ currFluxArr: number[], route: JVertex[]) {
 		curr.mark();
 		const vertexClimate = curr.info.vertexClimate;
-		currFlux += 100 * (vertexClimate.annualPrecip/JCellClimate.maxAnnual) - 10 * (vertexClimate.pumbral/JCellClimate.maxAnnual);
-		if (currFlux < 0) currFlux = 0;
+		const vertexFlux = curr.info.vertexFlux;
+		//currFlux += 100 * (vertexClimate.annualPrecip/JCellClimate.maxAnnual) - 10 * (vertexClimate.pumbral/JCellClimate.maxAnnual);
+		vertexClimate.precipMonth.forEach((p: number, i: number) => {
+			currFluxArr[i] += 100 * (12 * p / JCellClimate.maxAnnual) - 10 * (vertexClimate.pumbral/JCellClimate.maxAnnual);
+			if (currFluxArr[i] < 0) currFluxArr[i] = 0;
+		})
+		// if (currFlux < 0) currFlux = 0;
 		route.push(curr);
 		// update flux
-		const newFlux: number = this._fluxValuesVertices.get(curr.id)! + currFlux;
-		this._fluxValuesVertices.set(curr.id, newFlux);
-		return currFlux;
+		const newFluxArr: number[] = /*this._fluxValuesVertices2.get(curr.id)!.fluxMonth.map((f: number, i: number) => {
+			return f + currFluxArr[i];
+		});*/
+			vertexFlux.monthFlux.map((f: number, i: number) => {
+			return f + currFluxArr[i];
+		});
+		// this._fluxValuesVertices.set(curr.id, this._fluxValuesVertices.get(curr.id)! + currFlux);
+		// this._fluxValuesVertices2.set(curr.id, {...this._fluxValuesVertices2.get(curr.id)!, fluxMonth: newFluxArr})
+		vertexFlux.monthFlux.forEach((f: number, i: number) => {
+			vertexFlux.monthFlux[i] = newFluxArr[i];
+		});
+		// return currFlux;
 	}
 
 	private setRivers() {
@@ -96,8 +123,9 @@ export default class JRiverMap extends JWMap {
 			let vertex: JVertex;
 			for (vertex of road) {
 				// const vertex: JVertex = wrp.vertex;
-				const vertexFlux = this._fluxValuesVertices.get(vertex.id) as number;
-				const flux: number = vertexFlux;
+				// const vertexFlux = this._fluxValuesVertices2.get(vertex.id) as IJVertexFluxInfo;
+				const vertexFlux = vertex.info.vertexFlux
+				const flux: number = vertexFlux.monthFlux.reduce((f,c) => f+c)/12;
 				if ((flux > FLUXLIMIT || river.length > 0) && !vertex.isMarked()) {
 					river.push({vertex, flux })
 					vertex.mark()
@@ -107,7 +135,7 @@ export default class JRiverMap extends JWMap {
 				}
 			}
 			
-			if (river.length > 0) {
+			if (river.length > 1) {
 				this._rivers.set(id, new JRiver(id, river))
 			}
 		})

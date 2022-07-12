@@ -5,7 +5,7 @@ export interface IJVertexFluxInfo {
 	
 	fluxMonth: number[];
 	fluxRoute: number[];
-	river: number[];
+	riverIds: number[];
 }
 
 export default class JVertexFlux {
@@ -13,25 +13,27 @@ export default class JVertexFlux {
 
 	_fluxMonth: number[];
 	_fluxRoute: number[] = [];
-	_river: number[] = [];
+	_riverIds: number[] = [];
 
 	constructor(vertex: JVertex, info: IJVertexFluxInfo) {
 		this._vertex = vertex;
 		this._fluxMonth = [...info.fluxMonth];
 		this._fluxRoute = [...info.fluxRoute];
-		if (info.river.length > 3) throw new Error(``)
-		this._river = [...info.river];
+		if (info.riverIds.length > 3) throw new Error(``)
+		this._riverIds = [...info.riverIds];
 	}
 
 	get mediaFlux(): number { return this._fluxMonth.reduce((p: number, c: number) => c + p, 0) }
 	get monthFlux(): number[] { return this._fluxMonth }
+
+	get riverIds(): number[] { return this._riverIds }
 
 	getInterface(): IJVertexFluxInfo {
 		return {
 			id: this._vertex.id,
 			fluxMonth: [...this._fluxMonth],
 			fluxRoute: this._fluxRoute,
-			river: this._river
+			riverIds: this._riverIds
 		}
 	}
 }

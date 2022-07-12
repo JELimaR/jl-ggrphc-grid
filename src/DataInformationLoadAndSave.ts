@@ -18,6 +18,7 @@ import { IJVertexHeightInfo } from './VertexInformation/JVertexHeight';
 import { ITempDataGrid } from './Climate/JTempGrid';
 import { IPressureDataGrid } from './Climate/JPressureGrid';
 import { IPrecipData } from './Climate/JPrecipGrid';
+import { IJVertexFluxInfo } from './VertexInformation/JVertexFlux';
 
 
 export default class DataInformationFilesManager {
@@ -211,12 +212,33 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveVerticesHeigth(mapCells: Map<string, JVertex>, area: number | undefined): void {
+	saveVerticesHeigth(mapVertex: Map<string, JVertex>, area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}/VerticesInfo`, {recursive: true});
 		let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}height.json`;
 		let data: IJVertexHeightInfo[] = [];
-		mapCells.forEach( (cell: JVertex) => {
-			data.push(cell.info.getHeightInfo()!);
+		mapVertex.forEach( (vertex: JVertex) => {
+			data.push(vertex.info.getHeightInfo()!);
+		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+
+	loadVerticesFlux(area: number | undefined): IJVertexFluxInfo[] {
+		let out: IJVertexFluxInfo[] = [];
+		try {
+			let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}flux.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+			
+		}
+		return out;
+	}
+
+	saveVerticesFlux(mapVertex: Map<string, JVertex>, area: number | undefined): void {
+		fs.mkdirSync(`${this._dirPath}/VerticesInfo`, {recursive: true});
+		let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}flux.json`;
+		let data: IJVertexFluxInfo[] = [];
+		mapVertex.forEach( (vertex: JVertex) => {
+			data.push(vertex.info.getFluxInfo()!);
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
