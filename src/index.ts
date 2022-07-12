@@ -23,8 +23,9 @@ import chroma from 'chroma-js';
 import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
 
 import fs from 'fs'
-import JRiverMap, { IWaterRoutePoint, JRiver } from './heightmap/JRiverMap';
+import JRiverMap from './Climate/JRiverMap';
 import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
+import JRiver, { IWaterRoutePoint } from './Climate/JRiver';
 
 const tam: number = 3600;
 let SIZE: JPoint = new JPoint(tam, tam / 2);
@@ -45,7 +46,7 @@ const azgaarFolder: string[] = [
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
 ];
-const folderSelected: string = azgaarFolder[10];
+const folderSelected: string = azgaarFolder[4];
 
 console.log('folder:', folderSelected)
 
@@ -68,7 +69,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 12100; // 810
+const AREA: number = 810; // 810
 const GRAN: number = 2;
 const world: JWorld = new JWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 const tempStep = 5;
@@ -506,6 +507,20 @@ console.log('rivers longer than 1000 km', riverLongers)
 console.log('logngers rivers')
 const arr = [];
 for (let i = 0; i<50;i++) {
+	const rs: JRiver = riverSorted[i];
+	const l = rs._vertices.length;
+	arr.push({
+		riverId: rs.id,
+		length: rs.length.toLocaleString('de-DE'),
+		vertices: rs._vertices.length,
+		iniX: rs._vertices[0].vertex.point.x.toLocaleString('de-DE'),
+		iniY: rs._vertices[0].vertex.point.y.toLocaleString('de-DE'),
+		finX: rs._vertices[l-1].vertex.point.x.toLocaleString('de-DE'),
+		finY: rs._vertices[l-1].vertex.point.y.toLocaleString('de-DE'),
+		desemb: rs._vertices[l-1].vertex.info.vertexHeight.heightType
+	})
+}
+for (let i = 383; i<423;i++) {
 	const rs: JRiver = riverSorted[i];
 	const l = rs._vertices.length;
 	arr.push({

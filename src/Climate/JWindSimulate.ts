@@ -1,4 +1,4 @@
-import { calcCoriolisForce, calcMovementState, IMovementState } from "../Climate/JPressureFieldFunctions";
+import { calcCoriolisForce, calcMovementState, IMovementState } from "./JPressureFieldFunctions";
 import { JGridPoint } from "../Geom/JGrid";
 import JPoint from "../Geom/JPoint";
 import JPressureGrid, { IPressureZone, PressureData } from "./JPressureGrid";

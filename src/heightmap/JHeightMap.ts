@@ -13,11 +13,16 @@ import JVertex from "../Voronoi/JVertex";
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 // import JSubCell from "../Voronoi/JSubCell";
 
+class JOceanMap {}
+class JLakeMap {}
+
 const ard: AzgaarReaderData = AzgaarReaderData.instance;
 
 export default class JHeightMap extends JWMap {
 
 	private _islands: JIslandMap[] = [];
+	private _oceans: JOceanMap[] = [];
+	private _lakes: JLakeMap[] = [];
 
 	constructor(d: JDiagram, a?: JDiagram) {
 		super(d);

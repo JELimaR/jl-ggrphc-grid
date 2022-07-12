@@ -1,5 +1,4 @@
 import JPoint from "../Geom/JPoint";
-import JTempGrid from "../heightmap/JTempGrid";
 
 interface IPressureZone {
 	mag: number;

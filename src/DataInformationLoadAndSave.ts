@@ -12,11 +12,12 @@ import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
 // import { IJCellInformation } from './CellInformation/JCellInformation';
 import { IJCellHeightInfo } from './CellInformation/JCellHeight';
 // import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
-import { IPressureDataGrid } from './heightmap/JPressureGrid';
-import { IPrecipData } from './heightmap/JPrecipGrid'
-import { ITempDataGrid } from './heightmap/JTempGrid';
+
 import { IJCellClimateInfo } from './CellInformation/JCellClimate';
 import { IJVertexHeightInfo } from './VertexInformation/JVertexHeight';
+import { ITempDataGrid } from './Climate/JTempGrid';
+import { IPressureDataGrid } from './Climate/JPressureGrid';
+import { IPrecipData } from './Climate/JPrecipGrid';
 
 
 export default class DataInformationFilesManager {

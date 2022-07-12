@@ -4,22 +4,23 @@ export interface IJVertexFluxInfo {
 	id: string;
 	
 	fluxMonth: number[];
-	fluxRoute: number;
-	river: number;
+	fluxRoute: number[];
+	river: number[];
 }
 
 export default class JVertexFlux {
 	private _vertex: JVertex;
 
 	_fluxMonth: number[];
-	_fluxRoute: number;
-	_river: number = -1;
+	_fluxRoute: number[] = [];
+	_river: number[] = [];
 
 	constructor(vertex: JVertex, info: IJVertexFluxInfo) {
 		this._vertex = vertex;
 		this._fluxMonth = [...info.fluxMonth];
-		this._fluxRoute = info.fluxRoute;
-		this._river = info.river;
+		this._fluxRoute = [...info.fluxRoute];
+		if (info.river.length > 3) throw new Error(``)
+		this._river = [...info.river];
 	}
 
 	get mediaFlux(): number { return this._fluxMonth.reduce((p: number, c: number) => c + p, 0) }
