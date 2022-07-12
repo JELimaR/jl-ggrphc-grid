@@ -8,6 +8,7 @@ import DataInformationFilesManager from '../DataInformationLoadAndSave';
 import countriesDivision from '../divisions/countries/countriesDivision';
 import JWMap from '../JWMap';
 import JDiagram from '../Voronoi/JDiagram';
+import JVertex from '../Voronoi/JVertex';
 const dataFilaManager = DataInformationFilesManager.instance;
 
 export interface IJRegionInfo {
@@ -16,22 +17,20 @@ export interface IJRegionInfo {
 	limitCellList: number[];
 	area: number;
 }
-
+/*
 export interface IJRegionTreeNode {
 	id: string;
 	region: JRegionMap;
 }
-
+*/
 export default class JRegionMap extends JWMap  {
 	private _cells: Map<number, JCell>;
 	private _neighborList: Set<number>;
 	private _limitCellList: Set<number>;
 	private _area: number;
-	// private _world: JWorldMap;
 
-	constructor(/*world: JWorldMap*/ diag: JDiagram, info?: IJRegionInfo) {
+	constructor(diag: JDiagram, info?: IJRegionInfo) {
 		super(diag)
-		// this._world = world;
 		if (info) {
 			this._cells = new Map<number, JCell>();
 			info.cells.forEach((id: number) => {
@@ -50,9 +49,15 @@ export default class JRegionMap extends JWMap  {
 
 	get area(): number { return this._area;	}
 	get cells(): Map<number, JCell> {return this._cells}
+	
 	forEachCell(func: (c: JCell) => void) {
-		this._cells.forEach((cell: JCell) => { func(cell) });
+		this._cells.forEach((cell: JCell) => func(cell));
 	}
+
+	forEachVertex(func: (v: JVertex) => void) {
+		throw new Error(`No tiene sentido recorrer los vertices de un JRegionMap`)
+	}
+
 	// get world(): JWorldMap { return this._world}
 
 	getLimitCells(): JCell[] {
@@ -109,7 +114,7 @@ export default class JRegionMap extends JWMap  {
 		if (this.isInRegion(c.id)) {
 			return;
 		}
-		if (c.info.isLand) {
+		if (c.info.isLand) { // ver esto
 			this._cells.set(c.id, c);
 			this._area += c.area;
 			this._limitCellList.add(c.id);

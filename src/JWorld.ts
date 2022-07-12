@@ -8,6 +8,7 @@ import JCell from './Voronoi/JCell';
 import JClimateMap from './Climate/JClimateMap';
 import JRiverMap from './Climate/JRiverMap';
 import JPrecipGrid from './Climate/JPrecipGrid';
+import { JIslandMap } from './RegionMap/JRegionMap';
 // import JSubDiagram from './Voronoi/JSubDiagram';
 
 export default class JWorld {
@@ -25,6 +26,8 @@ export default class JWorld {
 	private _heightMap: JHeightMap;
 	private _climateMap: JClimateMap;
 	private _riverMap: JRiverMap;
+
+	private _islands: JIslandMap[] = [];
 
 	constructor(AREA: number, GRAN: number) {
 		/*
@@ -112,7 +115,7 @@ export default class JWorld {
 	private createInitialVoronoiDiagram(): JDiagram {
 		console.log('init voronoi');
 		console.time('primary voronoi');
-		const iniDiagram: JDiagram = VoronoiDiagramCreator.createDiagram(/*TOTAL, 1*/);
+		const iniDiagram: JDiagram = VoronoiDiagramCreator.createDiagram();
 		console.timeEnd('primary voronoi');
 		return iniDiagram;
 	}
@@ -130,13 +133,7 @@ export default class JWorld {
 		return grid;
 	}
 	private generateClimate(diagram: JDiagram, grid: JGrid): JClimateMap {
-		/*
-		const tempGrid = new JTempGrid(grid);
-		const pressGrid = new JPressureGrid(grid, tempGrid);
-		const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
-		*/
-		return new JClimateMap(diagram, grid/*precipGrid, tempGrid*/);
-
+		return new JClimateMap(diagram, grid);
 	}
 	private generateRivers(diagram: JDiagram): JRiverMap {
 		return new JRiverMap(diagram)

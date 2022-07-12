@@ -56,6 +56,12 @@ export default class JVertex {
 		
 	}
 
+	isNeightbour(v: JVertex) {
+		let out: boolean = false;
+		this.neighborsId.forEach((nid: string) => out = out || nid === v.id);
+		return out;
+	}
+
 
 
 	/*

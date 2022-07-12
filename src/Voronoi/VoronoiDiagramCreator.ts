@@ -11,7 +11,7 @@ import JCell from './JCell';
 
 export default class VoronoiDiagramCreator {
 
-	static createDiagram(/*tam: number, rel: number = 0*/): JDiagram {
+	static createDiagram(/*tam: number, rel: number = 0*/): JDiagram { // agregar azgaar en el nombre del metodo
 		const ard: AzgaarReaderData = AzgaarReaderData.instance;
 		console.time('compute prim')
 

@@ -13,7 +13,7 @@ import DataInformationFilesManager from './DataInformationLoadAndSave';
 import PNGDrawsDataManager from './PNGDrawsDataManager'
 import { DivisionMaker } from './divisions/DivisionMaker';
 
-import JRegionMap, { IJRegionTreeNode, JStateMap } from './RegionMap/JRegionMap';
+
 import statesPointsLists from './divisions/countries/statesPointsLists';
 import { JContinentMap, JCountryMap } from './RegionMap/JRegionMap';
 import JCell from './Voronoi/JCell';
@@ -25,7 +25,8 @@ import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenCol
 import fs from 'fs'
 import JRiverMap from './Climate/JRiverMap';
 import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
-import JRiver, { IWaterRoutePoint } from './Climate/JRiver';
+import JRiver, {  } from './Climate/JRiver';
+import JFluxRoute from './Climate/JFluxRoute';
 
 const tam: number = 3600;
 let SIZE: JPoint = new JPoint(tam, tam / 2);
@@ -460,10 +461,11 @@ const dmr: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected
 
 dmr.clear();
 dmr.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1));
-rm._fluxRoutes.forEach((route: JVertex[], key: number) => {
+rm._fluxRoutesMap.forEach((route: JFluxRoute, key: number) => {
 	// color = '#000000';
 	color = chroma.random().hex();
-	const points: JPoint[] = route.map((elem: JVertex) => elem.point)
+	const points: JPoint[] = [];//route.map((elem: JVertex) => elem.point)
+	route.forEachVertex((v: JVertex) => points.push(v.point)) // agregar una funcion que obtenga los puntos en JFluxRoute
 	// console.log(route.map((elem: JVertex) => elem.point))
 	dmr.draw(points, {
 		fillColor: 'none',
@@ -483,7 +485,7 @@ rm._rivers.forEach((river: JRiver, key: number) => {
 		riverLongers++;
 		// color = chroma.random().hex();
 		// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
-		const points: JPoint[] = river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point)
+		const points: JPoint[] = river._vertices.map((vertex: JVertex) => vertex.point)
 		dmr.draw(points, {
 			fillColor: 'none',
 			strokeColor: color,
@@ -492,7 +494,7 @@ rm._rivers.forEach((river: JRiver, key: number) => {
 	} else {
 		color = chroma.random().hex();
 		// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
-		const points: JPoint[] = river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point)
+		const points: JPoint[] = river._vertices.map((vertex: JVertex) => vertex.point)
 		dmr.draw(points, {
 			fillColor: 'none',
 			strokeColor: color
@@ -506,29 +508,29 @@ const arr = [];
 for (let i = 0; i<50;i++) {
 	const rs: JRiver = riverSorted[i];
 	const rlength = rs._vertices.length;
-	const ini: IPoint = rs._vertices[0].vertex.point.getInterface();
-	const fin: IPoint = rs._vertices[rlength-1].vertex.point.getInterface();
+	const ini: IPoint = rs._vertices[0].point.getInterface();
+	const fin: IPoint = rs._vertices[rlength-1].point.getInterface();
 	arr.push({
 		riverId: rs.id,
 		len: Math.round(rs.length),
 		verts: rs._vertices.length,
 		ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
 		fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
-		desemb: rs._vertices[rlength-1].vertex.info.vertexHeight.heightType
+		desemb: rs._vertices[rlength-1].info.vertexHeight.heightType
 	})
 }
 for (let i = riverSorted.length-40; i<riverSorted.length;i++) {
 	const rs: JRiver = riverSorted[i];
 	const rlength = rs._vertices.length;
-	const ini: IPoint = rs._vertices[0].vertex.point.getInterface();
-	const fin: IPoint = rs._vertices[rlength-1].vertex.point.getInterface();
+	const ini: IPoint = rs._vertices[0].point.getInterface();
+	const fin: IPoint = rs._vertices[rlength-1].point.getInterface();
 	arr.push({
 		riverId: rs.id,
-		len: Math.round(rs.length),
+		len: rs.length.toPrecision(3),
 		verts: rs._vertices.length,
 		ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
 		fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
-		desemb: rs._vertices[rlength-1].vertex.info.vertexHeight.heightType
+		desemb: rs._vertices[rlength-1].info.vertexHeight.heightType
 	})
 }
 console.table(arr)
