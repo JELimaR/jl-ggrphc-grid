@@ -19,14 +19,16 @@ import { ITempDataGrid } from './Climate/JTempGrid';
 import { IPressureDataGrid } from './Climate/JPressureGrid';
 import { IPrecipData } from './Climate/JPrecipGrid';
 import { IJVertexFluxInfo } from './VertexInformation/JVertexFlux';
+import JFluxRoute, { IJFluxRouteInfo } from './Climate/JFluxRoute';
+import JRiver, { IJRiverInfo } from './Climate/JRiver';
 
-
+// dividir esta clase
 export default class DataInformationFilesManager {
 	static _instance: DataInformationFilesManager;
 
 	private _dirPath: string = '';
 
-	private constructor() {}
+	private constructor() { }
 
 	static get instance(): DataInformationFilesManager {
 		if (!DataInformationFilesManager._instance) {
@@ -37,12 +39,12 @@ export default class DataInformationFilesManager {
 
 	static configPath(path: string): void {
 		this.instance._dirPath = path;
-		fs.mkdirSync(this.instance._dirPath, {recursive: true});
+		fs.mkdirSync(this.instance._dirPath, { recursive: true });
 	}
 
 	/**********************************************************************************
 	 **********************************************************************************
-   *					ELIMINAR VARIABLE DE ENTRADA: tam DE TODAS LAS FUNCIONES							*
+	 *					ELIMINAR VARIABLE DE ENTRADA: tam DE TODAS LAS FUNCIONES							*
 	 **********************************************************************************
 	 **********************************************************************************/
 
@@ -109,21 +111,20 @@ export default class DataInformationFilesManager {
 		fs.writeFileSync(pathName, JSON.stringify(edges));
 	}
 	*/
-	// voronoi diagram sites
-	
-	loadSites(area: number | undefined): {p: IPoint, cid: number}[] {
+	// voronoi diagram subsites	
+	loadSites(area: number | undefined): { p: IPoint, cid: number }[] {
 		if (this._dirPath === '') throw new Error('non configurated path');
-		let out: {p: IPoint, cid: number}[] = [];
+		let out: { p: IPoint, cid: number }[] = [];
 		try {
 			let pathFile: string = `${this._dirPath}/${area ? area : ''}secSites.json`;
 			out = JSON.parse(fs.readFileSync(pathFile).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
-	saveSites(sites: {p: IPoint, cid: number}[], area: number | undefined): void {
-		fs.mkdirSync(`${this._dirPath}`, {recursive: true});
+	saveSites(sites: { p: IPoint, cid: number }[], area: number | undefined): void {
+		fs.mkdirSync(`${this._dirPath}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/${area ? area : ''}secSites.json`;
 		fs.writeFileSync(pathName, JSON.stringify(sites));
 	}
@@ -135,42 +136,40 @@ export default class DataInformationFilesManager {
 			let pathFile: string = `${this._dirPath}/${area ? area : ''}G${gran}_grid.json`;
 			out = JSON.parse(fs.readFileSync(pathFile).toString());
 		} catch (e) {
-			
+
 		}
-		return out;		
+		return out;
 	}
 
 	saveGridPoints(gridPoints: JGridPoint[][], gran: number, area: number | undefined) {
 		const data: IJGridPointInfo[][] = gridPoints.map((col: JGridPoint[]) => {
 			return col.map((gp: JGridPoint) => gp.getInterface());
 		})
-		fs.mkdirSync(`${this._dirPath}`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/${area ? area : ''}G${gran}_grid.json`;
-		fs.writeFileSync(pathName, JSON.stringify(data));		
+		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 
 	/**
 	 * cells information
 	 */
-	
 	// height info cell
-	// loadCellsHeigth(tam: number): IJCellInformation[] {
 	loadCellsHeigth(area: number | undefined): IJCellHeightInfo[] {
 		let out: IJCellHeightInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/CellsInfo/${area ? area : ''}height.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveCellsHeigth(mapCells: Map<number, JCell>, area: number | undefined): void {
-		fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/CellsInfo`, { recursive: true });
 		let pathName: string = `${this._dirPath}/CellsInfo/${area ? area : ''}height.json`;
 		let data: IJCellHeightInfo[] = [];
-		mapCells.forEach( (cell: JCell) => {
+		mapCells.forEach((cell: JCell) => {
 			data[cell.id] = cell.info.getHeightInfo()!;
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
@@ -183,16 +182,16 @@ export default class DataInformationFilesManager {
 			let pathName: string = `${this._dirPath}/CellsInfo/${area ? area : ''}climate.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveCellsClimate(mapCells: Map<number, JCell>, area: number | undefined): void {
-		fs.mkdirSync(`${this._dirPath}/CellsInfo`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/CellsInfo`, { recursive: true });
 		let pathName: string = `${this._dirPath}/CellsInfo/${area ? area : ''}climate.json`;
 		let data: IJCellClimateInfo[] = [];
-		mapCells.forEach( (cell: JCell) => {
+		mapCells.forEach((cell: JCell) => {
 			data[cell.id] = cell.info.getClimateInfo()!;
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
@@ -201,43 +200,45 @@ export default class DataInformationFilesManager {
 	/**
 	 * vertex information
 	 */
+	// height info vertex
 	loadVerticesHeigth(area: number | undefined): IJVertexHeightInfo[] {
 		let out: IJVertexHeightInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}height.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveVerticesHeigth(mapVertex: Map<string, JVertex>, area: number | undefined): void {
-		fs.mkdirSync(`${this._dirPath}/VerticesInfo`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/VerticesInfo`, { recursive: true });
 		let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}height.json`;
 		let data: IJVertexHeightInfo[] = [];
-		mapVertex.forEach( (vertex: JVertex) => {
+		mapVertex.forEach((vertex: JVertex) => {
 			data.push(vertex.info.getHeightInfo()!);
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 
+	// flux info vertex
 	loadVerticesFlux(area: number | undefined): IJVertexFluxInfo[] {
 		let out: IJVertexFluxInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}flux.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveVerticesFlux(mapVertex: Map<string, JVertex>, area: number | undefined): void {
-		fs.mkdirSync(`${this._dirPath}/VerticesInfo`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/VerticesInfo`, { recursive: true });
 		let pathName: string = `${this._dirPath}/VerticesInfo/${area ? area : ''}flux.json`;
 		let data: IJVertexFluxInfo[] = [];
-		mapVertex.forEach( (vertex: JVertex) => {
+		mapVertex.forEach((vertex: JVertex) => {
 			data.push(vertex.info.getFluxInfo()!);
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
@@ -246,19 +247,20 @@ export default class DataInformationFilesManager {
 	/**
 	 * grid information
 	 */
+	//
 	loadGridTemperature(gran: number): ITempDataGrid[][] {
 		let out: ITempDataGrid[][] = [];
 		try {
 			let pathName: string = `${this._dirPath}/GridInfo/G${gran}temperature.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveGridTemperature(data: ITempDataGrid[][], gran: number): void {
-		fs.mkdirSync(`${this._dirPath}/GridInfo`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/GridInfo`, { recursive: true });
 		let pathName: string = `${this._dirPath}/GridInfo/G${gran}temperature.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
@@ -270,57 +272,101 @@ export default class DataInformationFilesManager {
 			let pathName: string = `${this._dirPath}/GridInfo/G${gran}pressure.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveGridPressure(data: IPressureDataGrid[][], gran: number): void {
-		fs.mkdirSync(`${this._dirPath}/GridInfo`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/GridInfo`, { recursive: true });
 		let pathName: string = `${this._dirPath}/GridInfo/G${gran}pressure.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 
 	//
-
 	loadGridPrecip(gran: number): IPrecipData[][] {
 		let out: IPrecipData[][] = [];
 		try {
 			let pathName: string = `${this._dirPath}/GridInfo/G${gran}precip.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
-		}		
+
+		}
 		return out;
 	}
 
 	saveGridPrecip(precipData: IPrecipData[][], gran: number): void {
-		fs.mkdirSync(`${this._dirPath}/GridInfo`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/GridInfo`, { recursive: true });
 		let pathName: string = `${this._dirPath}/GridInfo/G${gran}precip.json`;
 		fs.writeFileSync(pathName, JSON.stringify(precipData));
 	}
 
 	// islands o masas
-	loadIslandsInfo(tam: number): IJIslandInfo[] {
+	loadIslandsInfo(area: number | undefined): IJIslandInfo[] {
 		let out: IJIslandInfo[] = [];
 		try {
-			let pathName: string = `${this._dirPath}/IslandsInfo.json`;
+			let pathName: string = `${this._dirPath}/${area ? area : ''}IslandsInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
-	saveIslandsInfo(islands: JIslandMap[], tam: number): void {
-		fs.mkdirSync(`${this._dirPath}`, {recursive: true});
-		let pathName: string = `${this._dirPath}/IslandsInfo.json`;
+	saveIslandsInfo(islands: JIslandMap[], area: number | undefined): void {
+		fs.mkdirSync(`${this._dirPath}`, { recursive: true });
+		let pathName: string = `${this._dirPath}/${area ? area : ''}IslandsInfo.json`;
 		let data: IJIslandInfo[] = [];
-		islands.forEach( (i: JIslandMap) => {
+		islands.forEach((i: JIslandMap) => {
 			data.push(i.getInterface());
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
+
+	// flux routes
+	loadFluxRoutesInfo(area: number | undefined): IJFluxRouteInfo[] {
+		let out: IJFluxRouteInfo[] = [];
+		try {
+			let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+
+		}
+		return out;
+	}
+
+	saveFluxRoutesInfo(fluxRoutes: Map<number,JFluxRoute>, area: number | undefined): void {
+		fs.mkdirSync(`${this._dirPath}/RiverAndFlux`, { recursive: true });
+		let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
+		let data: IJFluxRouteInfo[] = [];
+		fluxRoutes.forEach((fr: JFluxRoute) => {
+			data.push(fr.getInterface());
+		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+
+	// rivers
+	loadRiversInfo(area: number | undefined): IJRiverInfo[] {
+		let out: IJRiverInfo[] = [];
+		try {
+			let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}RiversInfo.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+
+		}
+		return out;
+	}
+
+	saveRiversInfo(rivers: Map<number,JRiver>, area: number | undefined): void {
+		fs.mkdirSync(`${this._dirPath}/RiverAndFlux`, { recursive: true });
+		let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}RiversInfo.json`;
+		let data: IJRiverInfo[] = [];
+		rivers.forEach((river: JRiver) => {
+			data.push(river.getInterface());
+		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+
 	// continents
 	loadContinentsInfo(tam: number): IJContinentInfo[] {
 		let out: IJContinentInfo[] = [];
@@ -328,35 +374,35 @@ export default class DataInformationFilesManager {
 			let pathName: string = `${this._dirPath}/ContinentsInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveContinentsInfo(continents: JContinentMap[], tam: number): void {
-		fs.mkdirSync(`${this._dirPath}`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/ContinentsInfo.json`;
 		let data: IJContinentInfo[] = [];
-		continents.forEach( (i: JContinentMap) => {
+		continents.forEach((i: JContinentMap) => {
 			data.push(i.getInterface());
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 
 	// states
-	loadStatesInfo(tam: number, contid: number): IJStateInfo[]  {
+	loadStatesInfo(tam: number, contid: number): IJStateInfo[] {
 		let out: IJStateInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/divisions/cont${contid}/StatesInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveStatesInfo(states: JStateMap[] | Map<string, JStateMap>, tam: number, contid: number) {
-		fs.mkdirSync(`${this._dirPath}/divisions/cont${contid}`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/divisions/cont${contid}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/divisions/cont${contid}/StatesInfo.json`;
 		let data: IJStateInfo[] = [];
 		states.forEach((s: JStateMap) => {
@@ -366,19 +412,19 @@ export default class DataInformationFilesManager {
 	}
 
 	// country
-	loadCountriesInfo(tam: number, contid: number): IJCountryInfo[]  {
+	loadCountriesInfo(tam: number, contid: number): IJCountryInfo[] {
 		let out: IJCountryInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/divisions/cont${contid}/CountriesInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
-			
+
 		}
 		return out;
 	}
 
 	saveCountriesInfo(countries: JCountryMap[], tam: number, contid: number) {
-		fs.mkdirSync(`${this._dirPath}/divisions/cont${contid}`, {recursive: true});
+		fs.mkdirSync(`${this._dirPath}/divisions/cont${contid}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/divisions/cont${contid}/CountriesInfo.json`;
 		let data: IJCountryInfo[] = [];
 		countries.forEach((c: JCountryMap) => {
@@ -386,9 +432,37 @@ export default class DataInformationFilesManager {
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
+
+	/* NUEVO */
+	load<I, T extends {getInterface: ()=>I}>(area: number | undefined, t: any): I[] {
+		let out: I[] = [];
+		const subFolder: string = '';
+		const file: string = '';
+		try {
+			let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+
+		}
+		return out;
+	}
+
+	save<I, T extends {getInterface: ()=> I}>(dataT: T[], area: number | undefined) {
+
+		const subFolder: string = '';
+		const file: string = '';
+		
+		fs.mkdirSync(`${this._dirPath}/${subFolder}`, { recursive: true });
+		let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
+		let data: I[] = [];
+		dataT.forEach((c: T) => {
+			data.push(c.getInterface());
+		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
 }
 
-export type TypeDivisionRegion = 
+export type TypeDivisionRegion =
 	| 'country'
 	| 'state'
 

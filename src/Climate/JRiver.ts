@@ -1,44 +1,26 @@
 import JPoint from "../Geom/JPoint";
+import JLine, { IJLineInfo } from "../RegionMap/JLine";
+import JDiagram from "../Voronoi/JDiagram";
 import JVertex from "../Voronoi/JVertex";
 
-// cambiar road por otra cosa
-export interface IJRiverInfo { // puede ser una interface o una clase
+export interface IJRiverInfo extends IJLineInfo {
   id: number;
-	vertices: string[];
 }
 
-export default class JRiver {
+export default class JRiver extends JLine {
 	private _id: number;
-	_vertices: JVertex[]; // cambiar a vertices
-	_allVertices: JPoint[] = [];
 
-	_length: number;
-
-  constructor(id: number, vertices: JVertex[]) {
+  constructor(id: number, diagram: JDiagram, info?: IJRiverInfo) {
+		super(diagram, info)
 		this._id = id;
-		this._vertices = vertices;
-		this._length = this.calcLength();
   }
 
 	get id(): number { return this._id }
-	get vertices(): JVertex[] { return this._vertices }
-	get length(): number { return this._length }
-
-	private calcLength() {
-		let out: number = 0;
-		this._vertices.forEach((vertex: JVertex, i: number, a: JVertex[]) => {
-			if (i < a.length-1) {
-				const edge = vertex.getEdgeFromNeighbour(a[i+1]);
-				out += edge.length;
-			}
-		})
-		return out;
-	}
 
 	getInterface(): IJRiverInfo {
 		return {
+			...super.getInterface(),
 			id: this._id,
-			vertices: this._vertices.map((vertex: JVertex) => vertex.id)
 		}
 	}
 }

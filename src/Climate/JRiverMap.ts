@@ -7,10 +7,10 @@ import JCellClimate from '../CellInformation/JCellClimate'
 
 import JPoint from "../Geom/JPoint";
 import JVertex from "../Voronoi/JVertex";
-import JRiver, {  } from "./JRiver";
+import JRiver, { IJRiverInfo } from "./JRiver";
 import { IJVertexFluxInfo } from "../VertexInformation/JVertexFlux";
 import { getArrayOfN } from "../utilFunctions";
-import JFluxRoute from "./JFluxRoute";
+import JFluxRoute, { IJFluxRouteInfo } from "./JFluxRoute";
 
 const FLUXMINRIVER = 200000;
 
@@ -19,7 +19,7 @@ export interface IJRiverMapInfo {
 }
 
 export default class JRiverMap extends JWMap {
-  // private _diagram: JDiagram;
+  
   _fluxRoutesMap: Map<number, JFluxRoute> = new Map<number, JFluxRoute>();
   _rivers: Map<number, JRiver> = new Map<number, JRiver>();
 	// _fluxValuesVertices: Map<string, number> = new Map<string, number>();
@@ -27,17 +27,62 @@ export default class JRiverMap extends JWMap {
 
   constructor(d: JDiagram) {
     super(d);
-    this.generate();
+    this.generate(); // eliminar esta llamada
   }
 
   generate(): void {
+		// cargar datos
 		const dataInfoManager = DataInformationFilesManager.instance;
 		const fluxVerticesDataLoaded = dataInfoManager.loadVerticesFlux(this.diagram.secAreaProm);
-    this.setFluxValuesAndRoads();
-		this.setRivers();
+		const fluxRoutesDataLoaded = dataInfoManager.loadFluxRoutesInfo(this.diagram.secAreaProm);
+		const riversDataLoaded = dataInfoManager.loadRiversInfo(this.diagram.secAreaProm);
+		
+		console.log(`Generating flux and water drain route`)
+		console.time(`flux and water drain route`)
+		if (fluxVerticesDataLoaded.length == 0 || fluxRoutesDataLoaded.length == 0) {
+			this.setFluxValuesAndRoads();			
+		} else {
+			// setear vertices flux data
+			fluxVerticesDataLoaded.forEach((ivfi: IJVertexFluxInfo) => {
+				const v: JVertex = this.diagram.vertices2.get(ivfi.id) as JVertex;
+				v.info.setFluxInfo(ivfi);
+			})
+			// setear flux routes
+			fluxRoutesDataLoaded.forEach((ifri: IJFluxRouteInfo) => {
+				const fr: JFluxRoute = new JFluxRoute(ifri.id, this.diagram, ifri);
+				this._fluxRoutesMap.set(fr.id, fr);
+			})
+		}
+		console.timeEnd(`flux and water drain route`)
+
+		console.log(`Generating rivers`)
+		console.time(`rivers`)
+		if (riversDataLoaded.length === 0) {
+			this.setRivers();
+		} else {
+			riversDataLoaded.forEach((iri: IJRiverInfo) => {
+				const river: JRiver = new JRiver(iri.id, this.diagram, iri);
+				this._rivers.set(river.id, river);
+			})
+		}
+
+		// gruardar todo
+		if (fluxVerticesDataLoaded.length === 0) {
+			dataInfoManager.saveVerticesFlux(this.diagram.vertices2, this.diagram.secAreaProm);
+		}
+		if (fluxRoutesDataLoaded.length === 0) {
+			dataInfoManager.saveFluxRoutesInfo(this._fluxRoutesMap, this.diagram.secAreaProm);
+		}
+		if (riversDataLoaded.length === 0) {
+			dataInfoManager.saveRiversInfo(this._rivers, this.diagram.secAreaProm);
+		}		
+		console.timeEnd(`rivers`)
+
+		console.log('routes cant', this._fluxRoutesMap.size)
+		console.log('rivers cant', this._rivers.size)
   }
 
-	get riverLengthSorted(): JRiver[] {
+	get riverLengthSorted(): JRiver[] { // tal vez mover esta funcion a algo superior a world
 		let out: JRiver[] = [];
 		this._rivers.forEach((river: JRiver) => out.push(river));
 		out = out.sort((a: JRiver, b: JRiver) => b.length - a.length)
@@ -50,14 +95,12 @@ export default class JRiverMap extends JWMap {
 			if (v.info.vertexHeight.heightType == 'land') {
 	      verticesArr.push(v);
 			}
-			// this._fluxValuesVertices.set(v.id, 0);
 			let finfo: IJVertexFluxInfo = {
 				id: v.id,
 				fluxMonth: getArrayOfN(12, 0),
-				fluxRoute: [],
+				fluxRouteIds: [],
 				riverIds: [],
 			};
-			// this._fluxValuesVertices2.set(v.id, finfo);
 			v.info.setFluxInfo(finfo);
     });
     verticesArr.sort((a: JVertex, b: JVertex) => b.info.height - a.info.height);
@@ -88,57 +131,63 @@ export default class JRiverMap extends JWMap {
       }
     })
 
-		console.log('roads cant', this._fluxRoutesMap.size)
 		this.diagram.dismarkAllVertices();
 	}
 
 	private fluxCalcIteration(curr: JVertex, /*currFlux: number,*/ currFluxArr: number[], route: JFluxRoute) {
 		curr.mark();
-		const vertexClimate = curr.info.vertexClimate;
-		const vertexFlux = curr.info.vertexFlux;
+		const vClimate = curr.info.vertexClimate;
+		const vFlux = curr.info.vertexFlux;
 
-		vertexClimate.precipMonth.forEach((p: number, i: number) => {
-			currFluxArr[i] += 100 * (12 * p / JCellClimate.maxAnnual) - 10 * (vertexClimate.pumbral/JCellClimate.maxAnnual);
-			if (currFluxArr[i] < 0) currFluxArr[i] = 0;
-		})
+		if (vFlux.fluxRouteIds.length == 0) {
+			vClimate.precipMonth.forEach((p: number, i: number) => {
+				currFluxArr[i] += (100 * (12 * p) - 10 * (vClimate.pumbral)) / JCellClimate.maxAnnual;
+				if (currFluxArr[i] < 0) currFluxArr[i] = 0;
+			})
+		}
 		route.addVertex(curr);
 		// update flux
-		const newFluxArr: number[] = vertexFlux.monthFlux.map((f: number, i: number) => {
+		const newFluxArr: number[] = vFlux.monthFlux.map((f: number, i: number) => {
 			return f + currFluxArr[i];
 		});
-		vertexFlux.monthFlux.forEach((f: number, i: number) => {
-			vertexFlux.monthFlux[i] = newFluxArr[i];
+
+		// update vertexFlux
+		vFlux.monthFlux.forEach((f: number, i: number) => {
+			vFlux.monthFlux[i] = newFluxArr[i];
 		});
+		vFlux.fluxRouteIds.push(route.id);
 	}
 
 	private setRivers() {
-		const FLUXLIMIT = 100*this.diagram.vertices2.size/FLUXMINRIVER;
+		const FLUXLIMIT = 1*this.diagram.vertices2.size/2000;
 		this._fluxRoutesMap.forEach((fluxRoute: JFluxRoute, id: number) => {
 
-			let river: JVertex[] = [];
-			let vertices: JVertex[] = fluxRoute.vertices;
+			let river: JRiver = new JRiver(id, this.diagram);
+			// let vertices: JVertex[] = fluxRoute.vertices;
 
 			let vertex: JVertex;
-			for (vertex of vertices) {
+			for (vertex of fluxRoute.vertices) {
 
-				const vertexFlux = vertex.info.vertexFlux
-				const flux: number = vertexFlux.monthFlux.reduce((f,c) => f+c)/12;
-				if ((flux > FLUXLIMIT || river.length > 0) && !vertex.isMarked()) {
-					river.push(vertex)
+				//const vertexFlux = vertex.info.vertexFlux;
+				const medFlux: number = vertex.info.vertexFlux.annualFlux/12;
+				if ((medFlux > FLUXLIMIT || river.vertices.length > 0) && !vertex.isMarked()) {
+					river.addVertex(vertex)
 					vertex.mark()
 				} else if (vertex.isMarked()) {
-					river.push(vertex)
+					river.addVertex(vertex)
 					break;
 				}
 			}
 			
-			if (river.length > 1) {
-				this._rivers.set(id, new JRiver(id, river))
+			if (river.vertices.length > 1) {
+				river.forEachVertex((v: JVertex) => {
+					v.info.vertexFlux.riverIds.push(river.id);
+				})
+				this._rivers.set(id, river);
 			}
 		})
 
 		this.diagram.dismarkAllVertices();
-		console.log('river cant', this._rivers.size)
 	}
 
   private getMinHeightNeighbour(vertex: JVertex): JVertex {

@@ -4,7 +4,7 @@ import JVertex from "./Voronoi/JVertex";
 import JDiagram from "./Voronoi/JDiagram";
 
 
-export default abstract class JWMap implements ICellContainer {
+export default abstract class JWMap implements ICellContainer { // cambiar nombre
   private _diagram: JDiagram;
   constructor(d: JDiagram) {
     this._diagram = d;

@@ -17,9 +17,8 @@ import { IJVertexClimateInfo } from "../VertexInformation/JVertexClimate";
 import JVertex from "../Voronoi/JVertex";
 import JTempGrid from "./JTempGrid";
 import JPressureGrid from "./JPressureGrid";
+import { getArrayOfN } from "../utilFunctions";
 
-
-const emptyMonthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 export default class JClimateMap extends JWMap {
 	constructor(d: JDiagram, grid: JGrid/*precipGrid: JPrecipGrid, tempGrid: JTempGrid*/) {
@@ -92,14 +91,8 @@ export default class JClimateMap extends JWMap {
 		console.time('set vertex climate data')
 		this.diagram.forEachCell((c: JCell) => {
 			let cinfo: JCellClimate = c.info.cellClimate;
-			let precipMonthProm: number[] = [
-				0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0,
-			];
-			let tempMonthProm: number[] = [
-				0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0,
-			];
+			let precipMonthProm: number[] = getArrayOfN(12,0);
+			let tempMonthProm: number[] = getArrayOfN(12,0);
 			let cant: number = 0;
 			this.diagram.getCellNeighbours(c).forEach((nc: JCell) => {
 				const ninfo: JCellClimate = nc.info.cellClimate;
@@ -117,8 +110,8 @@ export default class JClimateMap extends JWMap {
 		this.forEachVertex((vertex: JVertex) => {
 			let info: IJVertexClimateInfo = {
 				id: vertex.id,
-				tempMonth: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-				precipMonth: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				tempMonth: getArrayOfN(12,0),
+				precipMonth: getArrayOfN(12,0),
 			}
 
 			const cells: JCell[] = this.diagram.getCellsAssociated(vertex);

@@ -462,8 +462,8 @@ const dmr: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected
 dmr.clear();
 dmr.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1));
 rm._fluxRoutesMap.forEach((route: JFluxRoute, key: number) => {
-	// color = '#000000';
-	color = chroma.random().hex();
+	color = '#000000';
+	// color = chroma.random().hex();
 	const points: JPoint[] = [];//route.map((elem: JVertex) => elem.point)
 	route.forEachVertex((v: JVertex) => points.push(v.point)) // agregar una funcion que obtenga los puntos en JFluxRoute
 	// console.log(route.map((elem: JVertex) => elem.point))
@@ -472,20 +472,21 @@ rm._fluxRoutesMap.forEach((route: JFluxRoute, key: number) => {
 		strokeColor: color
 	})
 })
-dmr.saveDrawFile(`${AREA}roads.png`)
+dmr.saveDrawFile(`${AREA}routes.png`)
 
 dmr.clear();
 dmr.drawCellMap(world.diagram, JCellToDrawEntryFunctions.heighLand(1));
 dmr.drawMeridianAndParallels();
 const riverSorted = rm.riverLengthSorted;
 console.log('sorted')
+
 rm._rivers.forEach((river: JRiver, key: number) => {
 	if (river.length > 1000) {
 		color = '#0000E1';
 		riverLongers++;
 		// color = chroma.random().hex();
 		// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
-		const points: JPoint[] = river._vertices.map((vertex: JVertex) => vertex.point)
+		const points: JPoint[] = river.vertices.map((vertex: JVertex) => vertex.point)
 		dmr.draw(points, {
 			fillColor: 'none',
 			strokeColor: color,
@@ -494,7 +495,7 @@ rm._rivers.forEach((river: JRiver, key: number) => {
 	} else {
 		color = chroma.random().hex();
 		// console.log(river._vertices.map((elem: IWaterRoutePoint) => elem.vertex.point))
-		const points: JPoint[] = river._vertices.map((vertex: JVertex) => vertex.point)
+		const points: JPoint[] = river.vertices.map((vertex: JVertex) => vertex.point)
 		dmr.draw(points, {
 			fillColor: 'none',
 			strokeColor: color
@@ -502,41 +503,43 @@ rm._rivers.forEach((river: JRiver, key: number) => {
 	}
 })
 dmr.saveDrawFile(`${AREA}rivers.png`)
+
 console.log('rivers longer than 1000 km', riverLongers)
 console.log('logngers rivers')
 const arr = [];
 for (let i = 0; i<50;i++) {
 	const rs: JRiver = riverSorted[i];
-	const rlength = rs._vertices.length;
-	const ini: IPoint = rs._vertices[0].point.getInterface();
-	const fin: IPoint = rs._vertices[rlength-1].point.getInterface();
+	const rlength = rs.vertices.length;
+	const ini: IPoint = rs.vertices[0].point.getInterface();
+	const fin: IPoint = rs.vertices[rlength-1].point.getInterface();
 	arr.push({
 		riverId: rs.id,
 		len: Math.round(rs.length),
-		verts: rs._vertices.length,
+		verts: rs.vertices.length,
 		ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
 		fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
-		desemb: rs._vertices[rlength-1].info.vertexHeight.heightType
+		desemb: rs.vertices[rlength-1].info.vertexHeight.heightType
 	})
 }
 for (let i = riverSorted.length-40; i<riverSorted.length;i++) {
 	const rs: JRiver = riverSorted[i];
-	const rlength = rs._vertices.length;
-	const ini: IPoint = rs._vertices[0].point.getInterface();
-	const fin: IPoint = rs._vertices[rlength-1].point.getInterface();
+	const rlength = rs.vertices.length;
+	const ini: IPoint = rs.vertices[0].point.getInterface();
+	const fin: IPoint = rs.vertices[rlength-1].point.getInterface();
 	arr.push({
 		riverId: rs.id,
 		len: rs.length.toPrecision(3),
-		verts: rs._vertices.length,
+		verts: rs.vertices.length,
 		ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
 		fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
-		desemb: rs._vertices[rlength-1].info.vertexHeight.heightType
+		desemb: rs.vertices[rlength-1].info.vertexHeight.heightType
 	})
 }
 console.table(arr)
 
 
 console.log('vertex cant', world.diagram.vertices2.size)
+
 /*
 dm.clear();
 dm.drawCellMap(world.diagram, ((cell: JCell) => {return {

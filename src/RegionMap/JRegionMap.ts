@@ -238,7 +238,7 @@ export default class JRegionMap extends JWMap  {
 	}
 
 	private addCellToNearestRegion(cell: JCell, subs: JRegionMap[]) {
-		let dist: number [] = [];
+		let dist: number[] = [];
 		subs.forEach((sr: JRegionMap) => { 
 			dist.push( sr.minDistanceToCell(cell) );
 		})
