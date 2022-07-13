@@ -19,7 +19,7 @@ export class DivisionMaker {
 		let regionsArr: JRegionMap[] = region.divideInSubregions(plist);
 		// regionsArr.sort((a: JRegionMap, b: JRegionMap) => {return a.area-b.area});
 
-		dm.drawArr(regionsArr), 0.4;
+		dm.drawArr(regionsArr, 0.4);
 		
 		dm.drawCellMap(
 			createICellContainerFromCellArray(cellList),
