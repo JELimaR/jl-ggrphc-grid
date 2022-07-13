@@ -21,8 +21,6 @@ const ard: AzgaarReaderData = AzgaarReaderData.instance;
 export default class JHeightMap extends JWMap {
 
 	private _islands: JIslandMap[] = [];
-	private _oceans: JOceanMap[] = [];
-	private _lakes: JLakeMap[] = [];
 
 	constructor(d: JDiagram, a?: JDiagram) {
 		super(d);
@@ -57,7 +55,7 @@ export default class JHeightMap extends JWMap {
 			console.time(`${a ? 's' : 'p'}-resolve cells depressions`)
 			this.resolveCellsDepressions();
 			console.timeEnd(`${a ? 's' : 'p'}-resolve cells depressions`)
-			if (a) this.smootData()
+			if (!!a) this.smootData()
 
 			dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
 		}
@@ -89,10 +87,11 @@ export default class JHeightMap extends JWMap {
 		/*
 		 * islands
 		 */
+		if (!!a) {
 		console.log('calculate and setting island')
-		console.time(`${a ? 's' : 'p'}-set Islands`);
-		/*
-		let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.cells.size);
+		console.time(`set Islands`);
+		
+		let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
 		if (regionInfoArr.length > 0) {
 			regionInfoArr.forEach((iii: IJIslandInfo, i: number) => {
 				this._islands.push(
@@ -104,10 +103,10 @@ export default class JHeightMap extends JWMap {
 		}
 		// guardar info
 		if (regionInfoArr.length === 0) {
-			dataInfoManager.saveIslandsInfo(this._islands, cellsMap.size);
+			dataInfoManager.saveIslandsInfo(this._islands, this.diagram.secAreaProm);
 		}
-		*/
-		console.timeEnd(`${a ? 's' : 'p'}-set Islands`);
+		console.timeEnd(`set Islands`);
+		}
 	}
 
 	private getCellsData(): IJCellHeightInfo[] {
@@ -371,7 +370,8 @@ export default class JHeightMap extends JWMap {
 			}
 
 			if (qeue.size > 0) throw new Error(`se supero el numero de cells: ${this.diagram.cells.size} en generateIslandList`)
-			console.log('area:', reg.area)
+			console.log('area:', reg.area.toLocaleString('de-DE'));
+			console.timeLog(`set Islands`);
 			this._islands.push(reg);
 		}
 		// ordenar
