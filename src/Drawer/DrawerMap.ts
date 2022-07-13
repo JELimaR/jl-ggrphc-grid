@@ -10,6 +10,7 @@ import JWorldMap, { createICellContainerFromCellArray, ICellContainer } from '..
 import JCell from '../Voronoi/JCell';
 import JRegionMap from '../RegionMap/JRegionMap';
 import JPanzoom from './JPanzoom';
+import { inRange } from '../utilFunctions';
 // import { Bitmap } from 'pureimage/types/bitmap';
 // import { Context } from 'pureimage/types/context';
 
@@ -161,17 +162,18 @@ export default class DrawerMap {
 		}
 	}
 
-	drawArr(arrReg: ICellContainer[]) {
+	drawArr(arrReg: ICellContainer[], alpha: number) {
 		arrReg.forEach((jsr: ICellContainer, id: number) => {
+			alpha = inRange(alpha, 0, 1);
 			let color: string;
-			color = chroma.random().hex();
+			color = chroma.random().alpha(alpha).hex();
 
 			this.drawCellMap(
 				jsr,
 				// createICellContainerFromCellArray(jsr.getLimitCells()),
 				JCellToDrawEntryFunctions.colors({
-					strokeColor: `${color}20`,
-					fillColor: `${color}20`
+					strokeColor: `${color}`,
+					fillColor: `${color}`
 				})
 			)
 		})

@@ -563,7 +563,7 @@ console.log('po', pocell.subCells.length)
 */
 
 dm.clear();
-dm.drawArr(world._islands);
+dm.drawArr(world._islands, 1);
 dm.drawMeridianAndParallels();
 dm.saveDrawFile(`${AREA}islands.png`)
 
