@@ -561,4 +561,10 @@ const pocell = world.diagram.getCellFromPoint(new JPoint(11,85));
 console.log('eq', eqcell.subCells.length)
 console.log('po', pocell.subCells.length)
 */
+
+dm.clear();
+dm.drawArr(world._islands);
+dm.drawMeridianAndParallels();
+dm.saveDrawFile(`${AREA}islands.png`)
+
 console.timeEnd('all')

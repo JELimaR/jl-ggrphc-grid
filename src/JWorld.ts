@@ -27,7 +27,7 @@ export default class JWorld {
 	private _climateMap: JClimateMap;
 	private _riverMap: JRiverMap;
 
-	private _islands: JIslandMap[] = [];
+	_islands: JIslandMap[] = [];
 
 	constructor(AREA: number, GRAN: number) {
 		/*
@@ -59,6 +59,9 @@ export default class JWorld {
 		this._heightMap = gnw.h;
 		this._climateMap = gnw.c;
 		this._riverMap = gnw.r;
+
+		//
+		this._islands = gnw.i;
 		
 	}
 
@@ -97,7 +100,9 @@ export default class JWorld {
 		//g: JGrid,
 		h: JHeightMap,
 		c: JClimateMap,
-		r: JRiverMap
+		r: JRiverMap,
+
+		i: JIslandMap[],
 	} {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
@@ -115,6 +120,8 @@ export default class JWorld {
 			h: heightMap,
 			c: climateMap,
 			r: riverMap,
+
+			i: heightMap.islands,
 		}
 	}
 	
