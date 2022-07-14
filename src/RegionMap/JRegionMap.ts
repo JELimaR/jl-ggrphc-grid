@@ -69,6 +69,19 @@ export default class JRegionMap extends JWMap  {
 		return cells;
 	}
 
+	getLimitVertices() {
+		const verticesLimits: Map<string,JVertex> = new Map<string,JVertex>();
+		this.getLimitCells().forEach((cell: JCell) => {
+			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices2.get(p.id)!);
+			cellVertices.forEach((v: JVertex) => {
+				this.diagram.getCellsAssociated(v).forEach((aso: JCell) => {
+					if (!this.isInRegion(aso)) verticesLimits.set(v.id, v);
+				})
+			})
+		})
+		return verticesLimits;
+	}
+
 	// draw functions
 	// buscar max x y min x en vez de 2.05
 	getDrawerParameters(): {center: JPoint, XMAXDIS: number, YMAXDIS: number} {

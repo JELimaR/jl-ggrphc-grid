@@ -23,7 +23,7 @@ export default class JWorld {
 	// nuevos
 	private _diagram: JDiagram;
 	// private _grid: JGrid;
-	private _heightMap: JHeightMap;
+	_heightMap: JHeightMap;
 	private _climateMap: JClimateMap;
 	private _riverMap: JRiverMap;
 

@@ -78,8 +78,8 @@ export default class JRiverMap extends JWMap {
 		}		
 		console.timeEnd(`rivers`)
 
-		console.log('routes cant', this._waterRoutesMap.size)
-		console.log('rivers cant', this._rivers.size)
+		// console.log('routes cant', this._waterRoutesMap.size)
+		// console.log('rivers cant', this._rivers.size)
   }
 
 	get riverLengthSorted(): JRiver[] { // tal vez mover esta funcion a algo superior a world

@@ -5,27 +5,25 @@ console.log(newDate.toLocaleTimeString());
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions';
 import DrawerMap, { IDrawEntry } from './Drawer/DrawerMap'
 
-import JPoint, { IPoint } from './Geom/JPoint';
-import JGrid, { JGridPoint } from './Geom/JGrid';
+import JPoint from './Geom/JPoint';
 import JWorld from './JWorld';
 import { createICellContainerFromCellArray } from './JWorldMap';
 import DataInformationFilesManager from './DataInformationLoadAndSave';
 import PNGDrawsDataManager from './PNGDrawsDataManager'
+import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
 import { DivisionMaker } from './divisions/DivisionMaker';
 
 
 import statesPointsLists from './divisions/countries/statesPointsLists';
-import { JContinentMap, JCountryMap, JIslandMap } from './RegionMap/JRegionMap';
+import { JIslandMap } from './RegionMap/JRegionMap';
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import chroma from 'chroma-js';
 
-import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
-
 import fs from 'fs'
+import * as turf from '@turf/turf';
 import JRiverMap from './Climate/JRiverMap';
-import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
-import JRiver, {  } from './Climate/JRiver';
+import JRiver, { } from './Climate/JRiver';
 import JWaterRoute from './Climate/JWaterRoute';
 import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
@@ -84,61 +82,102 @@ const monthArr4 = [1, 4, 7, 10];
 const sh = new ShowHeight(world, AREA, GRAN, folderSelected);
 const sc = new ShowClimate(world, AREA, GRAN, folderSelected);
 const sw = new ShowWater(world, AREA, GRAN, folderSelected);
-// console.log(world.diagram.cells.get(8)!.info.tempMonthArr)
-// /*let jtm: JTempMap = */world.generateTemperatureMap();
 
 
 // sh.drawHeight();
 // sh.printMaxAndMinCellsHeight();
 
-/****************************************************/
-
-// nuevo
-
-// climate map
+/******************** climate map ********************/
 // for (let month of monthArr12) {	sc.drawTempMonth(month); }
 // sc.drawTempMedia()
 // for (let month of monthArr12) {	sc.drawPrecipMonth(month); }
 // sc.drawPrecipMedia()
 
-sc.drawKoppen();
+// sc.drawKoppen();
 // sc.printKoppenData();
 
 /**
  * LIFE ZONES
  */
-sc.drawAltitudinalBelts();
-sc.drawHumidityProvinces()
-sc.drawLifeZones();
-sc.printLifeZonesData();
-
-
-console.log('vertex cant', world.diagram.vertices2.size)
-
+// sc.drawAltitudinalBelts();
+// sc.drawHumidityProvinces()
+// sc.drawLifeZones();
+// sc.printLifeZonesData();
 /*
-dm.clear();
-dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
-	fillColor: chroma.random().hex(),
-	strokeColor: '#001410'
-}}))
-dm.saveDrawFile('diagram.png')
-*/
 dm.clear()
 dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 	fillColor: chroma.random().hex(),
 	strokeColor: '#001410'
 }}))
 dm.saveDrawFile(`${AREA}secDiagram.png`)
+*/
 
+// sw.printRiverDataLongers(2500);
+// sh.drawIslands();
 
-sw.printRiverDataLongers(5000);
-
-sh.drawIslands();
-
-console.time('convert to turf')
+console.time('convert to line')
+dm.clear()
 world._islands.forEach((isl: JIslandMap) => {
-	isl.getLimitCells()
+	dm.drawCellMap(createICellContainerFromCellArray(isl.getLimitCells()), JCellToDrawEntryFunctions.colors({
+		fillColor: '#001410',
+		strokeColor: '#001410'
+	}))
+
+	const points: JPoint[] = [];
+	isl.getLimitVertices().forEach((v: JVertex) => points.push(v.point));
+	color = '#B8021F'
+	dm.draw(points, {
+		fillColor: color,
+		strokeColor: color
+	})
 })
-console.timeEnd('convert to turf')
+dm.saveDrawFile(`${AREA}islandsLimits1.png`)
+
+
+dm.clear()
+world._islands.forEach((isl: JIslandMap) => {
+	dm.drawCellMap(createICellContainerFromCellArray(isl.getLimitCells()), JCellToDrawEntryFunctions.colors({
+		fillColor: '#001410',
+		strokeColor: '#001410'
+	}))
+	color = '#021FB8'
+	isl.getLimitVertices().forEach((v: JVertex) => {
+		dm.drawDot(v.point, {
+			fillColor: color,
+			strokeColor: color
+		}, 0.25)
+	});
+})
+dm.saveDrawFile(`${AREA}islandsLimits2.png`)
+
+const landReg = world._heightMap.landRegion;
+dm.clear()
+dm.drawCellMap(createICellContainerFromCellArray(landReg.getLimitCells()), JCellToDrawEntryFunctions.colors({
+	fillColor: '#001410',
+	strokeColor: '#001410'
+}))
+const points: JPoint[] = [];
+landReg.getLimitVertices().forEach((v: JVertex) => points.push(v.point));
+color = '#B8021F'
+dm.draw(points, {
+	fillColor: color,
+	strokeColor: color
+})
+dm.saveDrawFile(`${AREA}landLimits1.png`)
+
+dm.clear()
+dm.drawCellMap(createICellContainerFromCellArray(landReg.getLimitCells()), JCellToDrawEntryFunctions.colors({
+	fillColor: '#001410',
+	strokeColor: '#001410'
+}))
+color = '#021FB8'
+landReg.getLimitVertices().forEach((v: JVertex) => {
+	dm.drawDot(v.point, {
+		fillColor: color,
+		strokeColor: color
+	}, 0.25)
+});
+
+console.timeEnd('convert to line')
 
 console.timeEnd('all')

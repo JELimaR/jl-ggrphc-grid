@@ -52,7 +52,7 @@ export default class JCell {
 	static equals(a: JCell, b: JCell): boolean {
 		return (a.id === b.id)
 	}
-	
+
 	get site(): JSite { return this._site }
 	get id(): number { return this._site.id }
 	get center(): JPoint { return this._site.point }
@@ -165,20 +165,20 @@ export default class JCell {
 	}
 
 	getSubSites(AREA: number): JPoint[] {
-		if (this._subsites.length == 0) {			
+		if (this._subsites.length == 0) {
 			// const rfunc = RandomNumberGenerator.makeRandomFloat(this.id);
-			const cantSites: number = Math.round(this.area/AREA) + 1;
+			const cantSites: number = Math.round(this.area / AREA) + 1;
 			// const bbl = this.getBBoxLongs();
 			let points: JPoint[] = [];
 			/*while (points.length < cantSites) {
 				const p = new JPoint( bbl.xlong * (rfunc() * 0.9 + 0.05) + bbl.xmin, bbl.ylong * (rfunc() * 0.9 + 0.05) + bbl.ymin );
 				if (this.isPointIn(p)) points.push(p);
 			}*/
-	
+
 			let triangles: JTriangle[] = this.tesselate();
 			triangles = triangles.sort((a: JTriangle, b: JTriangle) => b.area - a.area); // de mayor a menor area
 
-			while(triangles.length < cantSites) {
+			while (triangles.length < cantSites) {
 				const tri: JTriangle = triangles.shift() as JTriangle;
 				const div = tri.divide();
 				triangles.push(div.t1);
@@ -189,7 +189,7 @@ export default class JCell {
 			for (let i = 0; i < cantSites; i++) {
 				points.push(triangles[i].centroid)
 			}
-			
+
 			if (this.id == 3545) console.log(triangles.map((t: JTriangle) => t.area));
 			if (this.id == 3545) console.log(this.areaSimple)
 			if (this.id == 3545) console.log(points)
@@ -210,12 +210,12 @@ export default class JCell {
 	 * Height or relief Information
 	 */
 
-	get info(): JCellInformation {return this._cellInformation}
+	get info(): JCellInformation { return this._cellInformation }
 
 	/*get heightInfo(): JCellHeight {
 		return this._cellInformation.getHeightInfo()!;
 	}*/
-	
+
 	// getInterface(): IJCellInfo {
 	// 	return {
 	// 		site: this._site.getInterface(),
@@ -227,7 +227,7 @@ export default class JCell {
 	 * sub cells functions
 	 */
 
-	get subCells(): JCell[] {return this._subCells}
-	addSubCell(sb: JCell) { this._subCells.push(sb)}
+	get subCells(): JCell[] { return this._subCells }
+	addSubCell(sb: JCell) { this._subCells.push(sb) }
 
 }
