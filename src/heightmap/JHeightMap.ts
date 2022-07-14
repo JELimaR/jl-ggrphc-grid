@@ -46,7 +46,7 @@ export default class JHeightMap extends JWMap {
 			cell.info.setHeightInfo(hinf);
 		})
 
-		// guardar info
+		// other cells calcs
 		if (!isLoaded) {
 			console.log('set ocean and lake cells')
 			this.setOceanTypeCell();
@@ -73,12 +73,13 @@ export default class JHeightMap extends JWMap {
 			vertex.info.setHeightInfo(info);
 		})
 
-		// guardar info
+		// other vertex calcs
 		if (!isVertexLoaded) {
 			console.log('resolving vertices depressions');
 			console.time(`${a ? 's' : 'p'}-resolve vertices depressions`)
 			this.resolveVertexDepressions();
 			console.timeEnd(`${a ? 's' : 'p'}-resolve vertices depressions`)
+			
 			dataInfoManager.saveVerticesHeigth(this.diagram.vertices2, this.diagram.secAreaProm);
 		}
 
@@ -88,24 +89,25 @@ export default class JHeightMap extends JWMap {
 		 * islands
 		 */
 		if (!!a) {
-		console.log('calculate and setting island')
-		console.time(`set Islands`);
-		
-		let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
-		if (regionInfoArr.length > 0) {
-			regionInfoArr.forEach((iii: IJIslandInfo, i: number) => {
-				this._islands.push(
-					new JIslandMap(i, this.diagram, iii)
-				);
-			})
-		} else {
-			this.generateIslandList();
-		}
-		// guardar info
-		if (regionInfoArr.length === 0) {
-			dataInfoManager.saveIslandsInfo(this._islands, this.diagram.secAreaProm);
-		}
-		console.timeEnd(`set Islands`);
+			console.log('calculate and setting island')
+			console.time(`set Islands`);
+			
+			let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
+			if (regionInfoArr.length > 0) {
+				regionInfoArr.forEach((iii: IJIslandInfo, i: number) => {
+					this._islands.push(
+						new JIslandMap(i, this.diagram, iii)
+					);
+				})
+			} else {
+				this.generateIslandList();
+			}
+			// guardar info
+			
+			if (regionInfoArr.length === 0) {
+				dataInfoManager.saveIslandsInfo(this._islands, this.diagram.secAreaProm);
+			}
+			console.timeEnd(`set Islands`);
 		}
 	}
 
@@ -119,6 +121,7 @@ export default class JHeightMap extends JWMap {
 				prevHeight: 0, // ya no se usa
 				height: elem.h,
 				heightType: 'land',
+				islandId: -1,
 			};
 		})
 		return out;

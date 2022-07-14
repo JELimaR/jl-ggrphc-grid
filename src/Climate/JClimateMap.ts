@@ -5,7 +5,6 @@ import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
 import JWMap from "../JWMap";
 import JRegionMap from "../RegionMap/JRegionMap";
-// const dataInfoManager = DataInformationFilesManager.instance;
 
 import JPoint from "../Geom/JPoint";
 import JPrecipGrid, { IPrecipData } from "./JPrecipGrid";
@@ -21,14 +20,14 @@ import { getArrayOfN } from "../utilFunctions";
 
 
 export default class JClimateMap extends JWMap {
-	constructor(d: JDiagram, grid: JGrid/*precipGrid: JPrecipGrid, tempGrid: JTempGrid*/) {
-		const dataInfoManager = DataInformationFilesManager.instance;
+	constructor(d: JDiagram, grid: JGrid) {
 		super(d);
+		const dataInfoManager = DataInformationFilesManager.instance;
 
 		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
 		const isLoaded: boolean = climateData.length !== 0;
 		if (!isLoaded) {
-			climateData = this.generateClimateData(grid/*, precipGrid, tempGrid*/);
+			climateData = this.generateClimateData(grid);
 		}
 
 		this.diagram.forEachCell((cell: JCell) => {
@@ -56,7 +55,7 @@ export default class JClimateMap extends JWMap {
 
 	}
 
-	generateClimateData(grid: JGrid/*, precipGrid: JPrecipGrid, tempGrid: JTempGrid*/): IJCellClimateInfo[] {
+	generateClimateData(grid: JGrid): IJCellClimateInfo[] {
 
 		const tempGrid = new JTempGrid(grid);
 		const pressGrid = new JPressureGrid(grid, tempGrid);
@@ -129,3 +128,39 @@ export default class JClimateMap extends JWMap {
 	}
 
 }
+
+/*
+colorScale = chroma.scale('Spectral').domain([mmm.max, mmm.min]);
+for (let i of monthArr) {
+	dm2.clear()
+	dm2.drawFondo()
+	const month: number = i;
+	world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
+		col.forEach((gp: JGridPoint, ridx: number) => {
+			let val = pressGrid.getPointInfo(gp._point).pots[month - 1];
+			// let val = pressGrid.getPointInfo(gp._point).vecs[month - 1].y * 10;
+			color = colorScale(val).hex();
+			dm2.drawDot(gp._point, {
+				strokeColor: color, fillColor: color
+			}, GRAN)
+		})
+	})
+	dm2.drawMeridianAndParallels();
+	dm2.saveDrawFile(`${GRAN}pressGrid${(month < 10 ? `0${month}` : `${month}`)}.png`);
+}
+*/
+/*******************************************/
+/*
+dm2.clear()
+// dm2.drawFondo()
+tempGrid.getPressureCenters(month).pressCenter.forEach((val: any) => {
+	color = (val.mag < 0) ? '#00FF0020' : '#FF000020';
+	dm2.drawDot(val.point, {
+		strokeColor: color, fillColor: color
+	}, GRAN)
+})
+colorScale = chroma.scale('Spectral').domain([1, 0]);
+dataPrecip = ws.precip.get(month) as { value: number; cant: number; }[][];
+// dm2.drawMeridianAndParallels();
+dm2.saveDrawFile(`tempWind.png`);
+*/

@@ -69,7 +69,7 @@ export default class JRegionMap extends JWMap  {
 		return cells;
 	}
 
-	// draw funcitons
+	// draw functions
 	// buscar max x y min x en vez de 2.05
 	getDrawerParameters(): {center: JPoint, XMAXDIS: number, YMAXDIS: number} {
 		let XMIN = 180, YMIN = 90;

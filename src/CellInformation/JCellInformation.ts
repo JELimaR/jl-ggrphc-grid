@@ -32,7 +32,7 @@ export default class JCellInformation {
 	get prevHeight(): number { return this._height!.prevHeight }
 	set height(h: number) { this._height!.height = h }
 
-	set islandId(id: number) { this._height!.island = id; }
+	set islandId(id: number) { this._height!.island = id; } // se puede eliminar
 	get islandId(): number { return this._height!.island; }
 
 	/*

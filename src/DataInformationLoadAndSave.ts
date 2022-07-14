@@ -19,7 +19,7 @@ import { ITempDataGrid } from './Climate/JTempGrid';
 import { IPressureDataGrid } from './Climate/JPressureGrid';
 import { IPrecipData } from './Climate/JPrecipGrid';
 import { IJVertexFluxInfo } from './VertexInformation/JVertexFlux';
-import JFluxRoute, { IJFluxRouteInfo } from './Climate/JFluxRoute';
+import JWaterRoute, { IJWaterRouteInfo } from './Climate/JWaterRoute';
 import JRiver, { IJRiverInfo } from './Climate/JRiver';
 
 // dividir esta clase
@@ -323,9 +323,9 @@ export default class DataInformationFilesManager {
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 
-	// flux routes
-	loadFluxRoutesInfo(area: number | undefined): IJFluxRouteInfo[] {
-		let out: IJFluxRouteInfo[] = [];
+	// water routes
+	loadWaterRoutesInfo(area: number | undefined): IJWaterRouteInfo[] {
+		let out: IJWaterRouteInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
@@ -335,11 +335,11 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveFluxRoutesInfo(fluxRoutes: Map<number,JFluxRoute>, area: number | undefined): void {
+	saveWaterRoutesInfo(fluxRoutes: Map<number,JWaterRoute>, area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}/RiverAndFlux`, { recursive: true });
 		let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
-		let data: IJFluxRouteInfo[] = [];
-		fluxRoutes.forEach((fr: JFluxRoute) => {
+		let data: IJWaterRouteInfo[] = [];
+		fluxRoutes.forEach((fr: JWaterRoute) => {
 			data.push(fr.getInterface());
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));

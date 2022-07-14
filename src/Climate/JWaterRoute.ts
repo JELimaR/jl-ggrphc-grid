@@ -7,22 +7,22 @@ import JVertex from "../Voronoi/JVertex";
  * Un objeto JFluxRoute representa un camino de drenaje desde un punto inicial hacia la costa
  * Puede ser un lago o un oceano.
  */
-export interface IJFluxRouteInfo extends IJLineInfo {
+export interface IJWaterRouteInfo extends IJLineInfo {
 	id: number;
 }
 
-export default class JFluxRoute extends JLine {
+export default class JWaterRoute extends JLine {
 
 	private _id: number;
 
-	constructor(id: number, diagram: JDiagram, info?: IJFluxRouteInfo) {
+	constructor(id: number, diagram: JDiagram, info?: IJWaterRouteInfo) {
 		super(diagram, info);
 		this._id = id;
 	}
 
 	get id(): number { return this._id }
 
-	getInterface(): IJFluxRouteInfo {
+	getInterface(): IJWaterRouteInfo {
 		return {
 			...super.getInterface(),
 			id: this._id,

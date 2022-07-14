@@ -20,6 +20,7 @@ export interface IJCellHeightInfo {
 	height: number;
 	prevHeight: number;
 	heightType: TypeCellheight;
+	islandId: number; // no se guarda este dato nunca
 }
 
 export default class JCellHeight {
@@ -28,11 +29,10 @@ export default class JCellHeight {
 	private _height: number;
 	private _prevHeight: number = 0;
 	private _heightType: TypeCellheight;
-	private _island: number = -1;
+	private _islandId: number = -1;
 
 	constructor(c: JCell, info: IJCellHeightInfo) {
 		this._cell = c;
-		// const turfPol = this._cell.toTurfPolygonSimple();
 		
 		this._height = info.height;
 		this._prevHeight = info.prevHeight;
@@ -58,8 +58,8 @@ export default class JCellHeight {
 		this._prevHeight = this._height;
 		this._height = h;
 	}
-	set island(id: number) { this._island = id }
-	get island(): number { return this._island }
+	set island(id: number) { this._islandId = id } // solo una vez se puede cambiar
+	get island(): number { return this._islandId }
 	// get inLandZone(): boolean {return this._heightType === ''}
 
 	getInterface(): IJCellHeightInfo { 
@@ -69,6 +69,7 @@ export default class JCellHeight {
 			height: this._height,
 			prevHeight: this._prevHeight,
 			heightType: this._heightType,
+			islandId: this._islandId,
 		}
 	}
 }

@@ -76,7 +76,7 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		return out;
 	}
 
-	forEachCell(func: (c: JCell) => void) {
+	forEachCell(func: (c: JCell) => void) { // hacer mejor esto
 		throw new Error(`No tiene sentido recorrer las cells de un JLineMap`);
 	}
 

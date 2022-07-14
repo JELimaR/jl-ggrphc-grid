@@ -1,16 +1,16 @@
 import chroma from 'chroma-js';
 //import { koppenColors, TKoppenSubType } from './CellInformation/JCellClimate';
-const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1,0]);
+const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1, 0]);
 import { altitudinalBeltToNumber, humidityProvinceToNumber, ILifeZone, koppenColors, lifeZonesList, TAltitudinalBelt, THumidityProvinces, TKoppenSubType, TKoppenType } from './CellInformation/JCellClimate';
 
-import {IDrawEntry} from './Drawer/DrawerMap';
+import { IDrawEntry } from './Drawer/DrawerMap';
 import JCell from './Voronoi/JCell';
 
 
 export const heigh = (alpha: number = 1) => {
 	alpha = verifyAlpha(alpha);
 	return (c: JCell): IDrawEntry => {
-		const value: number = Math.round(c.info.height*20)/20;
+		const value: number = Math.round(c.info.height * 20) / 20;
 		let color: string = colorScale(value).alpha(alpha).hex()
 		return {
 			fillColor: color,
@@ -22,7 +22,7 @@ export const heigh = (alpha: number = 1) => {
 export const heighLand = (alpha: number = 1) => {
 	alpha = verifyAlpha(alpha);
 	return (c: JCell): IDrawEntry => {
-		const value: number = Math.round(c.info.height*20)/20;
+		const value: number = Math.round(c.info.height * 20) / 20;
 		let color: string = c.info.isLand ? colorScale(value).alpha(alpha).hex() : colorScale(0.05).alpha(alpha).hex();
 		return {
 			fillColor: color,
@@ -57,6 +57,7 @@ export const list = (alpha: number = 1) => {
 	}
 }
 
+// climate
 export const koppen = (alpha = 1) => {
 	alpha = verifyAlpha(alpha);
 	return (c: JCell) => {
@@ -71,6 +72,44 @@ export const koppen = (alpha = 1) => {
 		return {
 			fillColor: color,
 			strokeColor: color
+		}
+	}
+}
+
+export const altitudinalBelts = (alpha = 1) => {
+	alpha = verifyAlpha(alpha);
+	const colorScale = chroma.scale('Spectral').domain([6, 0]);
+	let color: string;
+	return (cell: JCell) => {
+		const ccl = cell.info.cellClimate;
+		if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
+			const AB: TAltitudinalBelt = ccl.altitudinalBelt;
+			color = colorScale(altitudinalBeltToNumber[AB]).hex();
+		}
+		else
+			color = '#FFFFFF'
+		return {
+			fillColor: color,
+			strokeColor: color,
+		}
+	}
+}
+
+export const humidityProvinces = (alpha = 1) => {
+	alpha = verifyAlpha(alpha);
+	const colorScale = chroma.scale('Spectral').domain([7, 0]);
+	let color: string;
+	return (cell: JCell) => {
+		const ccl = cell.info.cellClimate;
+		if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
+			const HP: THumidityProvinces = ccl.humidityProvince;
+			color = colorScale(humidityProvinceToNumber[HP]).hex();
+		}
+		else
+			color = '#FFFFFF'
+		return {
+			fillColor: color,
+			strokeColor: color,
 		}
 	}
 }
@@ -148,7 +187,7 @@ const verifyAlpha = (a: number): number => {
 	if (0 <= a && a <= 1) {
 		return a;
 	} else if (a < 0) {
-		return 0;		
+		return 0;
 	} else {
 		return 1;
 	}

@@ -10,7 +10,7 @@ import JVertex from "../Voronoi/JVertex";
 import JRiver, { IJRiverInfo } from "./JRiver";
 import { IJVertexFluxInfo } from "../VertexInformation/JVertexFlux";
 import { getArrayOfN } from "../utilFunctions";
-import JFluxRoute, { IJFluxRouteInfo } from "./JFluxRoute";
+import JWaterRoute, { IJWaterRouteInfo } from "./JWaterRoute";
 
 const FLUXMINRIVER = 200000;
 
@@ -20,7 +20,7 @@ export interface IJRiverMapInfo {
 
 export default class JRiverMap extends JWMap {
   
-  _fluxRoutesMap: Map<number, JFluxRoute> = new Map<number, JFluxRoute>();
+  _waterRoutesMap: Map<number, JWaterRoute> = new Map<number, JWaterRoute>();
   _rivers: Map<number, JRiver> = new Map<number, JRiver>();
 	// _fluxValuesVertices: Map<string, number> = new Map<string, number>();
 	// _fluxValuesVertices2: Map<string, IJVertexFluxInfo> = new Map<string, IJVertexFluxInfo>();
@@ -34,12 +34,12 @@ export default class JRiverMap extends JWMap {
 		// cargar datos
 		const dataInfoManager = DataInformationFilesManager.instance;
 		const fluxVerticesDataLoaded = dataInfoManager.loadVerticesFlux(this.diagram.secAreaProm);
-		const fluxRoutesDataLoaded = dataInfoManager.loadFluxRoutesInfo(this.diagram.secAreaProm);
+		const waterRoutesDataLoaded = dataInfoManager.loadWaterRoutesInfo(this.diagram.secAreaProm);
 		const riversDataLoaded = dataInfoManager.loadRiversInfo(this.diagram.secAreaProm);
 		
 		console.log(`Generating flux and water drain route`)
 		console.time(`flux and water drain route`)
-		if (fluxVerticesDataLoaded.length == 0 || fluxRoutesDataLoaded.length == 0) {
+		if (fluxVerticesDataLoaded.length == 0 || waterRoutesDataLoaded.length == 0) {
 			this.setFluxValuesAndRoads();			
 		} else {
 			// setear vertices flux data
@@ -48,9 +48,9 @@ export default class JRiverMap extends JWMap {
 				v.info.setFluxInfo(ivfi);
 			})
 			// setear flux routes
-			fluxRoutesDataLoaded.forEach((ifri: IJFluxRouteInfo) => {
-				const fr: JFluxRoute = new JFluxRoute(ifri.id, this.diagram, ifri);
-				this._fluxRoutesMap.set(fr.id, fr);
+			waterRoutesDataLoaded.forEach((iwri: IJWaterRouteInfo) => {
+				const jwr: JWaterRoute = new JWaterRoute(iwri.id, this.diagram, iwri);
+				this._waterRoutesMap.set(jwr.id, jwr);
 			})
 		}
 		console.timeEnd(`flux and water drain route`)
@@ -70,15 +70,15 @@ export default class JRiverMap extends JWMap {
 		if (fluxVerticesDataLoaded.length === 0) {
 			dataInfoManager.saveVerticesFlux(this.diagram.vertices2, this.diagram.secAreaProm);
 		}
-		if (fluxRoutesDataLoaded.length === 0) {
-			dataInfoManager.saveFluxRoutesInfo(this._fluxRoutesMap, this.diagram.secAreaProm);
+		if (waterRoutesDataLoaded.length === 0) {
+			dataInfoManager.saveWaterRoutesInfo(this._waterRoutesMap, this.diagram.secAreaProm);
 		}
 		if (riversDataLoaded.length === 0) {
 			dataInfoManager.saveRiversInfo(this._rivers, this.diagram.secAreaProm);
 		}		
 		console.timeEnd(`rivers`)
 
-		console.log('routes cant', this._fluxRoutesMap.size)
+		console.log('routes cant', this._waterRoutesMap.size)
 		console.log('rivers cant', this._rivers.size)
   }
 
@@ -111,7 +111,7 @@ export default class JRiverMap extends JWMap {
       if (!v.isMarked()) {
         id++;
 				
-        const route: JFluxRoute = new JFluxRoute(id, this.diagram);
+        const route: JWaterRoute = new JWaterRoute(id, this.diagram);
         let curr: JVertex = v;
 				let currFluxArr: number[] = getArrayOfN(12, 0);
 
@@ -124,17 +124,17 @@ export default class JRiverMap extends JWMap {
 
 						this.fluxCalcIteration(curr, currFluxArr, route);
           } else {
-            break; // el vertex es lake
+            break; // el vertex es lake?
           }
         }
-        this._fluxRoutesMap.set(id, route);
+        this._waterRoutesMap.set(id, route);
       }
     })
 
 		this.diagram.dismarkAllVertices();
 	}
 
-	private fluxCalcIteration(curr: JVertex, /*currFlux: number,*/ currFluxArr: number[], route: JFluxRoute) {
+	private fluxCalcIteration(curr: JVertex, currFluxArr: number[], route: JWaterRoute) {
 		curr.mark();
 		const vClimate = curr.info.vertexClimate;
 		const vFlux = curr.info.vertexFlux;
@@ -160,15 +160,13 @@ export default class JRiverMap extends JWMap {
 
 	private setRivers() {
 		const FLUXLIMIT = 1*this.diagram.vertices2.size/2000;
-		this._fluxRoutesMap.forEach((fluxRoute: JFluxRoute, id: number) => {
+		this._waterRoutesMap.forEach((fluxRoute: JWaterRoute, id: number) => {
 
 			let river: JRiver = new JRiver(id, this.diagram);
-			// let vertices: JVertex[] = fluxRoute.vertices;
 
 			let vertex: JVertex;
 			for (vertex of fluxRoute.vertices) {
 
-				//const vertexFlux = vertex.info.vertexFlux;
 				const medFlux: number = vertex.info.vertexFlux.annualFlux/12;
 				if ((medFlux > FLUXLIMIT || river.vertices.length > 0) && !vertex.isMarked()) {
 					river.addVertex(vertex)
