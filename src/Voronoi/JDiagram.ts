@@ -406,6 +406,4 @@ export default class JDiagram {
 		return out;
 	}
 
-	// addSubDiagram(sd: JSubDiagram) { this._subDiagram = sd }
-	// get subDiagram(): JSubDiagram { if (this._subDiagram) return this._subDiagram; throw new Error(`no tiene subdiagram associado`)}
 }

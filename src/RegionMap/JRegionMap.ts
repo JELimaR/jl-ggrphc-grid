@@ -9,6 +9,8 @@ import countriesDivision from '../divisions/countries/countriesDivision';
 import JWMap from '../JWMap';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
+import JEdge from '../Voronoi/JEdge';
+import JLine from './JLine';
 const dataFilaManager = DataInformationFilesManager.instance;
 
 export interface IJRegionInfo {
@@ -69,7 +71,7 @@ export default class JRegionMap extends JWMap  {
 		return cells;
 	}
 
-	getLimitVertices() {
+	getLimitVertices(): Map<string,JVertex[]> {
 		const verticesLimits: Map<string,JVertex> = new Map<string,JVertex>();
 		this.getLimitCells().forEach((cell: JCell) => {
 			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices2.get(p.id)!);
@@ -79,7 +81,29 @@ export default class JRegionMap extends JWMap  {
 				})
 			})
 		})
-		return verticesLimits;
+		return this.sortVerticesList([...verticesLimits.values()]);
+	}
+
+	getLimitLines(): JLine[] {
+		let out: JLine[] = [];
+
+		const verticesLimits: Map<string,JVertex> = new Map<string,JVertex>(); // map para evitar agregar el mismo vertex
+		this.getLimitCells().forEach((cell: JCell) => {
+			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices2.get(p.id)!);
+			cellVertices.forEach((v: JVertex) => {
+				this.diagram.getCellsAssociated(v).forEach((aso: JCell) => {
+					if (!this.isInRegion(aso)) verticesLimits.set(v.id, v);
+				})
+			})
+		})
+		this.sortVerticesList([...verticesLimits.values()]).forEach((verts: JVertex[]) => {
+			let line: JLine = new JLine(this.diagram);
+			verts.forEach((elem: JVertex) => {line.addVertex(elem)});
+			out.push(line)
+		})
+		if (out.length == 0) throw new Error(`en una region debe haber al menos un JLine limit`)
+		console.timeLog('convert to line')
+		return out;
 	}
 
 	// draw functions
@@ -312,6 +336,51 @@ export default class JRegionMap extends JWMap  {
 		}
 		return out;
 	}*/
+
+		// 
+	private sortVerticesList(verts: JVertex[]): Map<string, JVertex[]> {
+		let out: Map<string, JVertex[]> = new Map<string, JVertex[]>();
+		
+		let qeueMap: Map<string, JVertex> = new Map<string, JVertex>();
+		verts.forEach((v: JVertex) => qeueMap.set(v.id, v));
+
+		while (qeueMap.size > 0) {
+			
+			let [cv] = qeueMap.values();
+			qeueMap.delete(cv.id);
+			let arr: JVertex[] = [cv];
+			cv.mark();
+
+			let nqeue: JVertex[] = this.findNeigboursInArrayNotMarked(cv, qeueMap);
+			while (nqeue.length > 0) {
+				let nv = nqeue[0];
+				qeueMap.delete(nv.id);
+				arr.push(nv);
+				nv.mark();
+				nqeue = this.findNeigboursInArrayNotMarked(nv, qeueMap);
+			}
+
+			out.set(cv.id, arr);
+		}
+
+		this.diagram.dismarkAllVertices();
+		return out;
+	}
+
+	private findNeigboursInArrayNotMarked(v: JVertex, list: Map<string, JVertex>): JVertex[] {
+		let out: JVertex[] = [];
+		this.diagram.getVertexNeighbours(v).forEach((nv: JVertex) => {
+			const edgeAso: JEdge = nv.getEdgeFromNeighbour(v);
+			if (!edgeAso.rSite) {
+				throw new Error(`no esta resuelto esto aun`);
+			}
+			const isValid: boolean = 
+				(this.isInRegion(edgeAso.lSite.id) && !this.isInRegion(edgeAso.rSite.id)) 
+				||  (!this.isInRegion(edgeAso.lSite.id) && this.isInRegion(edgeAso.rSite.id))
+			if (isValid && list.has(nv.id) && !nv.isMarked()) out.push(nv)
+		})
+		return out;
+	}
 }
 
 

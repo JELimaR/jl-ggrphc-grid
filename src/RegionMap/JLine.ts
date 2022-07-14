@@ -143,4 +143,20 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 			length: this._length,
 		}
 	}
+
+	/****/
+	static sortVerticesList(verts: JVertex[]): JVertex[] {
+		let out: JVertex[] = [];
+		let qeueMap: Map<string, JVertex> = new Map<string, JVertex>();
+		verts.forEach((v: JVertex) => qeueMap.set(v.id, v));
+
+		while (qeueMap.size > 0) {
+			let [cv] = qeueMap.values();
+			qeueMap.delete(cv.id);
+			cv.mark();
+		}
+
+		verts.forEach((v: JVertex) => v.dismark());
+		return out;
+	}
 }

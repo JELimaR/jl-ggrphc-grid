@@ -28,6 +28,7 @@ import JWaterRoute from './Climate/JWaterRoute';
 import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
 import ShowClimate from './toShow/toShowClimate';
+import JLine from './RegionMap/JLine';
 
 const tam: number = 3600;
 let SIZE: JPoint = new JPoint(tam, tam / 2);
@@ -118,23 +119,26 @@ dm.saveDrawFile(`${AREA}secDiagram.png`)
 console.time('convert to line')
 dm.clear()
 world._islands.forEach((isl: JIslandMap) => {
-	dm.drawCellMap(createICellContainerFromCellArray(isl.getLimitCells()), JCellToDrawEntryFunctions.colors({
+	dm.drawCellMap(isl, JCellToDrawEntryFunctions.colors({
 		fillColor: '#001410',
 		strokeColor: '#001410'
 	}))
 
-	const points: JPoint[] = [];
-	isl.getLimitVertices().forEach((v: JVertex) => points.push(v.point));
-	color = '#B8021F'
-	dm.draw(points, {
-		fillColor: color,
-		strokeColor: color
+	color = chroma.random().hex();
+	isl.getLimitLines().forEach((limit: JLine) => {
+		const points: JPoint[] = limit.vertices.map((v: JVertex) => v.point);
+		dm.draw(points, {
+			fillColor: 'none',
+			strokeColor: color
+		})
 	})
+	console.log(`cantidad de lines limits en isla: ${isl.id}`, isl.getLimitLines().length)
 })
 dm.saveDrawFile(`${AREA}islandsLimits1.png`)
 
 
 dm.clear()
+/*
 world._islands.forEach((isl: JIslandMap) => {
 	dm.drawCellMap(createICellContainerFromCellArray(isl.getLimitCells()), JCellToDrawEntryFunctions.colors({
 		fillColor: '#001410',
@@ -149,22 +153,29 @@ world._islands.forEach((isl: JIslandMap) => {
 	});
 })
 dm.saveDrawFile(`${AREA}islandsLimits2.png`)
-
+*/
 const landReg = world._heightMap.landRegion;
 dm.clear()
-dm.drawCellMap(createICellContainerFromCellArray(landReg.getLimitCells()), JCellToDrawEntryFunctions.colors({
+dm.drawCellMap(landReg, JCellToDrawEntryFunctions.colors({
 	fillColor: '#001410',
 	strokeColor: '#001410'
 }))
-const points: JPoint[] = [];
-landReg.getLimitVertices().forEach((v: JVertex) => points.push(v.point));
-color = '#B8021F'
-dm.draw(points, {
-	fillColor: color,
-	strokeColor: color
-})
-dm.saveDrawFile(`${AREA}landLimits1.png`)
 
+color = '#B8021F'
+landReg.getLimitLines().forEach((limit: JLine) => {
+	
+	const points: JPoint[] = limit.vertices.map((v: JVertex) => v.point);
+	dm.draw(points, {
+		fillColor: 'none',
+		strokeColor: color
+	})
+	
+})
+
+console.log('cantidad de lines limits en landReg', landReg.getLimitLines().length)
+
+dm.saveDrawFile(`${AREA}landLimits1.png`)
+/*
 dm.clear()
 dm.drawCellMap(createICellContainerFromCellArray(landReg.getLimitCells()), JCellToDrawEntryFunctions.colors({
 	fillColor: '#001410',
@@ -177,7 +188,8 @@ landReg.getLimitVertices().forEach((v: JVertex) => {
 		strokeColor: color
 	}, 0.25)
 });
-
+dm.saveDrawFile(`${AREA}landLimits2.png`)
+*/
 console.timeEnd('convert to line')
 
 console.timeEnd('all')
