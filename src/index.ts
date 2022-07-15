@@ -6,8 +6,7 @@ import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions';
 import DrawerMap, { IDrawEntry } from './Drawer/DrawerMap'
 
 import JPoint from './Geom/JPoint';
-import JWorld from './JWorld';
-import { createICellContainerFromCellArray } from './JWorldMap';
+import NaturalWorld from './NaturalWorld';
 import DataInformationFilesManager from './DataInformationLoadAndSave';
 import PNGDrawsDataManager from './PNGDrawsDataManager'
 import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
@@ -75,7 +74,7 @@ console.log(dm.getPointsBuffCenterLimits());
 
 const AREA: number = 12100; // 810
 const GRAN: number = 2;
-const world: JWorld = new JWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
+const world: NaturalWorld = new NaturalWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 
 const monthArr12 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const monthArr6 = [1, 3, 5, 7, 9, 11];
@@ -115,7 +114,7 @@ dm.drawMeridianAndParallels(181,361)
 dm.saveDrawFile(`${AREA}secDiagram.png`)
 */
 // sw.drawRivers('#1112EA', 'h');
-sw.printRiverData();
+// sw.printRiverData();
 // sw.printRiverDataLongers(3000);
 // sw.printRiverDataShorters(15);
 
@@ -144,7 +143,7 @@ world._islands.forEach((isl: JIslandMap) => {
 dm.saveDrawFile(`${AREA}islandsLimits1.png`)
 */
 
-const landReg = world._heightMap.landRegion;
+// const landReg = world._heightMap.landRegion;
 dm.clear(2, new JPoint(-10, 2))
 /*
 dm.drawCellContainer(landReg, JCellToDrawEntryFunctions.colors({
@@ -179,11 +178,12 @@ landReg.getLimitLines().forEach((limit: JLine) => {
 	})
 })
 */
+/*
 dm.drawMeridianAndParallels();
 dm.saveDrawFile(`${AREA}landInter.png`)
 
 console.timeEnd('convert to line')
-
+*/
 
 
 console.timeEnd('all')

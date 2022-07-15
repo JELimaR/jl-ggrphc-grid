@@ -1,10 +1,11 @@
 import DrawerMap from "../Drawer/DrawerMap";
 import JPoint from "../Geom/JPoint";
-import JWorldMap, { createICellContainerFromCellArray } from "../JWorldMap";
+import JWorldMap, {  } from "../JWorldMap";
 import JCell from "../Voronoi/JCell";
 import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions'
 import JRegionMap from "../RegionMap/JRegionMap";
 import chroma from "chroma-js";
+import { createICellContainer } from "../utilFunctions";
 
 
 export class DivisionMaker {
@@ -22,7 +23,7 @@ export class DivisionMaker {
 		dm.drawArr(regionsArr, 0.4);
 		
 		dm.drawCellContainer(
-			createICellContainerFromCellArray(cellList),
+			createICellContainer(cellList),
 			JCellToDrawEntryFunctions.colors({
 				strokeColor: `#000000`,
 				fillColor: `#000000`

@@ -13,16 +13,7 @@ export interface ICellContainerBorrar { // borrar
 	forEachCell: (func: (c: JCell) => void) => void
 }
 
-export const createICellContainerFromCellArray = (cells: JCell[]): ICellContainer => {
-	return {
-		cells: cells,
-		forEachCell: (func: (jc: JCell) => void) => {
-			cells.forEach((c: JCell) => { func(c) })
-		}
-	}
-}
-
-export default class JWorldMap implements ICellContainerBorrar {
+export default class JWorldMap {
 
 	private _diagram: JDiagram;
 	private _islands: JIslandMap[] = [];

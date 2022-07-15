@@ -1,12 +1,12 @@
-import JWorld from "../JWorld";
+import NaturalWorld from "../NaturalWorld";
 import Shower from "./Shower";
 import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions';
-import { createICellContainerFromCellArray } from "../JWorldMap";
+
 import JCell from "../Voronoi/JCell";
 
 export default class ShowHeight extends Shower {
 
-	constructor(world: JWorld, area: number, gran: number, folderSelected: string) {
+	constructor(world: NaturalWorld, area: number, gran: number, folderSelected: string) {
 		super(world, area, gran, folderSelected, 'height');
 	}
 

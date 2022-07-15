@@ -6,7 +6,7 @@ import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
 
 import JPoint from '../Geom/JPoint';
-import JWorldMap, { createICellContainerFromCellArray } from '../JWorldMap';
+
 import JCell from '../Voronoi/JCell';
 import JRegionMap from '../RegionMap/JRegionMap';
 import JPanzoom from './JPanzoom';
