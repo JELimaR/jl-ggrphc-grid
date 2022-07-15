@@ -45,7 +45,7 @@ export default class JClimateMap extends JWMap {
 		this.setVertexInfo();
 
 		let annualMax: number = 0;
-		this.forEachCell((cell: JCell) => {
+		this.diagram.forEachCell((cell: JCell) => {
 			const ccl = cell.info.cellClimate;
 			if (ccl.koppenSubType() !== 'O' && ccl.koppenType() !== 'O') {
 				if (annualMax < ccl.annualPrecip) annualMax = ccl.annualPrecip;
@@ -106,7 +106,7 @@ export default class JClimateMap extends JWMap {
 	}
 
 	private setVertexInfo() {
-		this.forEachVertex((vertex: JVertex) => {
+		this.diagram.forEachVertex((vertex: JVertex) => {
 			let info: IJVertexClimateInfo = {
 				id: vertex.id,
 				tempMonth: getArrayOfN(12,0),

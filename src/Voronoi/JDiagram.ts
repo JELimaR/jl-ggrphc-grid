@@ -6,16 +6,16 @@ import JEdge from "./JEdge";
 import JSite from './JSite';
 import JVertex from './JVertex';
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
-// import JSubDiagram from './JSubDiagram';
-// import { IJCellInformation } from './JCellInformation';
+import { ICellContainer, IVertexContainer } from '../generalInterfaces';
+
 const dataInfoManager = DataInformationFilesManager.instance;
 
-export default class JDiagram {
+export default class JDiagram implements ICellContainer, IVertexContainer{
 	// private _diagram: Diagram;
 	private _cells: Map<number, JCell> = new Map<number, JCell>();
 	private _cells2: Map<string, JCell> = new Map<string, JCell>();
-	// private _vertices: JPoint[] = [];
-	private _vertices2: Map<string, JVertex> = new Map<string, JVertex>();
+	
+	private _vertices: Map<string, JVertex> = new Map<string, JVertex>();
 	// private _edges: JEdge[] = []; //cambiar
 
 	// private _subDiagram: JSubDiagram | undefined;
@@ -28,12 +28,10 @@ export default class JDiagram {
 
 		this.setDiagramValuesContructed(d);
 		if (ancestor) {
-			// console.log('llegue')
-			// this._ancestor = ancestor.d;
+
 			this._secAreaProm = ancestor.a;
 			
 			ancestor.s.forEach((value: { p: IPoint; cid: number; }) => {
-// 				console.log(JPoint.fromInterface(value.p), value.cid)
 				const subCell: JCell = this.getCellFromCenter(JPoint.fromInterface(value.p));
 				const ancCell: JCell = ancestor.d.cells.get(value.cid) as JCell;
 				
@@ -45,7 +43,6 @@ export default class JDiagram {
 		console.timeEnd('set JDiagram values');
 	}
 
-	// get ancestor(): JDiagram | undefined { return this._ancestor }
 	get secAreaProm(): number | undefined { return this._secAreaProm }
 
 	private setDiagramValuesContructed(d: Diagram): void {
@@ -112,7 +109,7 @@ export default class JDiagram {
 		verticesPointMap.forEach((p: JPoint) => {
 			const edges: JEdge[] = verticesEdgeMap.get(p.id) as JEdge[];
 			const jv: JVertex = new JVertex(p, edges);
-			this._vertices2.set(p.id, jv)
+			this._vertices.set(p.id, jv)
 		})
 
 		// setear cells
@@ -148,8 +145,8 @@ export default class JDiagram {
 		})
 		return out;
 	}
-	//get vertices(): JPoint[] { return this._vertices }
-	get vertices2(): Map<string, JVertex> { return this._vertices2 }
+	
+	get vertices(): Map<string, JVertex> { return this._vertices }
 	// get edges(): JEdge[] { return this._edges }
 	get cells(): Map<number, JCell> { return this._cells }
 	getCellsMapStringKey(): Map<string, JCell> {
@@ -163,7 +160,7 @@ export default class JDiagram {
 	}
 
 	forEachVertex(func: (v: JVertex) => void) {
-		this._vertices2.forEach((v: JVertex) => {
+		this._vertices.forEach((v: JVertex) => {
 			func(v);
 		})
 	}
@@ -210,7 +207,7 @@ export default class JDiagram {
 	getVertexNeighbours(v: JVertex): JVertex[] {
 		let out: JVertex[] = [];
 		for (let vid of v.neighborsId) {
-			const vn: JVertex | undefined = this._vertices2.get(vid)
+			const vn: JVertex | undefined = this._vertices.get(vid)
 			if (vn)
 				out.push(vn);
 			else
@@ -222,7 +219,7 @@ export default class JDiagram {
 	getVerticesAssociated(cell: JCell): JVertex[] {
 		let out: JVertex[] = [];
 		for (let vid of cell.verticesId) {
-			const vn: JVertex | undefined = this._vertices2.get(vid)
+			const vn: JVertex | undefined = this._vertices.get(vid)
 			if (vn)
 				out.push(vn);
 			else

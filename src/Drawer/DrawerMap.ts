@@ -6,11 +6,12 @@ import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
 
 import JPoint from '../Geom/JPoint';
-import JWorldMap, { createICellContainerFromCellArray, ICellContainer } from '../JWorldMap';
+import JWorldMap, { createICellContainerFromCellArray } from '../JWorldMap';
 import JCell from '../Voronoi/JCell';
 import JRegionMap from '../RegionMap/JRegionMap';
 import JPanzoom from './JPanzoom';
 import { inRange } from '../utilFunctions';
+import { ICellContainer } from '../generalInterfaces';
 // import { Bitmap } from 'pureimage/types/bitmap';
 // import { Context } from 'pureimage/types/context';
 
@@ -42,16 +43,13 @@ export default class DrawerMap {
 
 	// borrar
 	getPanzoom() { return this._panzoom }
-
 	get centerPoint(): JPoint {
 		return new JPoint(
 			(-this._panzoom.centerX + this._size.x / 2) / this._panzoom.scale,
 			(-this._panzoom.centerY + this._size.y / 2) / this._panzoom.scale
 		);
 	}
-	get zoomValue(): number {
-		return this._panzoom.zoom;
-	}
+	get zoomValue(): number {	return this._panzoom.zoom; }
 
 	setZoom(n: number) {
 		this._panzoom.zoom = n;
@@ -106,20 +104,6 @@ export default class DrawerMap {
 		));
 	}
 
-	drawCellMap(cc: ICellContainer, func: (c: JCell) => IDrawEntry): void {
-		const polContainer = turf.polygon(
-			[this.getPointsBuffDrawLimits().map((p: JPoint) => {
-				return p.toTurfPosition()
-			})]
-		);
-		cc.forEachCell((c: JCell) => {
-			if (!turf.booleanDisjoint(polContainer, c.toTurfPolygonSimple())) {
-				const points: JPoint[] = (this.zoomValue < 8) ? c.voronoiVertices : c.allVertices;
-				this.draw(points, func(c));
-			}
-		});
-	}
-
 	calculatePanzoomForReg(reg: JRegionMap) {
 		const auxPZ: JPanzoom = new JPanzoom(this._size);
 		let ok: boolean = true;
@@ -138,6 +122,21 @@ export default class DrawerMap {
 			center: datDM.center
 		}
 	}
+	
+	drawCellMap(cc: ICellContainer, func: (c: JCell) => IDrawEntry): void {
+		const polContainer = turf.polygon(
+			[this.getPointsBuffDrawLimits().map((p: JPoint) => {
+				return p.toTurfPosition()
+			})]
+		);
+		cc.forEachCell((c: JCell) => {
+			if (!turf.booleanDisjoint(polContainer, c.toTurfPolygonSimple())) {
+				const points: JPoint[] = (this.zoomValue < 8) ? c.voronoiVertices : c.allVertices;
+				this.draw(points, func(c));
+			}
+		});
+	}
+
 
 	drawMeridianAndParallels(cantMer: number = 19, cantPar: number = 37) {
 		// meridianos

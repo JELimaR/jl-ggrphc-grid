@@ -85,7 +85,7 @@ const sc = new ShowClimate(world, AREA, GRAN, folderSelected);
 const sw = new ShowWater(world, AREA, GRAN, folderSelected);
 
 
-sh.drawHeight();
+// sh.drawHeight();
 // sh.printMaxAndMinCellsHeight();
 
 /******************** climate map ********************/
@@ -113,8 +113,10 @@ dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 dm.drawMeridianAndParallels(181,361)
 dm.saveDrawFile(`${AREA}secDiagram.png`)
 */
-sw.drawRivers('random', 'h');
-sw.printRiverDataLongers(2500);
+// sw.drawRivers('#1112EA', 'h');
+sw.printRiverData();
+sw.printRiverDataLongers(3000);
+sw.printRiverDataShorters(15);
 
 
 sh.drawIslands();

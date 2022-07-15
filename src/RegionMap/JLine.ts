@@ -1,4 +1,4 @@
-import JWorldMap, { ICellContainer } from '../JWorldMap';
+
 import JCell from '../Voronoi/JCell';
 import JPoint from '../Geom/JPoint';
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
@@ -7,6 +7,7 @@ import JWMap from '../JWMap';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
+import { IDiagramContainer, IVertexContainer } from '../generalInterfaces';
 const dataFilaManager = DataInformationFilesManager.instance;
 
 
@@ -16,17 +17,18 @@ export interface IJLineInfo {
 	length: number;
 }
 
-export default class JLine extends JWMap {
+export default class JLine implements IDiagramContainer, IVertexContainer {
 
+	private _diagram: JDiagram;
 	private _vertices: JVertex[];
 	private _allVertices: JPoint[] = [];
 	
 	private _length: number;
 	
 	constructor(diagram: JDiagram, info?: IJLineInfo) {
-		super(diagram);
+		this._diagram = diagram;;
 		if (info) {
-			this._vertices = info.vertices.map((vid: string) => this.diagram.vertices2.get(vid) as JVertex); // ojo, podría no estar ordenado.
+			this._vertices = info.vertices.map((vid: string) => this.diagram.vertices.get(vid) as JVertex); // ojo, podría no estar ordenado.
 			this._length = info.length;
 		} else {
 			this._vertices = [];
@@ -34,6 +36,7 @@ export default class JLine extends JWMap {
 		}
 	}
 
+	get diagram(): JDiagram {return this._diagram}
 	get vertices(): JVertex[] { return this._vertices }
 	get length(): number { 
 		if (this._length == -1) {
@@ -76,9 +79,9 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		return out;
 	}
 
-	forEachCell(func: (c: JCell) => void) { // hacer mejor esto
-		throw new Error(`No tiene sentido recorrer las cells de un JLineMap`);
-	}
+	// forEachCell(func: (c: JCell) => void) { // hacer mejor esto
+	// 	throw new Error(`No tiene sentido recorrer las cells de un JLineMap`);
+	// }
 
 	forEachVertex(func: (vertex: JVertex) => void) {
 		this._vertices.forEach((v: JVertex) => func(v));
@@ -89,7 +92,7 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		if (en instanceof JVertex) {
 			vertex = en;
 		} else {
-			vertex = this.diagram.vertices2.get(en) as JVertex;
+			vertex = this.diagram.vertices.get(en) as JVertex;
 		}
 		return this._vertices.includes(vertex);
 	}

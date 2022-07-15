@@ -1,4 +1,4 @@
-import JWorldMap, { ICellContainer } from '../JWorldMap';
+import JWorldMap, {  } from '../JWorldMap';
 import JCell from '../Voronoi/JCell';
 import JPoint from '../Geom/JPoint';
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
@@ -11,6 +11,7 @@ import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
 import JLine from './JLine';
+import { IDiagramContainer, ICellContainer } from '../generalInterfaces';
 const dataFilaManager = DataInformationFilesManager.instance;
 
 export interface IJRegionInfo {
@@ -25,14 +26,16 @@ export interface IJRegionTreeNode {
 	region: JRegionMap;
 }
 */
-export default class JRegionMap extends JWMap  {
+export default class JRegionMap implements IDiagramContainer, ICellContainer {
+
+	private _diagram: JDiagram;
 	private _cells: Map<number, JCell>;
 	private _neighborList: Set<number>;
 	private _limitCellList: Set<number>;
 	private _area: number;
 
 	constructor(diag: JDiagram, info?: IJRegionInfo) {
-		super(diag)
+		this._diagram = diag;
 		if (info) {
 			this._cells = new Map<number, JCell>();
 			info.cells.forEach((id: number) => {
@@ -49,15 +52,12 @@ export default class JRegionMap extends JWMap  {
 		}
 	}
 
+	get diagram(): JDiagram { return this._diagram }
 	get area(): number { return this._area;	}
 	get cells(): Map<number, JCell> {return this._cells}
 	
 	forEachCell(func: (c: JCell) => void) {
 		this._cells.forEach((cell: JCell) => func(cell));
-	}
-
-	forEachVertex(func: (v: JVertex) => void) {
-		throw new Error(`No tiene sentido recorrer los vertices de un JRegionMap`)
 	}
 
 	// get world(): JWorldMap { return this._world}
@@ -74,7 +74,7 @@ export default class JRegionMap extends JWMap  {
 	getLimitVertices(): Map<string,JVertex[]> {
 		const verticesLimits: Map<string,JVertex> = new Map<string,JVertex>();
 		this.getLimitCells().forEach((cell: JCell) => {
-			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices2.get(p.id)!);
+			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices.get(p.id)!);
 			cellVertices.forEach((v: JVertex) => {
 				this.diagram.getCellsAssociated(v).forEach((aso: JCell) => {
 					if (!this.isInRegion(aso)) verticesLimits.set(v.id, v);
@@ -89,7 +89,7 @@ export default class JRegionMap extends JWMap  {
 
 		const verticesLimits: Map<string,JVertex> = new Map<string,JVertex>(); // map para evitar agregar el mismo vertex
 		this.getLimitCells().forEach((cell: JCell) => {
-			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices2.get(p.id)!);
+			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices.get(p.id)!);
 			cellVertices.forEach((v: JVertex) => {
 				this.diagram.getCellsAssociated(v).forEach((aso: JCell) => {
 					if (!this.isInRegion(aso)) verticesLimits.set(v.id, v);

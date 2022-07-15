@@ -5,9 +5,10 @@ import JPoint from "./Geom/JPoint";
 import JRegionMap, { IJContinentInfo, IJIslandInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/JRegionMap';
 
 import DataInformationFilesManager from './DataInformationLoadAndSave';
+import { ICellContainer } from "./generalInterfaces";
 const dataInfoManager = DataInformationFilesManager.instance;
 
-export interface ICellContainer { // borrar
+export interface ICellContainerBorrar { // borrar
 	cells?: JCell[] | Set<JCell> | Map<number, JCell>;
 	forEachCell: (func: (c: JCell) => void) => void
 }
@@ -21,7 +22,7 @@ export const createICellContainerFromCellArray = (cells: JCell[]): ICellContaine
 	}
 }
 
-export default class JWorldMap implements ICellContainer {
+export default class JWorldMap implements ICellContainerBorrar {
 
 	private _diagram: JDiagram;
 	private _islands: JIslandMap[] = [];

@@ -41,7 +41,7 @@ export default class JHeightMap extends JWMap {
 				loadedHeightInfo = this.getCellsData();
 			}
 		}
-		this.forEachCell((cell: JCell) => {
+		this.diagram.forEachCell((cell: JCell) => {
 			const hinf: IJCellHeightInfo = loadedHeightInfo[cell.id];
 			cell.info.setHeightInfo(hinf);
 		})
@@ -68,8 +68,8 @@ export default class JHeightMap extends JWMap {
 		}
 
 		loadedVertexInfo.forEach((info: IJVertexHeightInfo) => {
-			const vertex: JVertex = this.diagram.vertices2.get(info.id) as JVertex;
-			if (!vertex) console.log(this.diagram.vertices2.size)
+			const vertex: JVertex = this.diagram.vertices.get(info.id) as JVertex;
+			if (!vertex) console.log(this.diagram.vertices.size)
 			vertex.info.setHeightInfo(info);
 		})
 
@@ -80,7 +80,7 @@ export default class JHeightMap extends JWMap {
 			this.resolveVertexDepressions();
 			console.timeEnd(`${a ? 's' : 'p'}-resolve vertices depressions`)
 			
-			dataInfoManager.saveVerticesHeigth(this.diagram.vertices2, this.diagram.secAreaProm);
+			dataInfoManager.saveVerticesHeigth(this.diagram.vertices, this.diagram.secAreaProm);
 		}
 
 		console.timeEnd(`${a ? 's' : 'p'}-set height info`);
@@ -182,7 +182,7 @@ export default class JHeightMap extends JWMap {
 
 	private resolveVertexDepressions() {
 		let verticesArr: JVertex[] = [];
-		this.forEachVertex((v: JVertex) => {
+		this.diagram.forEachVertex((v: JVertex) => {
 			if (v.info.vertexHeight.heightType == 'land') {
 				verticesArr.push(v);
 			}
@@ -232,7 +232,7 @@ export default class JHeightMap extends JWMap {
 
 	private resolveCellsDepressions() {
 		let cellArr: JCell[] = [];
-		this.forEachCell((c: JCell) => {
+		this.diagram.forEachCell((c: JCell) => {
 			if (c.info.cellHeight.heightType === 'land') {
 				cellArr.push(c);
 			}
@@ -308,7 +308,7 @@ export default class JHeightMap extends JWMap {
 	}
 
 	private smootData() {
-		this.forEachCell((c: JCell) => {
+		this.diagram.forEachCell((c: JCell) => {
 			c.mark();
 			let h: number = 0, cant = 0;
 			this.diagram.getCellNeighbours(c).forEach((n: JCell) => {

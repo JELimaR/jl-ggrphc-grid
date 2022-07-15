@@ -3,7 +3,6 @@ import JDiagram from './Voronoi/JDiagram';
 import JHeightMap from './heightmap/JHeightMap';
 // import JTempMap from './heightmap/JTempMap';
 import JGrid from './Geom/JGrid';
-import { ICellContainer } from './JWorldMap';
 import JCell from './Voronoi/JCell';
 import JClimateMap from './Climate/JClimateMap';
 import JRiverMap from './Climate/JRiverMap';
@@ -126,16 +125,17 @@ export default class JWorld {
 	}
 	
 	private createInitialVoronoiDiagram(): JDiagram {
-		console.log('init voronoi');
+		console.log('-----init voronoi-------');
 		console.time('primary voronoi');
 		const iniDiagram: JDiagram = VoronoiDiagramCreator.createDiagram();
 		console.timeEnd('primary voronoi');
 		return iniDiagram;
 	}
 	private createPrincipalVoronoiDiagram(initialDiagram: JDiagram, AREA: number): JDiagram {
-		console.time('secondary voronoi');
+		console.log('-----second voronoi-------');
+		console.time('second voronoi');
 		const diagram: JDiagram = VoronoiDiagramCreator.createSubDiagram(initialDiagram, AREA);
-		console.timeEnd('secondary voronoi');
+		console.timeEnd('second voronoi');
 		return diagram;
 	}
 	private createGrid(diagram: JDiagram, GRAN: number): JGrid {

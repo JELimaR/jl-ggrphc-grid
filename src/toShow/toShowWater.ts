@@ -18,6 +18,7 @@ import JRiverMap from '../Climate/JRiverMap';
 import JRiver, {  } from '../Climate/JRiver';
 import JWaterRoute from '../Climate/JWaterRoute';
 import Shower from './Shower';
+import { switchCase } from '@babel/types';
 
 let colorScale: chroma.Scale;
 let color: string;
@@ -108,17 +109,20 @@ export default class ShowWater extends Shower {
 		super(world, area, gran, folderSelected, 'river');
 	}
 
-	drawRivers(colorType: 'blue' | 'black' | 'random', backGround: 'h') { // crear el JCellToDrawEntryFunction
+	drawRivers(color: string | 'random', backGround: 'h') { // crear el JCellToDrawEntryFunction
 		this.d.clear();
 		// fondo
-		if (backGround == 'h') {
-			this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
+		switch (backGround) {
+			case 'h':
+				this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
+				break;
+			default:
+				this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.land(1));
 		}
 
 		// rivers
 		this.w.riverMap._rivers.forEach((river: JRiver) => {
-			color = '#0000E1';
-			color = chroma.random().hex();
+			color = (color == 'random') ? chroma.random().hex() : color;			
 			const points: JPoint[] = river.vertices.map((vertex: JVertex) => vertex.point)
 			this.d.draw(points, {
 				fillColor: 'none',
@@ -126,9 +130,44 @@ export default class ShowWater extends Shower {
 				dashPattern: [1, 0]
 			})
 		})
+		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}rivers.png`)
 	}
 
+	drawWaterRoutes(color: string | 'random', background: 'h') { // crear el JCellToDrawEntryFunction
+		this.d.clear();
+		// fondo
+		this.drawFondo(background);
+
+		// rivers
+		this.w.riverMap._waterRoutesMap.forEach((waterRoute: JWaterRoute) => {			
+			color = (color == 'random') ? chroma.random().hex() : color;			
+			const points: JPoint[] = waterRoute.vertices.map((vertex: JVertex) => vertex.point)
+			this.d.draw(points, {
+				fillColor: 'none',
+				strokeColor: color,
+				dashPattern: [1, 0]
+			})
+		})
+		this.d.drawMeridianAndParallels();
+		this.d.saveDrawFile(`${this.a}waterRoute.png`)
+	}
+
+	private drawFondo(background: 'h') {
+		switch (background) {
+			case 'h':
+				this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
+				break;
+			default:
+				this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.land(1));
+		}
+	}
+
+	printRiverData() {
+		this.printSeparator();
+		console.log('total water route cant', this.w.riverMap._waterRoutesMap.size)
+		console.log('total river cant', this.w.riverMap._rivers.size)
+	}
 	printRiverDataLongers(minL: number) {
 		this.printSeparator();
 		const riverSorted: JRiver[] = this.w.riverMap.riverLengthSorted;
@@ -138,6 +177,7 @@ export default class ShowWater extends Shower {
 			curr = riverSorted[cant]
 			cant++;
 		}
+		cant--;
 		console.log(`rivers longer than ${minL} km`, cant);
 		
 		const arr = [];
@@ -163,21 +203,21 @@ export default class ShowWater extends Shower {
 		const riverSorted: JRiver[] = this.w.riverMap.riverLengthSorted;
 		let cant: number = 0;
 		let curr: JRiver = riverSorted[0];
-		while (curr.length < maxL && cant < riverSorted.length) {
+		while (curr.length > maxL && cant < riverSorted.length) {
 			curr = riverSorted[cant]
 			cant++;
 		}
-		console.log(`rivers shorter than ${maxL} km`, cant);
+		console.log(`rivers shorter than ${maxL} km`, riverSorted.length - cant);
 		
 		const arr = [];
-		for (let i = 0; i<cant;i++) {
+		for (let i = cant; i < riverSorted.length;i++) {
 			const rs: JRiver = riverSorted[i];
 			const rlength = rs.vertices.length;
 			const ini: IPoint = rs.vertices[0].point.getInterface();
 			const fin: IPoint = rs.vertices[rlength-1].point.getInterface();
 			arr.push({
 				riverId: rs.id,
-				len: Math.round(rs.length),
+				len: Math.round(100*rs.length)/100,
 				verts: rs.vertices.length,
 				ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
 				fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
