@@ -92,9 +92,9 @@ export default class JHeightMap extends JWMap {
 			console.log('calculate and setting island')
 			console.time(`set Islands`);
 			
-			let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
-			if (regionInfoArr.length > 0) {
-				regionInfoArr.forEach((iii: IJIslandInfo, i: number) => {
+			let islandInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
+			if (islandInfoArr.length > 0) {
+				islandInfoArr.forEach((iii: IJIslandInfo, i: number) => {
 					this._islands.push(
 						new JIslandMap(i, this.diagram, iii)
 					);
@@ -104,7 +104,7 @@ export default class JHeightMap extends JWMap {
 			}
 			// guardar info
 			
-			if (regionInfoArr.length === 0) {
+			if (islandInfoArr.length === 0) {
 				dataInfoManager.saveIslandsInfo(this._islands, this.diagram.secAreaProm);
 			}
 			console.timeEnd(`set Islands`);
@@ -276,7 +276,6 @@ export default class JHeightMap extends JWMap {
 	}
 
 	private setOceanTypeCell() {
-		// this.diagram.dismarkAllCells();
 		const initCell = this.diagram.getCellFromPoint(new JPoint(-180, 0));
 		if (initCell.info.height > 0.2) throw new Error('en initCell de ocean type');
 
@@ -318,6 +317,8 @@ export default class JHeightMap extends JWMap {
 			})
 			c.info.height = 0.5 * h / cant + 0.5 * c.info.height;
 		})
+		
+		this.diagram.dismarkAllCells();
 	}
 
 	/***************************************************************************** */
@@ -344,41 +345,40 @@ export default class JHeightMap extends JWMap {
 		while (lista.size > 0) {
 			currentId++;
 			const cell: JCell = lista.entries().next().value[1];
-			cell.mark();
-			lista.delete(cell.id);
+			// cell.mark();
+			// lista.delete(cell.id);
 
-			let reg: JIslandMap = new JIslandMap(currentId, this.diagram);
-			reg.addCell(cell);
-			cell.info.islandId = reg.id; // nuevo
+			let isl: JIslandMap = new JIslandMap(currentId, this.diagram);
+			// isl.addCell(cell);
+			// cell.info.islandId = isl.id; // nuevo
 
-			let qeue: Map<number, JCell> = new Map<number, JCell>();
-			this.diagram.getCellNeighbours(cell).forEach((ncell: JCell) => {
-				qeue.set(ncell.id, ncell)
-			});
+			let nqeue: Map<number, JCell> = new Map<number, JCell>();
+			// this.diagram.getCellNeighbours(cell).forEach((ncell: JCell) => nqeue.set(ncell.id, ncell) );
+			nqeue.set(cell.id, cell)
 
 			console.log('island:', currentId);
 			let times: number = 0;
-			while (qeue.size > 0 && times < this.diagram.cells.size) {
+			while (nqeue.size > 0 && times < this.diagram.cells.size) {
 				times++;
-				const neigh: JCell = qeue.entries().next().value[1];
-				qeue.delete(neigh.id);
+				const neigh: JCell = nqeue.entries().next().value[1];
+				nqeue.delete(neigh.id);
 				lista.delete(neigh.id);
 				neigh.mark();
-				reg.addCell(neigh);
-				neigh.info.islandId = reg.id; // nuevo
+				isl.addCell(neigh);
+				neigh.info.islandId = isl.id; // nuevo
 
 				this.diagram.getCellNeighbours(neigh).forEach((nnn: JCell) => {
-					if (nnn.info.isLand && !nnn.isMarked() && !qeue.has(nnn.id)) {
-						qeue.set(nnn.id, nnn);
+					if (nnn.info.isLand && !nnn.isMarked() && !nqeue.has(nnn.id)) {
+						nqeue.set(nnn.id, nnn);
 					}
 				})
-				if (reg.cells.size % 10000 == 0) console.log('island:', currentId, `hay ${reg.cells.size}`)
+				if (isl.cells.size % 10000 == 0) console.log('island:', currentId, `hay ${isl.cells.size}`)
 			}
 
-			if (qeue.size > 0) throw new Error(`se supero el numero de cells: ${this.diagram.cells.size} en generateIslandList`)
-			console.log('area:', reg.area.toLocaleString('de-DE'));
+			if (nqeue.size > 0) throw new Error(`se supero el numero de cells: ${this.diagram.cells.size} en generateIslandList`)
+			console.log('area:', isl.area.toLocaleString('de-DE'));
 			console.timeLog(`set Islands`);
-			this._islands.push(reg);
+			this._islands.push(isl);
 		}
 		// ordenar
 		console.log(`sorting island`)

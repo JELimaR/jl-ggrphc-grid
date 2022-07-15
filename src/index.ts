@@ -90,12 +90,12 @@ sh.drawHeight();
 
 /******************** climate map ********************/
 // for (let month of monthArr12) {	sc.drawTempMonth(month); }
-sc.drawTempMedia()
+// sc.drawTempMedia()
 // for (let month of monthArr12) {	sc.drawPrecipMonth(month); }
 // sc.drawPrecipMedia()
 
 // sc.drawKoppen();
-sc.printKoppenData();
+// sc.printKoppenData();
 
 /**
  * LIFE ZONES
