@@ -15,7 +15,7 @@ import { DivisionMaker } from './divisions/DivisionMaker';
 
 
 import statesPointsLists from './divisions/countries/statesPointsLists';
-import { JIslandMap } from './RegionMap/JRegionMap';
+import JRegionMap, { JIslandMap } from './RegionMap/JRegionMap';
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import chroma from 'chroma-js';
@@ -142,38 +142,48 @@ world._islands.forEach((isl: JIslandMap) => {
 	console.log(`cantidad de lines limits en isla: ${isl.id}`, isl.getLimitLines().length)
 })
 dm.saveDrawFile(`${AREA}islandsLimits1.png`)
-
 */
 
 const landReg = world._heightMap.landRegion;
-dm.clear(9, new JPoint(-10, 2))
+dm.clear(2, new JPoint(-10, 2))
+/*
 dm.drawCellContainer(landReg, JCellToDrawEntryFunctions.colors({
 	fillColor: '#00141042',
 	strokeColor: '#001410'
 }))
-
-color = '#B8021F'
+*/
+/*
+console.log(JRegionMap.existIntersection(landReg, world._islands[0]))
+const inter: JRegionMap = JRegionMap.intersect(landReg,world._islands[0] )
+dm.drawCellContainer(inter, JCellToDrawEntryFunctions.colors({
+	fillColor: '#00141042',
+	strokeColor: '#001410'
+}))
+*/
 /*
 landReg.getLimitLines().forEach((limit: JLine) => {
-	
-	const points: JPoint[] = limit.vertices.map((v: JVertex) => v.point);
-	dm.draw(points, {
-		fillColor: 'none',
-		strokeColor: color
+	dm.drawVertexContainer(limit, {
+		fillColor: '#00141042',
+		strokeColor: '#001410'
 	})
-	
+})
+color = '#B8021F'
+
+landReg.getLimitLines().forEach((limit: JLine) => {
+	color = chroma.random().hex();
+	dm.drawEdgeContainer(limit, (edge: JEdge) => {
+		return {
+			fillColor: 'none',
+			strokeColor: color
+		}
+	})
 })
 */
-dm.drawVertexContainer(landReg.getLimitLines()[0], (edge: JEdge) => {
-	return {
-		fillColor: 'none',
-		strokeColor: color
-	}
-})
-console.log('cantidad de lines limits en landReg', landReg.getLimitLines().length)
-
-dm.saveDrawFile(`${AREA}landLimits1.png`)
+dm.drawMeridianAndParallels();
+dm.saveDrawFile(`${AREA}landInter.png`)
 
 console.timeEnd('convert to line')
+
+
 
 console.timeEnd('all')

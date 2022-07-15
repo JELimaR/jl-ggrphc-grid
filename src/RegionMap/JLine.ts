@@ -7,7 +7,7 @@ import JWMap from '../JWMap';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
-import { IDiagramContainer, IVertexContainer } from '../generalInterfaces';
+import { IDiagramContainer, IEdgeContainer, IVertexContainer } from '../generalInterfaces';
 const dataFilaManager = DataInformationFilesManager.instance;
 
 
@@ -17,13 +17,14 @@ export interface IJLineInfo {
 	length: number;
 }
 
-export default class JLine implements IDiagramContainer, IVertexContainer {
+export default class JLine implements IDiagramContainer, IVertexContainer, IEdgeContainer {
 
 	private _diagram: JDiagram;
 	private _vertices: JVertex[];
 	private _allVertices: JPoint[] = [];
 	
 	private _length: number;
+	private _isClosed: boolean = false;
 	
 	constructor(diagram: JDiagram, info?: IJLineInfo) {
 		this._diagram = diagram;;
@@ -37,13 +38,15 @@ export default class JLine implements IDiagramContainer, IVertexContainer {
 	}
 
 	get diagram(): JDiagram {return this._diagram}
-	get vertices(): JVertex[] { return this._vertices }
+	get vertices(): JVertex[] { return this._isClosed ? [...this._vertices, this._vertices[0]] : this._vertices }
 	get length(): number { 
 		if (this._length == -1) {
 			this._length = this.calcLength();
 		}
 		return this._length
 	}
+
+	close() {this._isClosed = true;}
 
 	getVerticesSince(v: JVertex): JVertex[] { // aun no probado
 		let out: JVertex[] = [];
@@ -102,6 +105,9 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 	}
 
 	addVertex(vertex: JVertex) {
+		if (this._isClosed) {
+			throw new Error(`no se puede agregar un nuevo vertex a este LineMap por esta cerrado`);
+		}
 		const cant: number = this._vertices.length;
 		if (cant == 0) {
 			this._vertices.push(vertex);

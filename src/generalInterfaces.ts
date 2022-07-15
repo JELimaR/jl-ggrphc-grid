@@ -11,6 +11,12 @@ export interface ICellContainer {
 export interface IVertexContainer {
 	vertices: JVertex[] | Map<string, JVertex>;
 	forEachVertex: (func: (vertex: JVertex) => void) => void;
+	// forEachEdge: (func: (edge: JEdge) => void) => void;
+}
+
+export interface IEdgeContainer {
+	// edges: JEdge[] | Map<string, JEdge>;
+	// forEachVertex: (func: (vertex: JVertex) => void) => void;
 	forEachEdge: (func: (edge: JEdge) => void) => void;
 }
 

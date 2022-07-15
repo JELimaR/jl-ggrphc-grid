@@ -139,7 +139,7 @@ export default class JWorld {
 		return diagram;
 	}
 	private createGrid(diagram: JDiagram, GRAN: number): JGrid {
-		console.log('init grid');
+		console.log('-----init grid------');
 		console.time('grid');
 		const grid: JGrid = new JGrid(GRAN, diagram);
 		console.timeEnd('grid');

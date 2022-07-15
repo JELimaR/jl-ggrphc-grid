@@ -11,7 +11,7 @@ import JCell from '../Voronoi/JCell';
 import JRegionMap from '../RegionMap/JRegionMap';
 import JPanzoom from './JPanzoom';
 import { inRange } from '../utilFunctions';
-import { ICellContainer, IVertexContainer } from '../generalInterfaces';
+import { ICellContainer, IEdgeContainer, IVertexContainer } from '../generalInterfaces';
 import JVertex from '../Voronoi/JVertex';
 import JLine from '../RegionMap/JLine';
 import JEdge from '../Voronoi/JEdge';
@@ -142,21 +142,30 @@ export default class DrawerMap {
 		});
 	}
 
-	drawVertexContainer(vc: IVertexContainer, func: (e: JEdge) => IDrawEntry) { // solo la linea abierta
+	drawEdgeContainer(vc: IEdgeContainer, func: (e: JEdge) => IDrawEntry) {
 		const polContainer = this.getPolygonContainer();
-/*
+		vc.forEachEdge((edge: JEdge) => {
+			if (!turf.booleanDisjoint(polContainer, edge.toTurfLineString())) {
+				const points: JPoint[] = (this.zoomValue < 8) ? [edge.vertexA, edge.vertexB] : edge.points;
+				this.draw(points, {...func(edge), fillColor: 'none'});					
+			}
+		})
+	}
+
+	drawVertexContainer(vc: IVertexContainer, vde: /*func: (v: JVertex) =>*/ IDrawEntry) { 
+		const polContainer = this.getPolygonContainer();
+
 		let lsin: turf.Position[] = [];
 		vc.forEachVertex((v: JVertex) => lsin.push(v.point.toTurfPosition()));
 		const lineString: turf.Feature<turf.LineString> = turf.lineString(lsin);
-		*/
-		// if (!turf.booleanDisjoint(polContainer, lineString)) {
-			vc.forEachEdge((edge: JEdge) => {
-				if (!turf.booleanDisjoint(polContainer, edge.toTurfLineString())) {
-					const points: JPoint[] = (this.zoomValue < 8) ? [edge.vertexA, edge.vertexB] : edge.points;
-					this.draw(points, {...func(edge), fillColor: 'none'});					
-				}
-			})
-		// }
+		
+		if (!turf.booleanDisjoint(polContainer, lineString)) {
+			const points: JPoint[] = [];
+			if(this.zoomValue < 8) {
+				vc.forEachVertex((v: JVertex) => points.push(v.point));
+			}
+			this.draw(points, vde);
+		}
 	}
 
 

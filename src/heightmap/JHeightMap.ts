@@ -275,6 +275,7 @@ export default class JHeightMap extends JWMap {
 		return out;
 	}
 
+
 	private setOceanTypeCell() {
 		const initCell = this.diagram.getCellFromPoint(new JPoint(-180, 0));
 		if (initCell.info.height > 0.2) throw new Error('en initCell de ocean type');
@@ -307,6 +308,20 @@ export default class JHeightMap extends JWMap {
 		})
 	}
 
+	/*private*/ getOceanCoastCell() {
+		let out: JCell[] = [];
+		this._islands.forEach((isl: JIslandMap) => {
+			let add: boolean = false;
+			isl.getLimitCells().forEach((c: JCell) => {
+				this.diagram.getCellNeighbours(c).forEach((nc: JCell) => {
+					add = add || nc.info.cellHeight.heightType === 'ocean';
+				})
+				if (add) out.push(c);
+			})
+		})
+		return out;
+	}
+	
 	private smootData() {
 		this.diagram.forEachCell((c: JCell) => {
 			c.mark();

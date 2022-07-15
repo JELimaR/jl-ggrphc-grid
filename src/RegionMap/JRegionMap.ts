@@ -60,8 +60,6 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		this._cells.forEach((cell: JCell) => func(cell));
 	}
 
-	// get world(): JWorldMap { return this._world}
-
 	getLimitCells(): JCell[] {
 		let cells: JCell[] = [];
 		this._limitCellList.forEach((value: number) => {
@@ -69,19 +67,6 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 			if (c) cells.push(c);
 		})
 		return cells;
-	}
-
-	getLimitVertices(): Map<string,JVertex[]> {
-		const verticesLimits: Map<string,JVertex> = new Map<string,JVertex>();
-		this.getLimitCells().forEach((cell: JCell) => {
-			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices.get(p.id)!);
-			cellVertices.forEach((v: JVertex) => {
-				this.diagram.getCellsAssociated(v).forEach((aso: JCell) => {
-					if (!this.isInRegion(aso)) verticesLimits.set(v.id, v);
-				})
-			})
-		})
-		return this.sortVerticesList([...verticesLimits.values()]);
 	}
 
 	getLimitLines(): JLine[] {
@@ -99,6 +84,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		this.sortVerticesList([...verticesLimits.values()]).forEach((verts: JVertex[]) => {
 			let line: JLine = new JLine(this.diagram);
 			verts.forEach((elem: JVertex) => {line.addVertex(elem)});
+			line.close()
 			out.push(line)
 		})
 		if (out.length == 0) throw new Error(`en una region debe haber al menos un JLine limit`)
@@ -128,10 +114,10 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		this._limitCellList.forEach((cellId: number) => {
 			const cell = this._cells.get(cellId);
 			if (cell) {
-				const ni = cell.neighborsId;
+				const neighbours = cell.neighborsId;
 				let islimit: boolean = false;
-				for (let i = 0; i < ni.length && !islimit; i++) {
-					if (!this.isInRegion(ni[i])) {
+				for (let i = 0; i < neighbours.length && !islimit; i++) {
+					if (!this.isInRegion(neighbours[i])) {
 						islimit = true;
 					}
 				}
@@ -142,7 +128,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		})
 	}
 
-	isInRegion(en: number | JCell): boolean {
+	isInRegion(en: number | JCell): boolean { // borrar
 		const id: number = (en instanceof JCell) ? en.id : en;
 		return this._cells.has(id);
 	}
@@ -167,15 +153,15 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 	}
 
 	addRegion(reg: JRegionMap): void {
-		let isDisjunt: boolean = true;
+		let areDisjoint: boolean = true;
 		reg.forEachCell((c: JCell) => {
 			if (!this.isInRegion(c.id)) {
 				this._cells.set(c.id, c);
 			} else {
-				isDisjunt = false;
+				areDisjoint = false;
 			}
 		})
-		if (isDisjunt) {
+		if (areDisjoint) {
 			this._area += reg._area;
 		} else {
 			this._area = 0;
@@ -316,26 +302,37 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		})
 		return out;
 	}
-/*
-	static intersect(reg1: JRegionMap, reg2: JRegionMap): JRegionMap {
-		let out: JRegionMap = new JRegionMap(reg1._world);
-		reg1._cells.forEach((c1: JCell) => {
-			if (reg2.isInRegion(c1)) {
-				out.addCell(c1);
-			}
-		})
+
+	static intersect<R extends JRegionMap>(reg1: JRegionMap, reg2: JRegionMap): JRegionMap {
+		let out: JRegionMap = new JRegionMap(reg1.diagram);
+		if (reg1.cells.size < reg2.cells.size) {
+			reg1.forEachCell((c1: JCell) => {
+				if (JRegionMap.isInRegion(c1, reg2))
+					out.addCell(c1);
+			})
+		} else {
+			reg2.forEachCell((c2: JCell) => {
+				if (JRegionMap.isInRegion(c2, reg1))
+					out.addCell(c2);
+			})
+		}
 		return out;
 	}
 
-	static existIntersect(reg1: JRegionMap, reg2: JRegionMap): boolean {
+	static existIntersection(reg1: JRegionMap, reg2: JRegionMap): boolean {
 		let out: boolean = false;
 		let it = reg1._cells.values();
-		for (let i=0; i<reg1._cells.size && !out ; i++ ) {
-			const c1: JCell = it.next();
-			out = reg2.isInRegion(c1);
+		for (let i=0; i < reg1._cells.size && !out ; i++ ) {
+			const c1: JCell = it.next().value;
+			out = JRegionMap.isInRegion(c1, reg2);
 		}
 		return out;
-	}*/
+	}
+
+	static isInRegion(en: number | JCell, reg: JRegionMap): boolean { // borrar
+		const id: number = (en instanceof JCell) ? en.id : en;
+		return reg.cells.has(id);
+	}
 
 		// 
 	private sortVerticesList(verts: JVertex[]): Map<string, JVertex[]> {
