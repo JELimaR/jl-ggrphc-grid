@@ -21,7 +21,7 @@ export class DivisionMaker {
 
 		dm.drawArr(regionsArr, 0.4);
 		
-		dm.drawCellMap(
+		dm.drawCellContainer(
 			createICellContainerFromCellArray(cellList),
 			JCellToDrawEntryFunctions.colors({
 				strokeColor: `#000000`,

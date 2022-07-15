@@ -29,6 +29,7 @@ import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
 import ShowClimate from './toShow/toShowClimate';
 import JLine from './RegionMap/JLine';
+import JEdge from './Voronoi/JEdge';
 
 const tam: number = 3600;
 let SIZE: JPoint = new JPoint(tam, tam / 2);
@@ -115,13 +116,14 @@ dm.saveDrawFile(`${AREA}secDiagram.png`)
 */
 // sw.drawRivers('#1112EA', 'h');
 sw.printRiverData();
-sw.printRiverDataLongers(3000);
-sw.printRiverDataShorters(15);
+// sw.printRiverDataLongers(3000);
+// sw.printRiverDataShorters(15);
 
 
-sh.drawIslands();
-/*
+// sh.drawIslands();
+
 console.time('convert to line')
+/*
 dm.clear()
 world._islands.forEach((isl: JIslandMap) => {
 	dm.drawCellMap(isl, JCellToDrawEntryFunctions.colors({
@@ -141,17 +143,17 @@ world._islands.forEach((isl: JIslandMap) => {
 })
 dm.saveDrawFile(`${AREA}islandsLimits1.png`)
 
-dm.clear()
-
+*/
 
 const landReg = world._heightMap.landRegion;
-dm.clear()
-dm.drawCellMap(landReg, JCellToDrawEntryFunctions.colors({
-	fillColor: '#001410',
+dm.clear(9, new JPoint(-10, 2))
+dm.drawCellContainer(landReg, JCellToDrawEntryFunctions.colors({
+	fillColor: '#00141042',
 	strokeColor: '#001410'
 }))
 
 color = '#B8021F'
+/*
 landReg.getLimitLines().forEach((limit: JLine) => {
 	
 	const points: JPoint[] = limit.vertices.map((v: JVertex) => v.point);
@@ -161,11 +163,17 @@ landReg.getLimitLines().forEach((limit: JLine) => {
 	})
 	
 })
-
+*/
+dm.drawVertexContainer(landReg.getLimitLines()[0], (edge: JEdge) => {
+	return {
+		fillColor: 'none',
+		strokeColor: color
+	}
+})
 console.log('cantidad de lines limits en landReg', landReg.getLimitLines().length)
 
 dm.saveDrawFile(`${AREA}landLimits1.png`)
 
 console.timeEnd('convert to line')
-*/
+
 console.timeEnd('all')

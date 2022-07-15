@@ -15,14 +15,14 @@ export default class ShowClimate extends Shower {
 	drawKoppen() {
 		this.d.clear();
 		this.d.drawFondo()
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.koppen(1))
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.koppen(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}koppen.png`);
 	}
 
 	drawLifeZones() {
 		this.d.clear();
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.lifeZones(1))
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.lifeZones(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}lifeZones.png`);
 	}
@@ -31,14 +31,14 @@ export default class ShowClimate extends Shower {
 		this.d.clear();
 		month = inRange(month, 1, 12);
 		this.d.drawFondo()
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.precipitationMonth(month))
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.precipitationMonth(month))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}precip${(month < 10 ? `0${month}` : `${month}`)}.png`);
 	}
 
 	drawPrecipMedia() {
 		this.d.clear();
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.precipitationMedia())
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.precipitationMedia())
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}precipMedia.png`);
 	}
@@ -47,28 +47,28 @@ export default class ShowClimate extends Shower {
 		this.d.clear();
 		month = inRange(month, 1, 12);
 		this.d.drawFondo()
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.temperatureMonth(month))
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.temperatureMonth(month))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}temp${(month < 10 ? `0${month}` : `${month}`)}.png`);
 	}
 
 	drawTempMedia() {
 		this.d.clear();
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.temperatureMedia())
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.temperatureMedia())
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}tempMedia.png`);
 	}
 
 	drawAltitudinalBelts() {
 		this.d.clear();
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.altitudinalBelts(1))
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.altitudinalBelts(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}altitudinalBelts.png`)
 	}
 
 	drawHumidityProvinces() {
 		this.d.clear();
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.humidityProvinces(1))
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.humidityProvinces(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}humidityProvinces.png`)
 	}

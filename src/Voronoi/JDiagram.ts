@@ -25,6 +25,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 	constructor(d: Diagram, ancestor?: {d: JDiagram, a: number, s: {p: IPoint, cid: number}[]}) {
 		console.log('Setting JDiagram values');
 		console.time('set JDiagram values');
+		JEdge.diagram = this;
 
 		this.setDiagramValuesContructed(d);
 		if (ancestor) {
@@ -147,7 +148,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 	}
 	
 	get vertices(): Map<string, JVertex> { return this._vertices }
-	// get edges(): JEdge[] { return this._edges }
+
 	get cells(): Map<number, JCell> { return this._cells }
 	getCellsMapStringKey(): Map<string, JCell> {
 		return this._cells2;
@@ -163,6 +164,10 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		this._vertices.forEach((v: JVertex) => {
 			func(v);
 		})
+	}
+
+	forEachEdge(func: (e: JEdge) => void) {
+		throw new Error(`no tiene sentido recorrer todos los edges del diagrama.`)
 	}
 
 	getCellNeighbours(cell: JCell): JCell[] { // cambiar a getCellNeighbours

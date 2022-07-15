@@ -13,7 +13,7 @@ export default class ShowHeight extends Shower {
 	drawHeight() {
 		this.d.clear();
 		this.d.drawFondo()
-		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1))
+		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}heightLand.png`);
 	}

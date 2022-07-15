@@ -1,9 +1,11 @@
 import { Edge } from 'voronoijs';
 import JPoint from '../Geom/JPoint';
 import JSite from './JSite';
+import JDiagram from './JDiagram';
 
 import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
 import * as turf from '@turf/turf'
+import JVertex from './JVertex';
 
 // export interface IJEdgeInfo {
 // 	lSite: {id: number};
@@ -29,7 +31,9 @@ export default class JEdge {
 	
 	private _points: JPoint[] = [];
 	private _length: number | undefined;
-	//static _diagramSize: number;
+	
+	static _diagram: JDiagram;
+	static set diagram(d: JDiagram) { this._diagram = d; }
 
 	constructor({/*e,*/ ls, rs, va, vb}: IJEdgeConstructor) {
 		//this._edge = e;
@@ -54,6 +58,11 @@ export default class JEdge {
 	get rSite(): JSite | undefined {return this._rSite}
 	get vertexA(): JPoint { return this._vertexA}
 	get vertexB(): JPoint { return this._vertexB}
+
+	get vertices(): JVertex[] { return [
+		JEdge._diagram.vertices.get(this._vertexA.id)!,
+		JEdge._diagram.vertices.get(this._vertexB.id)!,
+	] }
 /*
 	get id(): number {
 		let out = (this._lSite.id + 1) * JEdge._diagramSize;
@@ -110,6 +119,12 @@ export default class JEdge {
 			this._points = out;
 		} 
 		return this._points;
+	}
+
+	toTurfLineString(): turf.Feature<turf.LineString> {
+		return turf.lineString([
+			this._vertexA.toTurfPosition(), this._vertexB.toTurfPosition()
+		]);
 	}
 
 	// getInterface(): IJEdgeInfo {

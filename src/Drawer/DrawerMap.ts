@@ -11,7 +11,10 @@ import JCell from '../Voronoi/JCell';
 import JRegionMap from '../RegionMap/JRegionMap';
 import JPanzoom from './JPanzoom';
 import { inRange } from '../utilFunctions';
-import { ICellContainer } from '../generalInterfaces';
+import { ICellContainer, IVertexContainer } from '../generalInterfaces';
+import JVertex from '../Voronoi/JVertex';
+import JLine from '../RegionMap/JLine';
+import JEdge from '../Voronoi/JEdge';
 // import { Bitmap } from 'pureimage/types/bitmap';
 // import { Context } from 'pureimage/types/context';
 
@@ -122,19 +125,38 @@ export default class DrawerMap {
 			center: datDM.center
 		}
 	}
+
+	private getPolygonContainer(): turf.Feature<turf.Polygon> {
+		return turf.polygon(
+			[this.getPointsBuffDrawLimits().map((p: JPoint) => p.toTurfPosition())]
+		)
+	}
 	
-	drawCellMap(cc: ICellContainer, func: (c: JCell) => IDrawEntry): void {
-		const polContainer = turf.polygon(
-			[this.getPointsBuffDrawLimits().map((p: JPoint) => {
-				return p.toTurfPosition()
-			})]
-		);
+	drawCellContainer(cc: ICellContainer, func: (c: JCell) => IDrawEntry): void {
+		const polContainer = this.getPolygonContainer();
 		cc.forEachCell((c: JCell) => {
 			if (!turf.booleanDisjoint(polContainer, c.toTurfPolygonSimple())) {
 				const points: JPoint[] = (this.zoomValue < 8) ? c.voronoiVertices : c.allVertices;
 				this.draw(points, func(c));
 			}
 		});
+	}
+
+	drawVertexContainer(vc: IVertexContainer, func: (e: JEdge) => IDrawEntry) { // solo la linea abierta
+		const polContainer = this.getPolygonContainer();
+/*
+		let lsin: turf.Position[] = [];
+		vc.forEachVertex((v: JVertex) => lsin.push(v.point.toTurfPosition()));
+		const lineString: turf.Feature<turf.LineString> = turf.lineString(lsin);
+		*/
+		// if (!turf.booleanDisjoint(polContainer, lineString)) {
+			vc.forEachEdge((edge: JEdge) => {
+				if (!turf.booleanDisjoint(polContainer, edge.toTurfLineString())) {
+					const points: JPoint[] = (this.zoomValue < 8) ? [edge.vertexA, edge.vertexB] : edge.points;
+					this.draw(points, {...func(edge), fillColor: 'none'});					
+				}
+			})
+		// }
 	}
 
 
@@ -167,7 +189,7 @@ export default class DrawerMap {
 			let color: string;
 			color = chroma.random().alpha(alpha).hex();
 
-			this.drawCellMap(
+			this.drawCellContainer(
 				jsr,
 				// createICellContainerFromCellArray(jsr.getLimitCells()),
 				JCellToDrawEntryFunctions.colors({

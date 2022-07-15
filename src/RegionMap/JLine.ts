@@ -1,4 +1,4 @@
-
+import * as turf from '@turf/turf';
 import JCell from '../Voronoi/JCell';
 import JPoint from '../Geom/JPoint';
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
@@ -45,7 +45,7 @@ export default class JLine implements IDiagramContainer, IVertexContainer {
 		return this._length
 	}
 
-	getVerticesSince(v: JVertex): JVertex[] {
+	getVerticesSince(v: JVertex): JVertex[] { // aun no probado
 		let out: JVertex[] = [];
 
 		let idx: number = 0;
@@ -61,14 +61,14 @@ export default class JLine implements IDiagramContainer, IVertexContainer {
 
 		if (out.length == 0)
 			throw new Error(
-				`no existe vertex en este fluxRoute.
+				`no existe vertex en este LineMap.
 Buscado: ${v.id}.
 Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 
 		return out;
 	}
 
-	getEdges(): JEdge[] {
+	private getEdges(): JEdge[] {
 		let out: JEdge[] = [];
 		this._vertices.forEach((vertex: JVertex, i: number, a: JVertex[]) => {
 			if (i < a.length-1) {
@@ -85,6 +85,10 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 
 	forEachVertex(func: (vertex: JVertex) => void) {
 		this._vertices.forEach((v: JVertex) => func(v));
+	}
+
+	forEachEdge(func: (edge: JEdge) => void) {
+		this.getEdges().forEach((e: JEdge) => func(e));
 	}
 
 	isInLine(en: string | JVertex): boolean {
@@ -146,20 +150,11 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 			length: this._length,
 		}
 	}
-
-	/****/
-	static sortVerticesList(verts: JVertex[]): JVertex[] {
-		let out: JVertex[] = [];
-		let qeueMap: Map<string, JVertex> = new Map<string, JVertex>();
-		verts.forEach((v: JVertex) => qeueMap.set(v.id, v));
-
-		while (qeueMap.size > 0) {
-			let [cv] = qeueMap.values();
-			qeueMap.delete(cv.id);
-			cv.mark();
-		}
-
-		verts.forEach((v: JVertex) => v.dismark());
-		return out;
+	/*
+	toTurfLineString() {
+		return turf.lineString(
+			this._vertices.map((v: JVertex) => v.point.toTurfPosition())
+		);
 	}
+	*/
 }

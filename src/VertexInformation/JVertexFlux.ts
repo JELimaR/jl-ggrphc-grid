@@ -11,7 +11,7 @@ export interface IJVertexFluxInfo {
 export default class JVertexFlux {
 	private _vertex: JVertex;
 
-	_fluxMonth: number[];
+	private _fluxMonth: number[];
 	_fluxRouteIds: number[] = [];
 	_riverIds: number[] = [];
 
@@ -25,6 +25,7 @@ export default class JVertexFlux {
 
 	get annualFlux(): number { return this._fluxMonth.reduce((p: number, c: number) => c + p, 0) }
 	get monthFlux(): number[] { return this._fluxMonth }
+	get minFlux(): number { return Math.min(...this._fluxMonth) }
 
 	get riverIds(): number[] { return this._riverIds }
 	get fluxRouteIds(): number[] { return this._fluxRouteIds }

@@ -114,10 +114,10 @@ export default class ShowWater extends Shower {
 		// fondo
 		switch (backGround) {
 			case 'h':
-				this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
+				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
 				break;
 			default:
-				this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.land(1));
+				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.land(1));
 		}
 
 		// rivers
@@ -156,10 +156,10 @@ export default class ShowWater extends Shower {
 	private drawFondo(background: 'h') {
 		switch (background) {
 			case 'h':
-				this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
+				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
 				break;
 			default:
-				this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.land(1));
+				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.land(1));
 		}
 	}
 

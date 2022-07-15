@@ -12,12 +12,6 @@ import { IJVertexFluxInfo } from "../VertexInformation/JVertexFlux";
 import { getArrayOfN } from "../utilFunctions";
 import JWaterRoute, { IJWaterRouteInfo } from "./JWaterRoute";
 
-const FLUXMINRIVER = 200000;
-
-export interface IJRiverMapInfo {
-	rid: number;
-}
-
 export default class JRiverMap extends JWMap {
   
   _waterRoutesMap: Map<number, JWaterRoute> = new Map<number, JWaterRoute>();
@@ -159,7 +153,7 @@ export default class JRiverMap extends JWMap {
 	}
 
 	private setRivers() {
-		const FLUXLIMIT = 1*this.diagram.vertices.size/2000;
+		const FLUXLIMIT = this.diagram.vertices.size/2000;
 		this._waterRoutesMap.forEach((fluxRoute: JWaterRoute, id: number) => {
 
 			let river: JRiver = new JRiver(id, this.diagram);
