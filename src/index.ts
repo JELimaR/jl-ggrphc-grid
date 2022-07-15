@@ -85,17 +85,17 @@ const sc = new ShowClimate(world, AREA, GRAN, folderSelected);
 const sw = new ShowWater(world, AREA, GRAN, folderSelected);
 
 
-// sh.drawHeight();
+sh.drawHeight();
 // sh.printMaxAndMinCellsHeight();
 
 /******************** climate map ********************/
 // for (let month of monthArr12) {	sc.drawTempMonth(month); }
-// sc.drawTempMedia()
+sc.drawTempMedia()
 // for (let month of monthArr12) {	sc.drawPrecipMonth(month); }
 // sc.drawPrecipMedia()
 
 // sc.drawKoppen();
-// sc.printKoppenData();
+sc.printKoppenData();
 
 /**
  * LIFE ZONES
@@ -104,18 +104,21 @@ const sw = new ShowWater(world, AREA, GRAN, folderSelected);
 // sc.drawHumidityProvinces()
 // sc.drawLifeZones();
 // sc.printLifeZonesData();
+
 /*
-dm.clear()
 dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 	fillColor: chroma.random().hex(),
 	strokeColor: '#001410'
 }}))
+dm.drawMeridianAndParallels(181,361)
 dm.saveDrawFile(`${AREA}secDiagram.png`)
 */
+sw.drawRivers('random', 'h');
+sw.printRiverDataLongers(2500);
 
-// sw.printRiverDataLongers(2500);
-// sh.drawIslands();
 
+sh.drawIslands();
+/*
 console.time('convert to line')
 dm.clear()
 world._islands.forEach((isl: JIslandMap) => {
@@ -136,24 +139,9 @@ world._islands.forEach((isl: JIslandMap) => {
 })
 dm.saveDrawFile(`${AREA}islandsLimits1.png`)
 
-
 dm.clear()
-/*
-world._islands.forEach((isl: JIslandMap) => {
-	dm.drawCellMap(createICellContainerFromCellArray(isl.getLimitCells()), JCellToDrawEntryFunctions.colors({
-		fillColor: '#001410',
-		strokeColor: '#001410'
-	}))
-	color = '#021FB8'
-	isl.getLimitVertices().forEach((v: JVertex) => {
-		dm.drawDot(v.point, {
-			fillColor: color,
-			strokeColor: color
-		}, 0.25)
-	});
-})
-dm.saveDrawFile(`${AREA}islandsLimits2.png`)
-*/
+
+
 const landReg = world._heightMap.landRegion;
 dm.clear()
 dm.drawCellMap(landReg, JCellToDrawEntryFunctions.colors({
@@ -175,21 +163,7 @@ landReg.getLimitLines().forEach((limit: JLine) => {
 console.log('cantidad de lines limits en landReg', landReg.getLimitLines().length)
 
 dm.saveDrawFile(`${AREA}landLimits1.png`)
-/*
-dm.clear()
-dm.drawCellMap(createICellContainerFromCellArray(landReg.getLimitCells()), JCellToDrawEntryFunctions.colors({
-	fillColor: '#001410',
-	strokeColor: '#001410'
-}))
-color = '#021FB8'
-landReg.getLimitVertices().forEach((v: JVertex) => {
-	dm.drawDot(v.point, {
-		fillColor: color,
-		strokeColor: color
-	}, 0.25)
-});
-dm.saveDrawFile(`${AREA}landLimits2.png`)
-*/
-console.timeEnd('convert to line')
 
+console.timeEnd('convert to line')
+*/
 console.timeEnd('all')

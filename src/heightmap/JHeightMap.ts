@@ -219,16 +219,16 @@ export default class JHeightMap extends JWMap {
 	}
 
 	private getMinHeightVertexNeighbour(vertex: JVertex): JVertex {
-		const narr: JVertex[] = this.diagram.getVertexNeighbours(vertex);
-		let out: JVertex = narr[0], minH = 2;
-		narr.forEach((nc: JVertex) => {
-			if (nc.info.height < minH) {
-				out = nc;
-				minH = nc.info.height;
-			}
-		})
-		return out;
-	}
+			const narr: JVertex[] = this.diagram.getVertexNeighbours(vertex);
+			let out: JVertex = narr[0], minH = 2;
+			narr.forEach((nc: JVertex) => {
+				if (nc.info.height < minH && vertex.id !== nc.id) { // la segunda condicion se debe a que un vertex puede ser vecino de si mismo
+					out = nc;
+					minH = nc.info.height;
+				}
+			})
+			return out;
+		}
 
 	private resolveCellsDepressions() {
 		let cellArr: JCell[] = [];
@@ -267,7 +267,7 @@ export default class JHeightMap extends JWMap {
 		const narr: JCell[] = this.diagram.getCellNeighbours(cell);
 		let out: JCell = narr[0], minH = 2;
 		narr.forEach((nc: JCell) => {
-			if (nc.info.height < minH) {
+			if (nc.info.height < minH ) {
 				out = nc;
 				minH = nc.info.height;
 			}
@@ -332,6 +332,9 @@ export default class JHeightMap extends JWMap {
 	}
 
 	private generateIslandList(): void {
+		/**
+		 * no calcula bien cuando debe calcular los datos de height
+		 */
 		let lista: Map<number, JCell> = new Map<number, JCell>();
 		this.diagram.forEachCell((c: JCell) => {
 			if (c.info.isLand) lista.set(c.id, c);

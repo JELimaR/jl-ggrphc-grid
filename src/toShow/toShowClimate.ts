@@ -40,7 +40,7 @@ export default class ShowClimate extends Shower {
 		this.d.clear();
 		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.precipitationMedia())
 		this.d.drawMeridianAndParallels();
-		this.d.saveDrawFile(`${this.a}precipMedia}.png`);
+		this.d.saveDrawFile(`${this.a}precipMedia.png`);
 	}
 
 	drawTempMonth(month: number) {
@@ -49,14 +49,14 @@ export default class ShowClimate extends Shower {
 		this.d.drawFondo()
 		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.temperatureMonth(month))
 		this.d.drawMeridianAndParallels();
-		this.d.saveDrawFile(`${this.a}precip${(month < 10 ? `0${month}` : `${month}`)}.png`);
+		this.d.saveDrawFile(`${this.a}temp${(month < 10 ? `0${month}` : `${month}`)}.png`);
 	}
 
 	drawTempMedia() {
 		this.d.clear();
 		this.d.drawCellMap(this.w.diagram, JCellToDrawEntryFunctions.temperatureMedia())
 		this.d.drawMeridianAndParallels();
-		this.d.saveDrawFile(`${this.a}precipMedia}.png`);
+		this.d.saveDrawFile(`${this.a}tempMedia.png`);
 	}
 
 	drawAltitudinalBelts() {

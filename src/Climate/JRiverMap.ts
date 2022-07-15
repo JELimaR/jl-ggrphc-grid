@@ -192,7 +192,7 @@ export default class JRiverMap extends JWMap {
     const narr: JVertex[] = this.diagram.getVertexNeighbours(vertex);
     let out: JVertex = narr[0], minH = 2;
     narr.forEach((nc: JVertex) => {
-      if (nc.info.height < minH) {
+      if (nc.info.height < minH && vertex.id !== nc.id) { // la segunda condicion se debe a que un vertex puede ser vecino de si mismo
 				out = nc;
 				minH = nc.info.height;
 			}

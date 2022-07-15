@@ -256,6 +256,26 @@ export default class JDiagram {
 		}
 	}
 
+	getVertexFromPoint(p: JPoint): JVertex {
+		let out: JVertex | undefined;
+		const cellAso: JCell = this.getCellFromPoint2(p);
+		let minDis: number = Infinity;
+
+		this.getVerticesAssociated(cellAso).forEach((vp: JVertex) => {
+			let dis: number = JPoint.distance(vp.point, p);
+			if (dis < minDis) {
+				out = vp;
+				minDis = dis;
+			}
+		})
+		if (out)
+			return out;
+		else {
+			console.log('cells', this._cells.size)
+			throw new Error('no se encontro cell');
+		}
+	}
+
 	getCellFromPoint2(p: JPoint): JCell {
 		let out: JCell | undefined;
 		let founded: boolean = false;

@@ -243,7 +243,9 @@ export default class DrawerMap {
 	}
 
 	/**/
-	clear() {
+	clear(zoomValue: number = 0, center: JPoint = new JPoint(0,0)) {
+		this.setZoom(zoomValue);
+		this.setCenterpan(center);
 		this.context.clearRect(0, 0, this._cnvs.width, this._cnvs.height);
 	}
 }

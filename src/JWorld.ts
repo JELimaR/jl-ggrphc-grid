@@ -107,7 +107,7 @@ export default class JWorld {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
 		const iniGrid: JGrid = this.createGrid(iniDiagram, GRAN)
-		const iniHeightMap: JHeightMap = new JHeightMap(iniDiagram);
+		/*const iniHeightMap: JHeightMap = */new JHeightMap(iniDiagram);
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		// const grid = this.createGrid(diagram, GRAN)
 		const heightMap = new JHeightMap(diagram, iniDiagram);
