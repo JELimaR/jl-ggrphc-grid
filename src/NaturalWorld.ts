@@ -2,10 +2,8 @@ import VoronoiDiagramCreator from './Voronoi/VoronoiDiagramCreator';
 import JDiagram from './Voronoi/JDiagram';
 import JHeightMap from './heightmap/JHeightMap';
 import JGrid from './Geom/JGrid';
-import JCell from './Voronoi/JCell';
 import JClimateMap from './Climate/JClimateMap';
 import JRiverMap from './Climate/JRiverMap';
-import JPrecipGrid from './Climate/JPrecipGrid';
 import { JIslandMap } from './RegionMap/JRegionMap';
 
 export default class NaturalWorld {

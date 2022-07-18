@@ -8,11 +8,6 @@ import DataInformationFilesManager from './DataInformationLoadAndSave';
 import { ICellContainer } from "./generalInterfaces";
 const dataInfoManager = DataInformationFilesManager.instance;
 
-export interface ICellContainerBorrar { // borrar
-	cells?: JCell[] | Set<JCell> | Map<number, JCell>;
-	forEachCell: (func: (c: JCell) => void) => void
-}
-
 export default class JWorldMap {
 
 	private _diagram: JDiagram;
