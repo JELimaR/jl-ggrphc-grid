@@ -13,15 +13,15 @@ import JCell from '../Voronoi/JCell';
 import JVertex from '../Voronoi/JVertex';
 import chroma from 'chroma-js';
 
-import RiverMapGenerator from '../Climate/RiverMapGenerator';
-
-import RiverMap, { } from '../Climate/RiverMap';
-import FluxRoute from '../Climate/FluxRoute';
+import RiverMap, { } from '../River/RiverMap';
+import FluxRoute from '../River/FluxRoute';
 import Shower from './Shower';
 import { switchCase } from '@babel/types';
 
 let colorScale: chroma.Scale;
 // let color: string;
+
+type TBackground = 'h' | 'l';
 
 
 export default class ShowWater extends Shower {
@@ -30,19 +30,10 @@ export default class ShowWater extends Shower {
 		super(world, area, gran, folderSelected, 'river');
 	}
 
-	drawRivers(color: string | 'random', backGround: 'h' | 'l') { // crear el JCellToDrawEntryFunction
+	drawRivers(color: string | 'random', background: TBackground) { // crear el JCellToDrawEntryFunction
 		this.d.clear();
 		// fondo
-		switch (backGround) {
-			case 'h':
-				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
-				break;
-			case 'l':
-				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.land(1));
-				break;
-			default:
-				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.land(1));
-		}
+		this.drawFondo(background);
 
 		// rivers
 		this.w._riverMap._rivers.forEach((river: RiverMap) => {
@@ -58,7 +49,7 @@ export default class ShowWater extends Shower {
 		this.d.saveDrawFile(`${this.a}rivers.png`)
 	}
 
-	drawWaterRoutes(color: string | 'random', background: 'h') { // crear el JCellToDrawEntryFunction
+	drawWaterRoutes(color: string | 'random', background: TBackground) { // crear el JCellToDrawEntryFunction
 		this.d.clear();
 		// fondo
 		this.drawFondo(background);
@@ -77,7 +68,7 @@ export default class ShowWater extends Shower {
 		this.d.saveDrawFile(`${this.a}waterRoute.png`)
 	}
 
-	private drawFondo(background: 'h') {
+	private drawFondo(background: TBackground) {
 		switch (background) {
 			case 'h':
 				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));

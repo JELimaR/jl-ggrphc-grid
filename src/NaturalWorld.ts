@@ -3,7 +3,7 @@ import JDiagram from './Voronoi/JDiagram';
 import HeightMapGenerator from './heightmap/HeightMapGenerator';
 import JGrid from './Geom/JGrid';
 import ClimateMapGenerator from './Climate/ClimateMapGenerator';
-import RiverMapGenerator from './Climate/RiverMapGenerator';
+import RiverMapGenerator from './River/RiverMapGenerator';
 import { JIslandMap } from './RegionMap/RegionMap';
 
 export default class NaturalWorld {

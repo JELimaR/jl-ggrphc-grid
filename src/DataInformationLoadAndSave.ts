@@ -19,8 +19,8 @@ import { ITempDataGrid } from './Climate/TempGrid';
 import { IPressureDataGrid } from './Climate/PressureGrid';
 import { IPrecipData } from './Climate/PrecipGrid';
 import { IJVertexFluxInfo } from './VertexInformation/JVertexFlux';
-import FluxRoute, { IFluxRouteInfo } from './Climate/FluxRoute';
-import RiverMap, { IRiverMapInfo } from './Climate/RiverMap';
+import FluxRoute, { IFluxRouteInfo } from './River/FluxRoute';
+import RiverMap, { IRiverMapInfo } from './River/RiverMap';
 
 // dividir esta clase
 export default class DataInformationFilesManager {

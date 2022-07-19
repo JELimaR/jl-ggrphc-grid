@@ -347,13 +347,13 @@ export default class RegionMap implements IDiagramContainer, ICellContainer {
 			let arr: JVertex[] = [cv];
 			cv.mark();
 
-			let nqeue: JVertex[] = this.findNeigboursInArrayNotMarked(cv, qeueMap);
+			let nqeue: JVertex[] = this.findVertexNeigboursInArrayNotMarked(cv, qeueMap);
 			while (nqeue.length > 0) {
 				let nv = nqeue[0];
 				qeueMap.delete(nv.id);
 				arr.push(nv);
 				nv.mark();
-				nqeue = this.findNeigboursInArrayNotMarked(nv, qeueMap);
+				nqeue = this.findVertexNeigboursInArrayNotMarked(nv, qeueMap);
 			}
 
 			out.set(cv.id, arr);
@@ -363,17 +363,17 @@ export default class RegionMap implements IDiagramContainer, ICellContainer {
 		return out;
 	}
 
-	private findNeigboursInArrayNotMarked(v: JVertex, list: Map<string, JVertex>): JVertex[] {
+	private findVertexNeigboursInArrayNotMarked(v: JVertex, list: Map<string, JVertex>): JVertex[] {
 		let out: JVertex[] = [];
 		this.diagram.getVertexNeighbours(v).forEach((nv: JVertex) => {
 			const edgeAso: JEdge = nv.getEdgeFromNeighbour(v);
 			if (!edgeAso.rSite) {
 				throw new Error(`no esta resuelto esto aun`);
 			}
-			const isValid: boolean = 
+			const isEdgeLimit: boolean = 
 				(this.isInRegion(edgeAso.lSite.id) && !this.isInRegion(edgeAso.rSite.id)) 
-				||  (!this.isInRegion(edgeAso.lSite.id) && this.isInRegion(edgeAso.rSite.id))
-			if (isValid && list.has(nv.id) && !nv.isMarked()) out.push(nv)
+				|| (!this.isInRegion(edgeAso.lSite.id) && this.isInRegion(edgeAso.rSite.id))
+			if (isEdgeLimit && list.has(nv.id) && !nv.isMarked()) out.push(nv)
 		})
 		return out;
 	}

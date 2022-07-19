@@ -21,9 +21,9 @@ import chroma from 'chroma-js';
 
 import fs from 'fs'
 import * as turf from '@turf/turf';
-import RiverMapGenerator from './Climate/RiverMapGenerator';
-import RiverMap, { } from './Climate/RiverMap';
-import FluxRoute from './Climate/FluxRoute';
+import RiverMapGenerator from './River/RiverMapGenerator';
+import RiverMap, { } from './River/RiverMap';
+import FluxRoute from './River/FluxRoute';
 import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
 import ShowClimate from './toShow/toShowClimate';
@@ -49,7 +49,7 @@ const azgaarFolder: string[] = [
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
 ];
-const folderSelected: string = azgaarFolder[4];
+const folderSelected: string = azgaarFolder[10];
 
 console.log('folder:', folderSelected)
 
@@ -72,7 +72,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 2430; // 810
+const AREA: number = 12100; // 810
 const GRAN: number = 2;
 const world: NaturalWorld = new NaturalWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 
@@ -181,9 +181,8 @@ landReg.getLimitLines().forEach((limit: JLine) => {
 /*
 dm.drawMeridianAndParallels();
 dm.saveDrawFile(`${AREA}landInter.png`)
-
-console.timeEnd('convert to line')
 */
 
+console.timeEnd('convert to line')
 
 console.timeEnd('all')

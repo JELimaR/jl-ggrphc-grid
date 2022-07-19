@@ -23,7 +23,9 @@ export default class LineMap implements IDiagramContainer, IVertexContainer, IEd
 	
 	private _length: number;
 	private _isClosed: boolean = false;
-	
+
+	// constructor(diagram: JDiagram);
+	// constructor(diagram: JDiagram, info: ILineMapInfo);
 	constructor(diagram: JDiagram, info?: ILineMapInfo) {
 		this._diagram = diagram;;
 		if (info) {
