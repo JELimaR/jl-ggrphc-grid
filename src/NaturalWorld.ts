@@ -16,6 +16,7 @@ export default class NaturalWorld {
 	// private _climateMap: JClimateMap;
 	// _riverMap: RiverMapGenerator;
 
+	// map elements
 	private _islands: IslandMap[] = [];
 	private _fluxRoutes: Map<number, FluxRoute> = new Map<number, FluxRoute>();
   private _rivers: Map<number, RiverMap> = new Map<number, RiverMap>();
@@ -30,24 +31,14 @@ export default class NaturalWorld {
 		this._rivers = gnw.iro.rivers;
 		// this._riverMap = gnw.r;
 		//
-		// this._islands = gnw.i;
+		this._islands = gnw.i;
 		
 	}
 
 	get diagram(): JDiagram { return this._diagram }
-	get islands(): IslandMap[] {
-		if (this._islands.length == 0) {
-			const img: IslandMapGenerator = new IslandMapGenerator(this._diagram);
-			this._islands = img.generate();
-		}
-		return this._islands;
-	}
-	get fluxRoutes() {
-		return this._fluxRoutes;
-	}
-	get rivers() {
-		return this._rivers;
-	}
+	get islands(): IslandMap[] { return this._islands; }
+	get fluxRoutes() { return this._fluxRoutes; }
+	get rivers() { return this._rivers;	}
 	/**/
 
 	private generateNaturalWorld(GRAN: number, AREA: number): {
@@ -56,7 +47,7 @@ export default class NaturalWorld {
 
 		iro: IRiverMapGeneratorOut,
 
-		// i: IslandMap[],
+		i: IslandMap[],
 	} {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
@@ -64,6 +55,8 @@ export default class NaturalWorld {
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		this.generateHeightMap(diagram, iniDiagram);
 		this.generateClimateMap(diagram, iniGrid);
+
+		const islandsArr = this.generateIslandMaps(diagram);
 		const rmgout = this.generateRiverMaps(diagram);
 		console.timeEnd('Generate Natural World')
 		return {
@@ -72,7 +65,7 @@ export default class NaturalWorld {
 			// c: climateMap,
 			iro: rmgout,
 
-			// i: islandsArr,
+			i: islandsArr,
 		}
 	}
 	
@@ -110,6 +103,10 @@ export default class NaturalWorld {
 	private generateRiverMaps(diagram: JDiagram): IRiverMapGeneratorOut {
 		const rmg = new RiverMapGenerator(diagram);
 		return rmg.generate();
+	}
+	private generateIslandMaps(diagram: JDiagram): IslandMap[] {
+		const img: IslandMapGenerator = new IslandMapGenerator(diagram);
+		return img.generate();
 	}
 
 	/* otras funciones genericas */
