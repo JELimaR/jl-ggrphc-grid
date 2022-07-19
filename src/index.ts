@@ -1,5 +1,5 @@
 console.time('all');
-var newDate = new Date();
+const newDate = new Date();
 console.log(newDate.toLocaleTimeString());
 
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions';
@@ -14,20 +14,20 @@ import { DivisionMaker } from './divisions/DivisionMaker';
 
 
 import statesPointsLists from './divisions/countries/statesPointsLists';
-import JRegionMap, { JIslandMap } from './RegionMap/JRegionMap';
+import RegionMap, { JIslandMap } from './RegionMap/RegionMap';
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import chroma from 'chroma-js';
 
 import fs from 'fs'
 import * as turf from '@turf/turf';
-import JRiverMap from './Climate/JRiverMap';
-import JRiver, { } from './Climate/JRiver';
-import JWaterRoute from './Climate/JWaterRoute';
+import RiverMapGenerator from './Climate/RiverMapGenerator';
+import RiverMap, { } from './Climate/RiverMap';
+import FluxRoute from './Climate/FluxRoute';
 import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
 import ShowClimate from './toShow/toShowClimate';
-import JLine from './RegionMap/JLine';
+import LineMap from './RegionMap/LineMap';
 import JEdge from './Voronoi/JEdge';
 
 const tam: number = 3600;
@@ -49,7 +49,7 @@ const azgaarFolder: string[] = [
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
 ];
-const folderSelected: string = azgaarFolder[10];
+const folderSelected: string = azgaarFolder[4];
 
 console.log('folder:', folderSelected)
 
@@ -72,7 +72,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 12100; // 810
+const AREA: number = 2430; // 810
 const GRAN: number = 2;
 const world: NaturalWorld = new NaturalWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 
@@ -85,16 +85,16 @@ const sc = new ShowClimate(world, AREA, GRAN, folderSelected);
 const sw = new ShowWater(world, AREA, GRAN, folderSelected);
 
 
-// sh.drawHeight();
+sh.drawHeight();
 // sh.printMaxAndMinCellsHeight();
 
 /******************** climate map ********************/
 // for (let month of monthArr12) {	sc.drawTempMonth(month); }
-// sc.drawTempMedia()
+sc.drawTempMedia()
 // for (let month of monthArr12) {	sc.drawPrecipMonth(month); }
-// sc.drawPrecipMedia()
+sc.drawPrecipMedia()
 
-// sc.drawKoppen();
+sc.drawKoppen();
 // sc.printKoppenData();
 
 /**
@@ -102,7 +102,7 @@ const sw = new ShowWater(world, AREA, GRAN, folderSelected);
  */
 // sc.drawAltitudinalBelts();
 // sc.drawHumidityProvinces()
-// sc.drawLifeZones();
+sc.drawLifeZones();
 // sc.printLifeZonesData();
 
 /*
@@ -113,7 +113,7 @@ dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 dm.drawMeridianAndParallels(181,361)
 dm.saveDrawFile(`${AREA}secDiagram.png`)
 */
-// sw.drawRivers('#1112EA', 'h');
+sw.drawRivers('#1112EA', 'h');
 // sw.printRiverData();
 // sw.printRiverDataLongers(3000);
 // sw.printRiverDataShorters(15);

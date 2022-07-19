@@ -8,12 +8,12 @@ import chroma from 'chroma-js';
 import JPoint from '../Geom/JPoint';
 
 import JCell from '../Voronoi/JCell';
-import JRegionMap from '../RegionMap/JRegionMap';
+import RegionMap from '../RegionMap/RegionMap';
 import JPanzoom from './JPanzoom';
 import { inRange } from '../utilFunctions';
 import { ICellContainer, IEdgeContainer, IVertexContainer } from '../generalInterfaces';
 import JVertex from '../Voronoi/JVertex';
-import JLine from '../RegionMap/JLine';
+import LineMap from '../RegionMap/LineMap';
 import JEdge from '../Voronoi/JEdge';
 // import { Bitmap } from 'pureimage/types/bitmap';
 // import { Context } from 'pureimage/types/context';
@@ -107,7 +107,7 @@ export default class DrawerMap {
 		));
 	}
 
-	calculatePanzoomForReg(reg: JRegionMap) {
+	calculatePanzoomForReg(reg: RegionMap) {
 		const auxPZ: JPanzoom = new JPanzoom(this._size);
 		let ok: boolean = true;
 		let zoom = 0;
@@ -193,7 +193,7 @@ export default class DrawerMap {
 	}
 
 	drawArr(arrReg: ICellContainer[], alpha: number) {
-		arrReg.forEach((jsr: ICellContainer, id: number) => {
+		arrReg.forEach((jsr: ICellContainer, _id: number) => {
 			alpha = inRange(alpha, 0, 1);
 			let color: string;
 			color = chroma.random().alpha(alpha).hex();
@@ -224,14 +224,14 @@ export default class DrawerMap {
 	}
 
 	draw(points: JPoint[], ent: IDrawEntry): void {
-		let len: number = points.length;
+		// let len: number = points.length;
 
 		let context: CanvasRenderingContext2D = this.context;
 		// let context: Context = this.context;
 
 		context.beginPath();
 
-		const initialPoint: JPoint = this._panzoom.convertPointToDrawer(points[len - 1]);
+		// const initialPoint: JPoint = this._panzoom.convertPointToDrawer(points[len - 1]);
 		// context.moveTo(initialPoint.x, initialPoint.y);
 		for (let point of points) {
 			const p: JPoint = this._panzoom.convertPointToDrawer(point);

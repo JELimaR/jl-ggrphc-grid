@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
-import { IJContinentInfo, IJCountryInfo, IJIslandInfo, IJStateInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/JRegionMap';
+import { IJContinentInfo, IJCountryInfo, IJIslandInfo, IJStateInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/RegionMap';
 import JPoint, { IPoint } from './Geom/JPoint';
 // import { IJDiagramInfo } from './Voronoi/JDiagram';
 // import { IJEdgeInfo } from './Voronoi/JEdge';
@@ -15,12 +15,12 @@ import { IJCellHeightInfo } from './CellInformation/JCellHeight';
 
 import { IJCellClimateInfo } from './CellInformation/JCellClimate';
 import { IJVertexHeightInfo } from './VertexInformation/JVertexHeight';
-import { ITempDataGrid } from './Climate/JTempGrid';
-import { IPressureDataGrid } from './Climate/JPressureGrid';
-import { IPrecipData } from './Climate/JPrecipGrid';
+import { ITempDataGrid } from './Climate/TempGrid';
+import { IPressureDataGrid } from './Climate/PressureGrid';
+import { IPrecipData } from './Climate/PrecipGrid';
 import { IJVertexFluxInfo } from './VertexInformation/JVertexFlux';
-import JWaterRoute, { IJWaterRouteInfo } from './Climate/JWaterRoute';
-import JRiver, { IJRiverInfo } from './Climate/JRiver';
+import FluxRoute, { IFluxRouteInfo } from './Climate/FluxRoute';
+import RiverMap, { IRiverMapInfo } from './Climate/RiverMap';
 
 // dividir esta clase
 export default class DataInformationFilesManager {
@@ -324,8 +324,8 @@ export default class DataInformationFilesManager {
 	}
 
 	// water routes
-	loadWaterRoutesInfo(area: number | undefined): IJWaterRouteInfo[] {
-		let out: IJWaterRouteInfo[] = [];
+	loadWaterRoutesInfo(area: number | undefined): IFluxRouteInfo[] {
+		let out: IFluxRouteInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
@@ -335,19 +335,19 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveWaterRoutesInfo(fluxRoutes: Map<number,JWaterRoute>, area: number | undefined): void {
+	saveWaterRoutesInfo(fluxRoutes: Map<number,FluxRoute>, area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}/RiverAndFlux`, { recursive: true });
 		let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
-		let data: IJWaterRouteInfo[] = [];
-		fluxRoutes.forEach((fr: JWaterRoute) => {
+		let data: IFluxRouteInfo[] = [];
+		fluxRoutes.forEach((fr: FluxRoute) => {
 			data.push(fr.getInterface());
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 
 	// rivers
-	loadRiversInfo(area: number | undefined): IJRiverInfo[] {
-		let out: IJRiverInfo[] = [];
+	loadRiversInfo(area: number | undefined): IRiverMapInfo[] {
+		let out: IRiverMapInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}RiversInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
@@ -357,11 +357,11 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveRiversInfo(rivers: Map<number,JRiver>, area: number | undefined): void {
+	saveRiversInfo(rivers: Map<number,RiverMap>, area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}/RiverAndFlux`, { recursive: true });
 		let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}RiversInfo.json`;
-		let data: IJRiverInfo[] = [];
-		rivers.forEach((river: JRiver) => {
+		let data: IRiverMapInfo[] = [];
+		rivers.forEach((river: RiverMap) => {
 			data.push(river.getInterface());
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));

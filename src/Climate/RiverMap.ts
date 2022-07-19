@@ -1,23 +1,23 @@
 import JPoint from "../Geom/JPoint";
-import JLine, { IJLineInfo } from "../RegionMap/JLine";
+import LineMap, { ILineMapInfo } from "../RegionMap/LineMap";
 import JDiagram from "../Voronoi/JDiagram";
 import JVertex from "../Voronoi/JVertex";
 
-export interface IJRiverInfo extends IJLineInfo {
+export interface IRiverMapInfo extends ILineMapInfo {
   id: number;
 }
 
-export default class JRiver extends JLine {
+export default class RiverMap extends LineMap {
 	private _id: number;
 
-  constructor(id: number, diagram: JDiagram, info?: IJRiverInfo) {
+  constructor(id: number, diagram: JDiagram, info?: IRiverMapInfo) {
 		super(diagram, info)
 		this._id = id;
   }
 
 	get id(): number { return this._id }
 
-	getInterface(): IJRiverInfo {
+	getInterface(): IRiverMapInfo {
 		return {
 			...super.getInterface(),
 			id: this._id,

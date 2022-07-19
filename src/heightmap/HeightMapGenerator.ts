@@ -3,14 +3,14 @@ import DataInformationFilesManager from '../DataInformationLoadAndSave';
 // import { IJCellInformation } from "../Voronoi/JCellInformation";
 import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
-import JWMap from "../JWMap";
-import JRegionMap, { IJIslandInfo, JIslandMap } from "../RegionMap/JRegionMap";
+import RegionMap, { IJIslandInfo, JIslandMap } from "../RegionMap/RegionMap";
 
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 import JPoint from "../Geom/JPoint";
 import { IJVertexHeightInfo } from "../VertexInformation/JVertexHeight";
 import JVertex from "../Voronoi/JVertex";
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
+import MapGenerator from "../MapGenerator";
 // import JSubCell from "../Voronoi/JSubCell";
 
 class JOceanMap {}
@@ -18,13 +18,20 @@ class JLakeMap {}
 
 const ard: AzgaarReaderData = AzgaarReaderData.instance;
 
-export default class JHeightMap extends JWMap {
+export default class HeightMapGenerator extends MapGenerator {
+
+	private _ancestor: JDiagram | undefined;
 
 	private _islands: JIslandMap[] = [];
 
 	constructor(d: JDiagram, a?: JDiagram) {
 		super(d);
+		this._ancestor = a;
+	}
+
+	generate() {
 		const dataInfoManager = DataInformationFilesManager.instance;
+		const a = this._ancestor;
 		/*
 		 * height cells
 		 */
@@ -339,8 +346,8 @@ export default class JHeightMap extends JWMap {
 	/***************************************************************************** */
 	get islands() { return this._islands }
 
-	get landRegion(): JRegionMap {
-		let out: JRegionMap = new JRegionMap(this.diagram);
+	get landRegion(): RegionMap {
+		let out: RegionMap = new RegionMap(this.diagram);
 		this._islands.forEach((isl: JIslandMap) => {
 			out.addRegion(isl);
 		})

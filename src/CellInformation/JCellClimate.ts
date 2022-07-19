@@ -179,14 +179,20 @@ export default class JCellClimate {
 				}
 			// C
 			case 'C':
-				const tfc = (this.tmax >= 22) ? 'a' : ((this.tmon10 >= 4) ? 'b' : 'c');
+				let tfc: 'a' | 'b' | 'c';
+				if (this.tmax >= 22) tfc = 'a';
+				else if (this.tmon10 >= 4) tfc = 'b';
+				else tfc = 'c';
 				if (this.psseco < 40 && this.psseco < this.pwhum / 3) return 'Cs' + tfc as TKoppenSubType;
 				if (this.pwseco < this.pshum / 10) return 'Cw' + tfc as TKoppenSubType;
 				return 'Cf' + tfc as TKoppenSubType;
 			// D
 			case 'D':
-				const tfd = (this.tmax >= 22) ? 'a' :
-					((this.tmon10 >= 4) ? 'b' : (this.tmin < -25 ? 'd' : 'c')); //( this.tmin < -38 ? 'd' : 'c'));
+				let tfd: 'a' | 'b' | 'c' | 'd';
+				if (this.tmax >= 22) tfd = 'a';
+				else if (this.tmon10 >= 4) tfd = 'b';
+				else if (this.tmin < -25) tfd = 'd';  //( this.tmin < -38 ? 'd' : 'c'));
+				else tfd = 'c';
 				if (this.psseco < 40 && this.psseco < this.pwhum / 3) return 'Ds' + tfd as TKoppenSubType;
 				if (this.pwseco < this.pshum / 10) return 'Dw' + tfd as TKoppenSubType;
 				return 'Df' + tfd as TKoppenSubType;
@@ -249,6 +255,7 @@ export default class JCellClimate {
 		if (AP < 6000) return 'Perhumid'
 		else return 'SuperHumid'
 
+		/*
 		const PET = this.potentialEvapotrasnpirationRate;
 		if (PET > 16) return 'SuperArid'
 		if (PET > 8) return 'Perarid'
@@ -258,6 +265,7 @@ export default class JCellClimate {
 		if (PET > 0.5) return 'humid'
 		if (PET > 0.25) return 'Perhumid'
 		else return 'SuperHumid'
+		*/
 	}
 
 	get lifeZone(): ILifeZone {

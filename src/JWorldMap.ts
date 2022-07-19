@@ -2,7 +2,7 @@
 import JCell from "./Voronoi/JCell";
 import JDiagram from "./Voronoi/JDiagram";
 import JPoint from "./Geom/JPoint";
-import JRegionMap, { IJContinentInfo, IJIslandInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/JRegionMap';
+import RegionMap, { IJContinentInfo, IJIslandInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/RegionMap';
 
 import DataInformationFilesManager from './DataInformationLoadAndSave';
 import { ICellContainer } from "./generalInterfaces";
@@ -122,9 +122,9 @@ export default class JWorldMap {
 				const c: JCell = isl.cells.entries().next().value[1];
 				if (c.center.x > 120) this._continents[4].addRegion(isl);
 				else {
-					const dist0: number = JRegionMap.minDistanceBetweenRegions(isl, this._continents[0]);
-					const dist1: number = JRegionMap.minDistanceBetweenRegions(isl, this._continents[1]);
-					const dist2: number = JRegionMap.minDistanceBetweenRegions(isl, this._continents[2]);
+					const dist0: number = RegionMap.minDistanceBetweenRegions(isl, this._continents[0]);
+					const dist1: number = RegionMap.minDistanceBetweenRegions(isl, this._continents[1]);
+					const dist2: number = RegionMap.minDistanceBetweenRegions(isl, this._continents[2]);
 					if (dist0 < dist1 && dist0 < dist2) {
 						this._continents[0].addRegion(isl)
 					} else if (dist1 < dist2) {

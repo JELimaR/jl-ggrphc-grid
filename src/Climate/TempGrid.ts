@@ -1,8 +1,8 @@
 import JGrid, { JGridPoint } from "../Geom/JGrid";
 import JPoint from "../Geom/JPoint";
-import * as TempFunctions from '../Climate/JTempFunctions';
+import * as TempFunctions from './TempFunctions';
 import * as turf from '@turf/turf'
-import { IPressureZone } from './JPressureGrid'
+import { IPressureZone } from './PressureGrid'
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 const dataInfoManager = DataInformationFilesManager.instance;
 
@@ -12,7 +12,7 @@ export interface ITempDataGrid {
 	tempMonth: number[];
 }
 
-export default class JTempGrid {
+export default class TempGrid {
 	_grid: JGrid;
 	_tempData: ITempDataGrid[][] = [];
 	_itczPoints: Map<number, JGridPoint[]> = new Map<number, JGridPoint[]>();
@@ -29,7 +29,9 @@ export default class JTempGrid {
 		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 			if (gp._cell.info.isLand) {
 				const hf = 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000;
-				this._tempData[cidx][ridx].tempMonth = this._tempData[cidx][ridx].tempMonth.map((t: number) => t -= hf)
+				this._tempData[cidx][ridx].tempMonth = this._tempData[cidx][ridx].tempMonth.map((t: number, i: number) => 
+					this._tempData[cidx][ridx].tempMonth[i] = t - hf
+				)
 			}
 		})
 		console.timeEnd('set temp grid data');
@@ -72,7 +74,7 @@ export default class JTempGrid {
 				})
 				out[cidx][ridx] = {
 					tempCap: caps[cidx][ridx],
-					tempMed: tarr.reduce((v: number, c: number) => v += c) / 12,
+					tempMed: tarr.reduce((v: number, c: number) => v + c, 0) / 12,
 					tempMonth: tarr
 				}
 			})
@@ -164,7 +166,7 @@ export default class JTempGrid {
 		this._grid._points.forEach((col: JGridPoint[], cidx: number) => {
 			let max: number = -Infinity;
 			let id: number = -1;
-			col.forEach((gp: JGridPoint, ridx: number) => {
+			col.forEach((_gp: JGridPoint, ridx: number) => {
 				let arr: number[] = this._grid.getIndexsInWindow(ridx, 10);
 				let tempValue: number = 0, cant: number = 0;
 				arr.forEach((n: number) => {
@@ -375,45 +377,6 @@ export default class JTempGrid {
 			})
 		}
 
-
-		/*
-				const arr: number[] = [];
-				for (let i = -180; i < 180; i += this._grid._granularity) arr.push(i);
-		
-				let highPointArr: JGridPoint[] = [];
-				highPointArr = highPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, 90))));
-				highPointArr = highPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, -90))));
-				highPointArr = highPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, 30))));
-				highPointArr = highPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, -30))));
-		
-				highPointArr.forEach((hp: JGridPoint) => {
-					// if (!hp._cell.info.isLand || Math.abs(hp._point.y) == 90) {
-						out.push({
-							point: hp._point,
-							mag: (hp._cell.info.isLand) ? 0.4999 * MAG : MAG // 10 
-						})
-						pressureCentersLocation[hp.colValue][hp.rowValue] = 1;
-					// }
-				})
-		
-				//
-				let lowPointArr: JGridPoint[] = [];
-				lowPointArr = lowPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, 0))));
-				lowPointArr = lowPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, 60))));
-				lowPointArr = lowPointArr.concat(arr.map((n: number) => this._grid.getGridPoint(new JPoint(n, -60))));
-		
-				lowPointArr.forEach((lp: JGridPoint) => {
-					// if (lp._cell.info.isLand || Math.abs(lp._point.y) == 750) {
-					out.push({
-						point: lp._point,
-						mag: 4 / 3 * (lp._cell.info.isLand ? -MAG : -0.4999 * MAG) // -10 /** lp.getPixelArea() - 10
-					})
-					pressureCentersLocation[lp.colValue][lp.rowValue] = -1;
-					// }
-				})
-		
-		*/
-
 		/*
 		out.forEach((val: IPressureZone) => {
 			magProm += val.mag;
@@ -429,7 +392,6 @@ export default class JTempGrid {
 		// 		val.mag = (val.mag - magProm <= 0) ? val.mag + posProm : val.mag - magProm;
 		// 	}
 		// })
-
 
 		console.timeEnd('calc pressure centers')
 		return {

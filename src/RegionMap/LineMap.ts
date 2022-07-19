@@ -3,7 +3,6 @@ import JCell from '../Voronoi/JCell';
 import JPoint from '../Geom/JPoint';
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
-import JWMap from '../JWMap';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
@@ -11,13 +10,12 @@ import { IDiagramContainer, IEdgeContainer, IVertexContainer } from '../generalI
 const dataFilaManager = DataInformationFilesManager.instance;
 
 
-export interface IJLineInfo {
-	/**/
+export interface ILineMapInfo {
 	vertices: string[];
 	length: number;
 }
 
-export default class JLine implements IDiagramContainer, IVertexContainer, IEdgeContainer {
+export default class LineMap implements IDiagramContainer, IVertexContainer, IEdgeContainer {
 
 	private _diagram: JDiagram;
 	private _vertices: JVertex[];
@@ -26,7 +24,7 @@ export default class JLine implements IDiagramContainer, IVertexContainer, IEdge
 	private _length: number;
 	private _isClosed: boolean = false;
 	
-	constructor(diagram: JDiagram, info?: IJLineInfo) {
+	constructor(diagram: JDiagram, info?: ILineMapInfo) {
 		this._diagram = diagram;;
 		if (info) {
 			this._vertices = info.vertices.map((vid: string) => this.diagram.vertices.get(vid) as JVertex); // ojo, podría no estar ordenado.
@@ -150,7 +148,7 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		return out;
 	}
 
-	getInterface(): IJLineInfo {
+	getInterface(): ILineMapInfo {
 		return {
 			vertices: this._vertices.map((vertex: JVertex) => vertex.id),
 			length: this._length,

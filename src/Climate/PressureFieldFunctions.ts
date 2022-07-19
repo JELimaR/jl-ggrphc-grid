@@ -23,7 +23,7 @@ export const calcFieldInPoint = (point: JPoint, pressureCenters: IPressureZone[]
 		dir = dir.scale(magnitude);
 		out = out.add(dir);
 
-		magSum += pz.mag / ((dist));;
+		magSum += pz.mag / dist;
 	})
 
 	return { vec: out, pot: magSum };
@@ -73,7 +73,7 @@ export const calcMovementState = (currState: IMovementState, force: JPoint, GRAN
 }
 
 const calcTime = (A: JPoint, currState: IMovementState, pos2: JPoint): number => {
-	let time: number = 0;
+	let calculatedTime: number = 0;
 
 	let a = A.x/2;
 	let b = currState.vel.x;
@@ -81,7 +81,7 @@ const calcTime = (A: JPoint, currState: IMovementState, pos2: JPoint): number =>
 
 	let root = (b**2) - (4*a*c);
 	if (root > 0) {
-		time = (-b + Math.sqrt(root)) / (2*a);
+		calculatedTime = (-b + Math.sqrt(root)) / (2*a);
 	}
 /*
 	if (time > 0) {
@@ -91,5 +91,5 @@ const calcTime = (A: JPoint, currState: IMovementState, pos2: JPoint): number =>
 		throw new Error('time no puede ser 0')
 	}*/
 
-	return time;
+	return calculatedTime;
 }

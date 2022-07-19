@@ -148,8 +148,8 @@ export default class JGrid {
 
 	// obtener puntos en una ventana (en principio se cortan los bordes)
 	getGridPointsInWindowGrade(point: JPoint, windowGrades: number): JGridPoint[] {
-		const cWindow = (windowGrades > 360) ? 360 : windowGrades;
-		const rWindow = (windowGrades > 180) ? 180 : windowGrades;
+		// const cWindow = (windowGrades > 360) ? 360 : windowGrades;
+		// const rWindow = (windowGrades > 180) ? 180 : windowGrades;
 		let out: JGridPoint[] = [];
 		const INDXS = this.getGridPointIndexes(point);
 

@@ -8,20 +8,20 @@ import NaturalWorld from '../NaturalWorld';
 
 
 import statesPointsLists from '../divisions/countries/statesPointsLists';
-import { JContinentMap, JCountryMap, JIslandMap } from '../RegionMap/JRegionMap';
+import { JContinentMap, JCountryMap, JIslandMap } from '../RegionMap/RegionMap';
 import JCell from '../Voronoi/JCell';
 import JVertex from '../Voronoi/JVertex';
 import chroma from 'chroma-js';
 
-import JRiverMap from '../Climate/JRiverMap';
+import RiverMapGenerator from '../Climate/RiverMapGenerator';
 
-import JRiver, {  } from '../Climate/JRiver';
-import JWaterRoute from '../Climate/JWaterRoute';
+import RiverMap, { } from '../Climate/RiverMap';
+import FluxRoute from '../Climate/FluxRoute';
 import Shower from './Shower';
 import { switchCase } from '@babel/types';
 
 let colorScale: chroma.Scale;
-let color: string;
+// let color: string;
 
 
 export default class ShowWater extends Shower {
@@ -30,20 +30,23 @@ export default class ShowWater extends Shower {
 		super(world, area, gran, folderSelected, 'river');
 	}
 
-	drawRivers(color: string | 'random', backGround: 'h') { // crear el JCellToDrawEntryFunction
+	drawRivers(color: string | 'random', backGround: 'h' | 'l') { // crear el JCellToDrawEntryFunction
 		this.d.clear();
 		// fondo
 		switch (backGround) {
 			case 'h':
 				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1));
 				break;
+			case 'l':
+				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.land(1));
+				break;
 			default:
 				this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.land(1));
 		}
 
 		// rivers
-		this.w._riverMap._rivers.forEach((river: JRiver) => {
-			color = (color == 'random') ? chroma.random().hex() : color;			
+		this.w._riverMap._rivers.forEach((river: RiverMap) => {
+			color = (color == 'random') ? chroma.random().hex() : color;
 			const points: JPoint[] = river.vertices.map((vertex: JVertex) => vertex.point)
 			this.d.draw(points, {
 				fillColor: 'none',
@@ -61,8 +64,8 @@ export default class ShowWater extends Shower {
 		this.drawFondo(background);
 
 		// water routes
-		this.w._riverMap._waterRoutesMap.forEach((waterRoute: JWaterRoute) => {			
-			color = (color == 'random') ? chroma.random().hex() : color;			
+		this.w._riverMap._waterRoutesMap.forEach((waterRoute: FluxRoute) => {
+			color = (color == 'random') ? chroma.random().hex() : color;
 			const points: JPoint[] = waterRoute.vertices.map((vertex: JVertex) => vertex.point)
 			this.d.draw(points, {
 				fillColor: 'none',
@@ -91,29 +94,29 @@ export default class ShowWater extends Shower {
 	}
 	printRiverDataLongers(minL: number) {
 		this.printSeparator();
-		const riverSorted: JRiver[] = this.w._riverMap.riverLengthSorted;
+		const riverSorted: RiverMap[] = this.w._riverMap.riverLengthSorted;
 		let cant: number = 0;
-		let curr: JRiver = riverSorted[0];
+		let curr: RiverMap = riverSorted[0];
 		while (curr.length > minL && cant < riverSorted.length) {
 			curr = riverSorted[cant]
 			cant++;
 		}
 		cant--;
 		console.log(`rivers longer than ${minL} km`, cant);
-		
+
 		const arr = [];
-		for (let i = 0; i<cant;i++) {
-			const rs: JRiver = riverSorted[i];
+		for (let i = 0; i < cant; i++) {
+			const rs: RiverMap = riverSorted[i];
 			const rlength = rs.vertices.length;
 			const ini: IPoint = rs.vertices[0].point.getInterface();
-			const fin: IPoint = rs.vertices[rlength-1].point.getInterface();
+			const fin: IPoint = rs.vertices[rlength - 1].point.getInterface();
 			arr.push({
 				riverId: rs.id,
 				len: Math.round(rs.length),
 				verts: rs.vertices.length,
 				ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
 				fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
-				desemb: rs.vertices[rlength-1].info.vertexHeight.heightType
+				desemb: rs.vertices[rlength - 1].info.vertexHeight.heightType
 			})
 		}
 		console.table(arr)
@@ -121,28 +124,28 @@ export default class ShowWater extends Shower {
 
 	printRiverDataShorters(maxL: number) {
 		this.printSeparator();
-		const riverSorted: JRiver[] = this.w._riverMap.riverLengthSorted;
+		const riverSorted: RiverMap[] = this.w._riverMap.riverLengthSorted;
 		let cant: number = 0;
-		let curr: JRiver = riverSorted[0];
+		let curr: RiverMap = riverSorted[0];
 		while (curr.length > maxL && cant < riverSorted.length) {
 			curr = riverSorted[cant]
 			cant++;
 		}
 		console.log(`rivers shorter than ${maxL} km`, riverSorted.length - cant);
-		
+
 		const arr = [];
-		for (let i = cant; i < riverSorted.length;i++) {
-			const rs: JRiver = riverSorted[i];
+		for (let i = cant; i < riverSorted.length; i++) {
+			const rs: RiverMap = riverSorted[i];
 			const rlength = rs.vertices.length;
 			const ini: IPoint = rs.vertices[0].point.getInterface();
-			const fin: IPoint = rs.vertices[rlength-1].point.getInterface();
+			const fin: IPoint = rs.vertices[rlength - 1].point.getInterface();
 			arr.push({
 				riverId: rs.id,
-				len: Math.round(100*rs.length)/100,
+				len: Math.round(100 * rs.length) / 100,
 				verts: rs.vertices.length,
 				ini: `${ini.x.toLocaleString('de-DE')};${ini.y.toLocaleString('de-DE')}`,
 				fin: `${fin.x.toLocaleString('de-DE')};${fin.y.toLocaleString('de-DE')}`,
-				desemb: rs.vertices[rlength-1].info.vertexHeight.heightType
+				desemb: rs.vertices[rlength - 1].info.vertexHeight.heightType
 			})
 		}
 		console.table(arr)

@@ -6,15 +6,14 @@ import { DivisionMaker } from '../divisions/DivisionMaker';
 import statesPointsLists from '../divisions/countries/statesPointsLists';
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 import countriesDivision from '../divisions/countries/countriesDivision';
-import JWMap from '../JWMap';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
-import JLine from './JLine';
+import LineMap from './LineMap';
 import { IDiagramContainer, ICellContainer } from '../generalInterfaces';
 const dataFilaManager = DataInformationFilesManager.instance;
 
-export interface IJRegionInfo {
+export interface IRegionMapInfo {
 	cells: number[];
 	neighborList: number[];
 	limitCellList: number[];
@@ -26,7 +25,7 @@ export interface IJRegionTreeNode {
 	region: JRegionMap;
 }
 */
-export default class JRegionMap implements IDiagramContainer, ICellContainer {
+export default class RegionMap implements IDiagramContainer, ICellContainer {
 
 	private _diagram: JDiagram;
 	private _cells: Map<number, JCell>;
@@ -34,7 +33,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 	private _limitCellList: Set<number>;
 	private _area: number;
 
-	constructor(diag: JDiagram, info?: IJRegionInfo) {
+	constructor(diag: JDiagram, info?: IRegionMapInfo) {
 		this._diagram = diag;
 		if (info) {
 			this._cells = new Map<number, JCell>();
@@ -69,8 +68,8 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		return cells;
 	}
 
-	getLimitLines(): JLine[] {
-		let out: JLine[] = [];
+	getLimitLines(): LineMap[] {
+		let out: LineMap[] = [];
 
 		const verticesLimits: Map<string,JVertex> = new Map<string,JVertex>(); // map para evitar agregar el mismo vertex
 		this.getLimitCells().forEach((cell: JCell) => {
@@ -82,7 +81,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 			})
 		})
 		this.sortVerticesList([...verticesLimits.values()]).forEach((verts: JVertex[]) => {
-			let line: JLine = new JLine(this.diagram);
+			let line: LineMap = new LineMap(this.diagram);
 			verts.forEach((elem: JVertex) => {line.addVertex(elem)});
 			line.close()
 			out.push(line)
@@ -152,7 +151,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		this.updateLimitCellList();	
 	}
 
-	addRegion(reg: JRegionMap): void {
+	addRegion(reg: RegionMap): void {
 		let areDisjoint: boolean = true;
 		reg.forEachCell((c: JCell) => {
 			if (!this.isInRegion(c.id)) {
@@ -177,14 +176,14 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		this.updateLimitCellList();
 	}
 
-	growing(ent: {cant: number, supLim?: number, regFather?: JRegionMap}) {
+	growing(ent: {cant: number, supLim?: number, regFather?: RegionMap}) {
 		ent.supLim = ent.supLim || Infinity;
 		for (let i=0; i<ent.cant && this.area < ent.supLim; i++) {
 			this.growingOnes(ent.regFather);
 		}
 	}
 
-	private growingOnes(regFather?: JRegionMap) {
+	private growingOnes(regFather?: RegionMap) {
 		if (this._neighborList.size === 0) return;
 		let list = [...this._neighborList]
 		list.forEach((e: number) => {
@@ -196,18 +195,18 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		})
 	}
 
-	divideInSubregions(plist: JPoint[][], landOnly: boolean = false): JRegionMap[] {
+	divideInSubregions(plist: JPoint[][], landOnly: boolean = false): RegionMap[] {
 		if (plist.length === 0) {
 			throw new Error('plist most have points arrays')
 		}
-		let subs: JRegionMap[] = [];
+		let subs: RegionMap[] = [];
 		let used: Map<number, number> = new Map<number,number>(); // cambiar
 		const randFunc = RandomNumberGenerator.makeRandomFloat(plist.length);
 		plist.forEach((points: JPoint[]) => {
 			if (points.length === 0) {
 				throw new Error('points most have points')
 			}
-			let newSR: JRegionMap = new JRegionMap(this.diagram);
+			let newSR: RegionMap = new RegionMap(this.diagram);
 			subs.push(newSR);
 			points.forEach((p: JPoint) => {
 				const centerCell: JCell = this.diagram.getCellFromPoint(p);
@@ -222,7 +221,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		let prevUsedSize: number = 0;
 		for (let i=0; i < 1000 && prevUsedSize < used.size && used.size < this._cells.size; i++) {
 			prevUsedSize = used.size;
-			subs.forEach((jsr: JRegionMap) => {
+			subs.forEach((jsr: RegionMap) => {
 				jsr.growingOnesInDivide(this, used, randFunc, landOnly);
 			})
 		}
@@ -237,7 +236,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		return subs;
 	}
 
-	private growingOnesInDivide(regFather: JRegionMap, used: Map<number, number>, randFunc: ()=>number, landOnly: boolean)  {
+	private growingOnesInDivide(regFather: RegionMap, used: Map<number, number>, randFunc: ()=>number, landOnly: boolean)  {
 		if (this._neighborList.size === 0) return;
 		let list = [...this._neighborList];
 		list.forEach((e: number) => {
@@ -260,9 +259,9 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		})
 	}
 
-	private addCellToNearestRegion(cell: JCell, subs: JRegionMap[]) {
+	private addCellToNearestRegion(cell: JCell, subs: RegionMap[]) {
 		let dist: number[] = [];
-		subs.forEach((sr: JRegionMap) => { 
+		subs.forEach((sr: RegionMap) => { 
 			dist.push( sr.minDistanceToCell(cell) );
 		})
 
@@ -271,7 +270,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		subs[indexMin].addCell(cell);
 	}
 
-	getInterface(): IJRegionInfo {
+	getInterface(): IRegionMapInfo {
 		let cells: number[] = [];
 		this._cells.forEach((c: JCell) => {cells.push(c.id)});
 		return {
@@ -292,7 +291,7 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 	}
 
 	// distance between
-	static minDistanceBetweenRegions(reg1: JRegionMap, reg2: JRegionMap): number {
+	static minDistanceBetweenRegions(reg1: RegionMap, reg2: RegionMap): number {
 		let out: number = Infinity;
 		reg1.getLimitCells().forEach((c1: JCell) => {
 			reg2.getLimitCells().forEach((c2: JCell) => {
@@ -303,33 +302,33 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 		return out;
 	}
 
-	static intersect<R extends JRegionMap>(reg1: JRegionMap, reg2: JRegionMap): JRegionMap {
-		let out: JRegionMap = new JRegionMap(reg1.diagram);
+	static intersect<R extends RegionMap>(reg1: RegionMap, reg2: RegionMap): RegionMap {
+		let out: RegionMap = new RegionMap(reg1.diagram);
 		if (reg1.cells.size < reg2.cells.size) {
 			reg1.forEachCell((c1: JCell) => {
-				if (JRegionMap.isInRegion(c1, reg2))
+				if (RegionMap.isInRegion(c1, reg2))
 					out.addCell(c1);
 			})
 		} else {
 			reg2.forEachCell((c2: JCell) => {
-				if (JRegionMap.isInRegion(c2, reg1))
+				if (RegionMap.isInRegion(c2, reg1))
 					out.addCell(c2);
 			})
 		}
 		return out;
 	}
 
-	static existIntersection(reg1: JRegionMap, reg2: JRegionMap): boolean {
+	static existIntersection(reg1: RegionMap, reg2: RegionMap): boolean {
 		let out: boolean = false;
 		let it = reg1._cells.values();
 		for (let i=0; i < reg1._cells.size && !out ; i++ ) {
 			const c1: JCell = it.next().value;
-			out = JRegionMap.isInRegion(c1, reg2);
+			out = RegionMap.isInRegion(c1, reg2);
 		}
 		return out;
 	}
 
-	static isInRegion(en: number | JCell, reg: JRegionMap): boolean { // borrar
+	static isInRegion(en: number | JCell, reg: RegionMap): boolean { // borrar
 		const id: number = (en instanceof JCell) ? en.id : en;
 		return reg.cells.has(id);
 	}
@@ -381,17 +380,17 @@ export default class JRegionMap implements IDiagramContainer, ICellContainer {
 }
 
 
-export interface IJContinentInfo extends IJRegionInfo {
+export interface IJContinentInfo extends IRegionMapInfo {
 	id: number;
 }
 
-export class JContinentMap extends JRegionMap {
+export class JContinentMap extends RegionMap {
 	private _id: number;
 	private _countries: JCountryMap[];
 	private _states: Map<string,JStateMap>;
 
-	constructor(id: number, /*world: JWorldMap*/ diag: JDiagram, info?: IJContinentInfo | JRegionMap) {
-		const iri: IJRegionInfo | undefined = (info instanceof JRegionMap) ? info.getInterface() : info;
+	constructor(id: number, /*world: JWorldMap*/ diag: JDiagram, info?: IJContinentInfo | RegionMap) {
+		const iri: IRegionMapInfo | undefined = (info instanceof RegionMap) ? info.getInterface() : info;
 		super(diag, iri);
 		this._id = id;
 		this._states = new Map<string,JStateMap>();
@@ -413,8 +412,8 @@ export class JContinentMap extends JRegionMap {
 		const loadedStates: IJStateInfo[] = dataFilaManager.loadStatesInfo(this.diagram.cells.size, this.id);
 		
 		if (loadedStates.length === 0) {
-			let arr: JRegionMap[] = this.divideInSubregions(statesPointsLists[this._id], true);
-			arr.forEach((reg: JRegionMap, idx: number) => {
+			let arr: RegionMap[] = this.divideInSubregions(statesPointsLists[this._id], true);
+			arr.forEach((reg: RegionMap, idx: number) => {
 				let state = new JStateMap(this._id, this.diagram, reg.getInterface());
 				this._states.set(state.id, state);
 			})
@@ -453,12 +452,12 @@ export class JContinentMap extends JRegionMap {
 
 }
 
-export interface IJIslandInfo extends IJRegionInfo {
+export interface IJIslandInfo extends IRegionMapInfo {
 	id: number;
 }
 
-export class JIslandMap extends JRegionMap {
-	constructor(private _id: number, /*world: JWorldMap*/ diag: JDiagram, info?: IJRegionInfo,) {
+export class JIslandMap extends RegionMap {
+	constructor(private _id: number, /*world: JWorldMap*/ diag: JDiagram, info?: IRegionMapInfo,) {
 		super(diag, info);
 	}
 
@@ -472,12 +471,12 @@ export class JIslandMap extends JRegionMap {
 	}
 }
 
-export interface IJCountryInfo extends IJRegionInfo {
+export interface IJCountryInfo extends IRegionMapInfo {
 	id: string;
 	states: string[];
 }
 
-export class JCountryMap extends JRegionMap {
+export class JCountryMap extends RegionMap {
 	private static currId: number = 0;
 	static getNewID(): number {
 		this.currId++;
@@ -486,11 +485,11 @@ export class JCountryMap extends JRegionMap {
 	private _id: string;
 	private _states: JStateMap[]
 
-	constructor(contId: number, /*world: JWorldMap*/ cont: JContinentMap, info?: IJCountryInfo | JRegionMap) {
-		const iri: IJRegionInfo | undefined = (info instanceof JRegionMap) ? info.getInterface() : info;
+	constructor(contId: number, /*world: JWorldMap*/ cont: JContinentMap, info?: IJCountryInfo | RegionMap) {
+		const iri: IRegionMapInfo | undefined = (info instanceof RegionMap) ? info.getInterface() : info;
 		super(cont.diagram, iri);
 		this._states = [];
-		if (info && !(info instanceof JRegionMap)) {
+		if (info && !(info instanceof RegionMap)) {
 			this._id = info.id;
 			info.states.forEach((sid: string) => {
 				const state: JStateMap | undefined = cont.states.get(sid);
@@ -520,11 +519,11 @@ export class JCountryMap extends JRegionMap {
 	}
 }
 
-export interface IJStateInfo extends IJRegionInfo {
+export interface IJStateInfo extends IRegionMapInfo {
 	id: string;
 }
 
-export class JStateMap extends JRegionMap {
+export class JStateMap extends RegionMap {
 
 	private static currId: number = 0;
 	static getNewID(): number {
@@ -533,7 +532,7 @@ export class JStateMap extends JRegionMap {
 	}
 	private _id: string;
 
-	constructor(contId: number, /*world: JWorldMap*/ diag: JDiagram, info?: IJRegionInfo) {
+	constructor(contId: number, /*world: JWorldMap*/ diag: JDiagram, info?: IRegionMapInfo) {
 		super(diag, info);
 		this._id = `S${(contId+1)*1000+JStateMap.getNewID()}C${contId}`;
 	}

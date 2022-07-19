@@ -1,8 +1,8 @@
-import { calcCoriolisForce, calcMovementState, IMovementState } from "./JPressureFieldFunctions";
+import { calcCoriolisForce, calcMovementState, IMovementState } from "./PressureFieldFunctions";
 import { JGridPoint } from "../Geom/JGrid";
 import JPoint from "../Geom/JPoint";
-import JPressureGrid, { IPressureZone, PressureData } from "./JPressureGrid";
-import JTempGrid from "./JTempGrid";
+import JPressureGrid, { IPressureZone, PressureData } from "./PressureGrid";
+import TempGrid from "./TempGrid";
 
 const sat: number = 6000;
 const roz = 0.71;
@@ -11,7 +11,7 @@ const MAXRAIN = 100;
 const tempMin = -15;
 
 
-export class JWindRoutePoint {
+export class WindRoutePoint {
 	constructor(
 		public point: JPoint,
 		public precipOut: number,
@@ -20,7 +20,7 @@ export class JWindRoutePoint {
 	) { }
 
 	static fromInterface(wr: IWindRoute) {
-		return new JWindRoutePoint(
+		return new WindRoutePoint(
 			JPoint.fromInterface(wr.point), wr.precipOut, wr.evapOut, wr.accOut
 		)
 	}
@@ -49,26 +49,26 @@ export interface IPrecipDataGenerated {
 	deltaTempCant: number;
 } // agregar deltaT
 
-export default class JWindSimulate {
+export default class WindSimulate {
 
 	private _pressGrid: JPressureGrid;
-	private _tempGrid: JTempGrid;
+	private _tempGrid: TempGrid;
 
-	constructor(pressGrid: JPressureGrid, tempGrid: JTempGrid) {
+	constructor(pressGrid: JPressureGrid, tempGrid: TempGrid) {
 		this._pressGrid = pressGrid;
 		this._tempGrid = tempGrid;
 	}
 
 	windSim() {
 		let precipOut: Map<number, IPrecipDataGenerated[][]> = new Map<number, IPrecipDataGenerated[][]>();
-		let routeOut: Map<number, Array<JWindRoutePoint>[][]> = new Map<number, Array<JWindRoutePoint>[][]>();
+		let routeOut: Map<number, Array<WindRoutePoint>[][]> = new Map<number, Array<WindRoutePoint>[][]>();
 
 		console.time('wind sim iteration')
-		this._pressGrid._pressureCenters.forEach((pcs: IPressureZone[], m: number) => {
+		this._pressGrid._pressureCenters.forEach((_pcs: IPressureZone[], m: number) => {
 			console.log('month:', m);
 			let dataPrecip: IPrecipDataGenerated[][] = [];
-			let dataRoutes: Array<JWindRoutePoint>[][] = [];
-			this._pressGrid._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+			let dataRoutes: Array<WindRoutePoint>[][] = [];
+			this._pressGrid._grid.forEachPoint((_gp: JGridPoint, cidx: number, ridx: number) => {
 				if (!dataPrecip[cidx]) dataPrecip[cidx] = [];
 				dataPrecip[cidx][ridx] = { precipValue: 0, precipCant: 0, deltaTempCant: 0, deltaTempValue: 0 };
 				if (!dataRoutes[cidx]) dataRoutes[cidx] = [];
@@ -87,9 +87,9 @@ export default class JWindSimulate {
 				const gp: JGridPoint = sortedList.shift() as JGridPoint;
 				if (gp._cell.isMarked()) continue
 
-				let route: JWindRoutePoint[] = [];
+				let route: WindRoutePoint[] = [];
 				const currPos: JPoint = new JPoint(gp._point.x, gp._point.y);
-				let wsOut: { dataPrecip: IPrecipDataGenerated[][], route: JWindRoutePoint[] } = { dataPrecip: [], route: [] }
+				let wsOut: { dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[] }// = { dataPrecip: [], route: [] }
 				// if (pressGrid._pressureCentersLocationGrid.get(m)![gp.colValue][gp.rowValue] !== 1) {
 				wsOut = this.windSimIteration(currPos, m, dataPrecip, route);
 				dataPrecip = wsOut.dataPrecip;
@@ -110,7 +110,7 @@ export default class JWindSimulate {
 		}
 	}
 
-	windSimIteration(initPoint: JPoint, month: number, dataPrecip: IPrecipDataGenerated[][], route: JWindRoutePoint[]): { dataPrecip: IPrecipDataGenerated[][], route: JWindRoutePoint[] } {
+	windSimIteration(initPoint: JPoint, month: number, dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[]): { dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[] } {
 
 		route = [];
 		let currPos = initPoint;
@@ -120,8 +120,9 @@ export default class JWindSimulate {
 		let gpprev: JGridPoint | undefined, gpnew: JGridPoint | undefined;
 
 		let cont: number = 0;
-		let it: number = 0;
-		for (it = 0; /*it < 5000 && */cont < 1; it++) {
+		// let it: number = 0;
+		// for (it = 0; /*it < 5000 && */cont < 1; it++) {
+		while (cont < 1) {
 			if (this._pressGrid.isCloseLowPressure(currPos, month)) cont++;
 			if ((!!gpprev && !!gpnew && gpprev === gpnew)) cont += 0.2//0.25 0.01;
 			else cont = 0;
@@ -150,7 +151,7 @@ export default class JWindSimulate {
 			} = this.calcMoistureValuesIter(gpnew, gpprev, acc, month);
 			acc = accOut;
 			if (gpprev !== gpnew)
-				route.push(new JWindRoutePoint(currPos, accOut, evapOut, precipOut));
+				route.push(new WindRoutePoint(currPos, precipOut, evapOut, accOut));
 
 			// asignar
 			dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += /*((Math.cos(gpprev._point.y * Math.PI / 180) * 0.7 + 0.3) ** 1.0) */ precipOut;
@@ -182,7 +183,7 @@ export default class JWindSimulate {
 		// variables de entrada
 		const nextHeight: number = gpnew._cell.info.height;
 		const currHeight: number = gpprev._cell.info.height;
-		const nextPress: number = this._pressGrid.getPointInfo(gpnew._point).pots[month - 1];
+		// const nextPress: number = this._pressGrid.getPointInfo(gpnew._point).pots[month - 1];
 		const currPress: number = this._pressGrid.getPointInfo(gpprev._point).pots[month - 1];
 		const nextTemp: number = this._tempGrid.getPointInfo(gpprev._point).tempMonth[month - 1];
 		const currTemp: number = this._tempGrid.getPointInfo(gpnew._point).tempMonth[month - 1];

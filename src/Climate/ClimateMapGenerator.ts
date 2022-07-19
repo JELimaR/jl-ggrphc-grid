@@ -1,33 +1,37 @@
 import JDiagram from "../Voronoi/JDiagram";
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 // import { IJCellInformation } from "../Voronoi/JCellInformation";
-import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
-import JWMap from "../JWMap";
-import JRegionMap from "../RegionMap/JRegionMap";
 
-import JPoint from "../Geom/JPoint";
-import JPrecipGrid, { IPrecipData } from "./JPrecipGrid";
+import PrecipGrid, { IPrecipData } from "./PrecipGrid";
 
 import JCellClimate, { IJCellClimateInfo } from '../CellInformation/JCellClimate'
 
-import JGrid, { JGridPoint } from '../Geom/JGrid';
+import JGrid, {  } from '../Geom/JGrid';
 import { IJVertexClimateInfo } from "../VertexInformation/JVertexClimate";
 import JVertex from "../Voronoi/JVertex";
-import JTempGrid from "./JTempGrid";
-import JPressureGrid from "./JPressureGrid";
+import TempGrid from "./TempGrid";
+import JPressureGrid from "./PressureGrid";
 import { getArrayOfN } from "../utilFunctions";
+import MapGenerator from "../MapGenerator";
 
 
-export default class JClimateMap extends JWMap {
+export default class ClimateMapGenerator extends MapGenerator {
+	private _grid: JGrid;
 	constructor(d: JDiagram, grid: JGrid) {
 		super(d);
+		this._grid = grid;
+	}
+
+	generate(): void {
+		super.generate();
+
 		const dataInfoManager = DataInformationFilesManager.instance;
 
 		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
 		const isLoaded: boolean = climateData.length !== 0;
 		if (!isLoaded) {
-			climateData = this.generateClimateData(grid);
+			climateData = this.generateClimateData(this._grid);
 		}
 
 		this.diagram.forEachCell((cell: JCell) => {
@@ -55,11 +59,11 @@ export default class JClimateMap extends JWMap {
 
 	}
 
-	generateClimateData(grid: JGrid): IJCellClimateInfo[] {
+	private generateClimateData(grid: JGrid): IJCellClimateInfo[] {
 
-		const tempGrid = new JTempGrid(grid);
+		const tempGrid = new TempGrid(grid);
 		const pressGrid = new JPressureGrid(grid, tempGrid);
-		const precipGrid: JPrecipGrid = new JPrecipGrid(pressGrid, tempGrid)
+		const precipGrid: PrecipGrid = new PrecipGrid(pressGrid, tempGrid)
 
 		let climateData: IJCellClimateInfo[] = [];
 

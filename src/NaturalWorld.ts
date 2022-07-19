@@ -1,17 +1,17 @@
 import VoronoiDiagramCreator from './Voronoi/VoronoiDiagramCreator';
 import JDiagram from './Voronoi/JDiagram';
-import JHeightMap from './heightmap/JHeightMap';
+import HeightMapGenerator from './heightmap/HeightMapGenerator';
 import JGrid from './Geom/JGrid';
-import JClimateMap from './Climate/JClimateMap';
-import JRiverMap from './Climate/JRiverMap';
-import { JIslandMap } from './RegionMap/JRegionMap';
+import ClimateMapGenerator from './Climate/ClimateMapGenerator';
+import RiverMapGenerator from './Climate/RiverMapGenerator';
+import { JIslandMap } from './RegionMap/RegionMap';
 
 export default class NaturalWorld {
 	
 	private _diagram: JDiagram;
-	_heightMap: JHeightMap;
+	_heightMap: HeightMapGenerator;
 	// private _climateMap: JClimateMap;
-	_riverMap: JRiverMap;
+	_riverMap: RiverMapGenerator;
 
 	_islands: JIslandMap[] = [];
 
@@ -32,19 +32,19 @@ export default class NaturalWorld {
 
 	private generateNaturalWorld(GRAN: number, AREA: number): {
 		d: JDiagram,
-		h: JHeightMap,
+		h: HeightMapGenerator,
 		// c: JClimateMap,
-		r: JRiverMap,
+		r: RiverMapGenerator,
 
 		i: JIslandMap[],
 	} {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
 		const iniGrid: JGrid = this.createGrid(iniDiagram, GRAN)
-		new JHeightMap(iniDiagram);
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		
-		const heightMap = new JHeightMap(diagram, iniDiagram);
+		const heightMap = new HeightMapGenerator(diagram, iniDiagram);
+		heightMap.generate();
 		this.generateClimate(diagram, iniGrid);
 		const riverMap = this.generateRivers(diagram);
 		console.timeEnd('Generate Natural World')
@@ -67,6 +67,8 @@ export default class NaturalWorld {
 	}
 	private createPrincipalVoronoiDiagram(initialDiagram: JDiagram, AREA: number): JDiagram {
 		console.log('-----second voronoi-------');
+		const inihmg = new HeightMapGenerator(initialDiagram);
+		inihmg.generate();
 		console.time('second voronoi');
 		const diagram: JDiagram = VoronoiDiagramCreator.createSubDiagram(initialDiagram, AREA);
 		console.timeEnd('second voronoi');
@@ -80,9 +82,12 @@ export default class NaturalWorld {
 		return grid;
 	}
 	private generateClimate(diagram: JDiagram, grid: JGrid): void {
-		/*return*/ new JClimateMap(diagram, grid);
+		const cmg = new ClimateMapGenerator(diagram, grid);
+		cmg.generate();
 	}
-	private generateRivers(diagram: JDiagram): JRiverMap {
-		return new JRiverMap(diagram)
+	private generateRivers(diagram: JDiagram): RiverMapGenerator {
+		const rmg = new RiverMapGenerator(diagram);
+		rmg.generate();
+		return rmg;
 	}
 }
