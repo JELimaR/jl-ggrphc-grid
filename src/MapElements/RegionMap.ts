@@ -87,7 +87,7 @@ export default class RegionMap implements IDiagramContainer, ICellContainer {
 			out.push(line)
 		})
 		if (out.length == 0) throw new Error(`en una region debe haber al menos un JLine limit`)
-		console.timeLog('convert to line')
+
 		return out;
 	}
 
@@ -127,9 +127,8 @@ export default class RegionMap implements IDiagramContainer, ICellContainer {
 		})
 	}
 
-	isInRegion(en: number | JCell): boolean { // borrar
-		const id: number = (en instanceof JCell) ? en.id : en;
-		return this._cells.has(id);
+	isInRegion(en: number | JCell): boolean { 
+		return RegionMap.isInRegion(en, this);
 	}
 
 	addCell(c: JCell): void {

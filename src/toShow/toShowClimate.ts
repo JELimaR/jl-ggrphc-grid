@@ -1,6 +1,6 @@
 import NaturalWorld from "../NaturalWorld";
 import Shower from "./Shower";
-import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions';
+import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions';
 
 import JCell from "../Voronoi/JCell";
 import { inRange } from "../utilFunctions";
@@ -14,7 +14,7 @@ export default class ShowClimate extends Shower {
 
 	drawKoppen() {
 		this.d.clear();
-		this.d.drawFondo()
+		this.d.drawBackground()
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.koppen(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}koppen.png`);
@@ -30,7 +30,7 @@ export default class ShowClimate extends Shower {
 	drawPrecipMonth(month: number) {
 		this.d.clear();
 		month = inRange(month, 1, 12);
-		this.d.drawFondo()
+		this.d.drawBackground()
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.precipitationMonth(month))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}precip${(month < 10 ? `0${month}` : `${month}`)}.png`);
@@ -46,7 +46,7 @@ export default class ShowClimate extends Shower {
 	drawTempMonth(month: number) {
 		this.d.clear();
 		month = inRange(month, 1, 12);
-		this.d.drawFondo()
+		this.d.drawBackground()
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.temperatureMonth(month))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}temp${(month < 10 ? `0${month}` : `${month}`)}.png`);

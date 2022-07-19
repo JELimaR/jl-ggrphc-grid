@@ -2,7 +2,7 @@
 import { Canvas, CanvasRenderingContext2D, createCanvas } from 'canvas';
 import fs from 'fs';
 import * as turf from '@turf/turf';
-import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions'
+import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
 
 import JPoint from '../Geom/JPoint';
@@ -21,6 +21,7 @@ import JEdge from '../Voronoi/JEdge';
 export interface IDrawEntry {
 	fillColor: string | 'none';
 	strokeColor: string | 'none';
+	lineWidth?: number;
 	dashPattern?: number[];
 	drawType?: 'line' | 'polygon'
 }
@@ -209,8 +210,8 @@ export default class DrawerMap {
 		})
 	}
 
-	drawFondo(color?: string) {
-		color = chroma.scale('Spectral').domain([1, 0])(0.05).hex();
+	drawBackground(color?: string) {
+		color = color || chroma.scale('Spectral').domain([1, 0])(0.05).hex();
 		this.draw([new JPoint(-200, -100), new JPoint(-200, 100), new JPoint(200, 100), new JPoint(200, -100), new JPoint(-200, -100)], {
 			strokeColor: color,
 			fillColor: color
@@ -240,6 +241,9 @@ export default class DrawerMap {
 		}
 
 		if (ent.dashPattern) context.setLineDash(ent.dashPattern);
+		else context.setLineDash([1,0]);
+		if (ent.lineWidth) context.lineWidth = ent.lineWidth; // depende del zoom
+		else context.lineWidth = 1;
 		context.strokeStyle = ent.strokeColor;
 		if (ent.strokeColor !== 'none') context.stroke();
 		context.fillStyle = ent.fillColor;

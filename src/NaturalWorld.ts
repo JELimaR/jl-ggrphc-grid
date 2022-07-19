@@ -13,7 +13,7 @@ export default class NaturalWorld {
 	// private _climateMap: JClimateMap;
 	_riverMap: RiverMapGenerator;
 
-	_islands: IslandMap[] = [];
+	private _islands: IslandMap[] = [];
 
 	constructor(AREA: number, GRAN: number) {
 		
@@ -21,7 +21,6 @@ export default class NaturalWorld {
 
 		this._diagram = gnw.d;
 		this._heightMap = gnw.h;
-		// this._climateMap = gnw.c;
 		this._riverMap = gnw.r;
 		//
 		this._islands = gnw.i;
@@ -29,11 +28,17 @@ export default class NaturalWorld {
 	}
 
 	get diagram(): JDiagram { return this._diagram }
+	get islands(): IslandMap[] {
+		if (this._islands.length == 0) {
+			
+		}
+		return this._islands;
+	}
 
 	private generateNaturalWorld(GRAN: number, AREA: number): {
 		d: JDiagram,
 		h: HeightMapGenerator,
-		// c: JClimateMap,
+
 		r: RiverMapGenerator,
 
 		i: IslandMap[],
@@ -44,7 +49,7 @@ export default class NaturalWorld {
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		
 		const heightMap = new HeightMapGenerator(diagram, iniDiagram);
-		heightMap.generate();
+		const islandsArr = heightMap.generate();
 		this.generateClimate(diagram, iniGrid);
 		const riverMap = this.generateRivers(diagram);
 		console.timeEnd('Generate Natural World')
@@ -54,7 +59,7 @@ export default class NaturalWorld {
 			// c: climateMap,
 			r: riverMap,
 
-			i: heightMap.islands,
+			i: islandsArr,
 		}
 	}
 	

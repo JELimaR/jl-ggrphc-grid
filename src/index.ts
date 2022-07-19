@@ -2,7 +2,8 @@ console.time('all');
 const newDate = new Date();
 console.log(newDate.toLocaleTimeString());
 
-import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions';
+import * as JCellToDrawEntryFunctions from './Drawer/JCellToDrawEntryFunctions';
+import * as JEdgeToDrawEntryFunctions from './Drawer/JEdgeToDrawEntryFunctions';
 import DrawerMap, { IDrawEntry } from './Drawer/DrawerMap'
 
 import JPoint from './Geom/JPoint';
@@ -31,6 +32,7 @@ import LineMap from './MapElements/LineMap';
 import JEdge from './Voronoi/JEdge';
 import ShowTest from './toShow/toShowTest';
 import ShowerManager from './toShow/ShowerManager';
+import { createICellContainer, createIVertexContainer } from './utilFunctions';
 
 const tam: number = 3600;
 let SIZE: JPoint = new JPoint(tam, tam / 2);
@@ -94,24 +96,24 @@ const stest = showerManager.st;
 
 /*******************************************************************/
 
-sh.drawHeight();
+// sh.drawHeight();
 // sh.printMaxAndMinCellsHeight();
 
 /******************** climate map ********************/
 // for (let month of monthArrObj[monthCant]) {	sc.drawTempMonth(month); }
-sc.drawTempMedia()
+// sc.drawTempMedia()
 // for (let month of monthArrObj[monthCant]) {	sc.drawPrecipMonth(month); }
-sc.drawPrecipMedia()
+// sc.drawPrecipMedia()
 
-sc.drawKoppen();
+// sc.drawKoppen();
 // sc.printKoppenData();
 
 /**
  * LIFE ZONES
  */
 // sc.drawAltitudinalBelts();
-// sc.drawHumidityProvinces()
-sc.drawLifeZones();
+// sc.drawHumidityProvinces();
+// sc.drawLifeZones();
 // sc.printLifeZonesData();
 
 /*
@@ -122,7 +124,7 @@ dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 dm.drawMeridianAndParallels(181,361)
 dm.saveDrawFile(`${AREA}secDiagram.png`)
 */
-sw.drawRivers('#1112EA', 'h');
+// sw.drawRivers('#1112EA', 'h');
 // sw.printRiverData();
 // sw.printRiverDataLongers(3000);
 // sw.printRiverDataShorters(15);
@@ -191,7 +193,46 @@ landReg.getLimitLines().forEach((limit: JLine) => {
 dm.drawMeridianAndParallels();
 dm.saveDrawFile(`${AREA}landInter.png`)
 */
-
 console.timeEnd('convert to line')
+
+stest.d.clear(0, new JPoint(12,5));
+
+const iniV = new JPoint(12,25);
+const finV = new JPoint(25,-15);
+
+const iniC = new JPoint(-42,5);
+const finC = new JPoint(-5,-25);
+
+const points: JPoint[] = [iniC, finC, finV, iniV, iniC];
+
+/*
+const line = new LineMap(naturalWorld.diagram);
+points.forEach((_: JPoint, i: number, arr: JPoint[]) => {
+	if (i !== 0) {
+		const ini = arr[i-1];
+		const fin = arr[i];
+		naturalWorld.diagram.getVerticesInSegment(ini,fin).forEach((v: JVertex) => {
+			if (!line.isInLine(v)) {
+				line.addVertex(v)
+			}
+		});
+	}
+})
+line.close();
+*/
+const line = naturalWorld.islands[2].getLimitLines()[0];
+
+stest.d.drawBackground('#FFFFFF')
+stest.d.drawEdgeContainer(line, (e: any) => {return {
+	strokeColor: '#FF0000',
+	fillColor: 'none'
+}})
+
+stest.d.drawMeridianAndParallels();
+stest.d.saveDrawFile(`${AREA}path.png`)
+
+console.log('long: ', line.length.toLocaleString('de-DE'), 'km.')
+console.log('ini', line.ini.point.getInterface())
+console.log('fin', line.fin.point.getInterface())
 
 console.timeEnd('all')

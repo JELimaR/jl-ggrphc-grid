@@ -1,5 +1,6 @@
-import { ICellContainer } from "./generalInterfaces";
+import { ICellContainer, IVertexContainer } from "./generalInterfaces";
 import JCell from "./Voronoi/JCell";
+import JVertex from "./Voronoi/JVertex";
 
 export const getArrayOfN = (tam: number, value: number): number[] => {
 	let out: number[] = [];
@@ -21,6 +22,15 @@ export const createICellContainer = (cells: JCell[] | Map<number, JCell>): ICell
 		cells: cells,
 		forEachCell: (func: (jc: JCell) => void) => {
 			cells.forEach((c: JCell) => { func(c) })
+		}
+	}
+}
+
+export const createIVertexContainer = (vertices: JVertex[] | Map<string, JVertex>): IVertexContainer => {
+	return {
+		vertices: vertices,
+		forEachVertex: (func: (jv: JVertex) => void) => {
+			vertices.forEach((v: JVertex) => { func(v) })
 		}
 	}
 }

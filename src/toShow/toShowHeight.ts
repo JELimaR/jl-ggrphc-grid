@@ -1,6 +1,6 @@
 import NaturalWorld from "../NaturalWorld";
 import Shower from "./Shower";
-import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions';
+import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions';
 
 import JCell from "../Voronoi/JCell";
 
@@ -12,7 +12,7 @@ export default class ShowHeight extends Shower {
 
 	drawHeight() {
 		this.d.clear();
-		this.d.drawFondo()
+		this.d.drawBackground()
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}heightLand.png`);
@@ -20,7 +20,7 @@ export default class ShowHeight extends Shower {
 
 	drawIslands() {
 		this.d.clear();
-		this.d.drawArr(this.w._islands, 1);
+		this.d.drawArr(this.w.islands, 1);
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}islands.png`)
 	}

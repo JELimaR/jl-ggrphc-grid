@@ -1,5 +1,6 @@
 
-import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions';
+import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions';
+import * as JEdgeToDrawEntryFunctions from '../Drawer/JEdgeToDrawEntryFunctions';
 import DrawerMap, { IDrawEntry } from '../Drawer/DrawerMap'
 
 import JPoint, { IPoint } from '../Geom/JPoint';
@@ -36,6 +37,7 @@ export default class ShowWater extends Shower {
 
 		// rivers
 		this.w._riverMap._rivers.forEach((river: RiverMap) => {
+			/*
 			color = (color == 'random') ? chroma.random().hex() : color;
 			const points: JPoint[] = river.vertices.map((vertex: JVertex) => vertex.point)
 			this.d.draw(points, {
@@ -43,6 +45,8 @@ export default class ShowWater extends Shower {
 				strokeColor: color,
 				dashPattern: [1, 0]
 			})
+			*/
+			this.d.drawEdgeContainer(river, JEdgeToDrawEntryFunctions.fluxMedia())
 		})
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}rivers.png`)
@@ -54,9 +58,9 @@ export default class ShowWater extends Shower {
 		this.drawFondo(background);
 
 		// water routes
-		this.w._riverMap._waterRoutesMap.forEach((waterRoute: FluxRoute) => {
+		this.w._riverMap._waterRoutesMap.forEach((fluxRoute: FluxRoute) => {
 			color = (color == 'random') ? chroma.random().hex() : color;
-			const points: JPoint[] = waterRoute.vertices.map((vertex: JVertex) => vertex.point)
+			const points: JPoint[] = fluxRoute.vertices.map((vertex: JVertex) => vertex.point)
 			this.d.draw(points, {
 				fillColor: 'none',
 				strokeColor: color,
@@ -64,7 +68,7 @@ export default class ShowWater extends Shower {
 			})
 		})
 		this.d.drawMeridianAndParallels();
-		this.d.saveDrawFile(`${this.a}waterRoute.png`)
+		this.d.saveDrawFile(`${this.a}fluxRoutes.png`)
 	}
 
 	private drawFondo(background: TBackground) {

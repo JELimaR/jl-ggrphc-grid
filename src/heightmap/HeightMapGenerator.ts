@@ -23,7 +23,7 @@ export default class HeightMapGenerator extends MapGenerator {
 
 	private _ancestor: JDiagram | undefined;
 
-	private _islands: IslandMap[] = [];
+	// private _islands: IslandMap[] = [];
 
 	constructor(d: JDiagram, a?: JDiagram) {
 		super(d);
@@ -96,6 +96,7 @@ export default class HeightMapGenerator extends MapGenerator {
 		/*
 		 * islands
 		 */
+		let islands: IslandMap[] = [];
 		if (!!a) {
 			console.log('calculate and setting island')
 			console.time(`set Islands`);
@@ -103,20 +104,21 @@ export default class HeightMapGenerator extends MapGenerator {
 			let islandInfoArr: IIslandMapInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
 			if (islandInfoArr.length > 0) {
 				islandInfoArr.forEach((iii: IIslandMapInfo, i: number) => {
-					this._islands.push(
+					islands.push(
 						new IslandMap(i, this.diagram, iii)
 					);
 				})
 			} else {
-				this.generateIslandList();
+				islands = this.generateIslandList();
 			}
 			// guardar info
 			
 			if (islandInfoArr.length === 0) {
-				dataInfoManager.saveIslandsInfo(this._islands, this.diagram.secAreaProm);
+				dataInfoManager.saveIslandsInfo(islands, this.diagram.secAreaProm);
 			}
 			console.timeEnd(`set Islands`);
 		}
+		return islands;
 	}
 
 	private getCellsData(): IJCellHeightInfo[] {
@@ -315,8 +317,8 @@ export default class HeightMapGenerator extends MapGenerator {
 			}
 		})
 	}
-
-	/*private*/ getOceanCoastCell() {
+/*
+	private getOceanCoastCell() {
 		let out: JCell[] = [];
 		this._islands.forEach((isl: IslandMap) => {
 			let add: boolean = false;
@@ -329,7 +331,7 @@ export default class HeightMapGenerator extends MapGenerator {
 		})
 		return out;
 	}
-	
+*/
 	private smootData() {
 		this.diagram.forEachCell((c: JCell) => {
 			c.mark();
@@ -345,8 +347,8 @@ export default class HeightMapGenerator extends MapGenerator {
 	}
 
 	/***************************************************************************** */
-	get islands() { return this._islands }
-
+	// get islands() { return this._islands }
+/*
 	get landRegion(): RegionMap {
 		let out: RegionMap = new RegionMap(this.diagram);
 		this._islands.forEach((isl: IslandMap) => {
@@ -354,11 +356,12 @@ export default class HeightMapGenerator extends MapGenerator {
 		})
 		return out;
 	}
-
-	private generateIslandList(): void {
+*/
+	private generateIslandList(): IslandMap[] {
 		/**
 		 * no calcula bien cuando debe calcular los datos de height
 		 */
+		let out: IslandMap[] = [];
 		let lista: Map<number, JCell> = new Map<number, JCell>();
 		this.diagram.forEachCell((c: JCell) => {
 			if (c.info.isLand) lista.set(c.id, c);
@@ -401,13 +404,15 @@ export default class HeightMapGenerator extends MapGenerator {
 			if (nqeue.size > 0) throw new Error(`se supero el numero de cells: ${this.diagram.cells.size} en generateIslandList`)
 			console.log('area:', isl.area.toLocaleString('de-DE'));
 			console.timeLog(`set Islands`);
-			this._islands.push(isl);
+			out.push(isl);
 		}
 		// ordenar
 		console.log(`sorting island`)
-		this._islands.sort((a: IslandMap, b: IslandMap) => { return b.area - a.area });
+		out.sort((a: IslandMap, b: IslandMap) => { return b.area - a.area });
 
 		this.diagram.dismarkAllCells();
+
+		return out;
 	}
 
 }

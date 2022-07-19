@@ -7,7 +7,7 @@ import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
 import { IDiagramContainer, IEdgeContainer, IVertexContainer } from '../generalInterfaces';
-const dataFilaManager = DataInformationFilesManager.instance;
+const dataFileManager = DataInformationFilesManager.instance;
 
 
 export interface ILineMapInfo {
@@ -20,7 +20,7 @@ export default class LineMap implements IDiagramContainer, IVertexContainer, IEd
 	private _diagram: JDiagram;
 	private _vertices: JVertex[];
 	private _allVertices: JPoint[] = [];
-	
+
 	private _length: number;
 	private _isClosed: boolean = false;
 
@@ -37,23 +37,32 @@ export default class LineMap implements IDiagramContainer, IVertexContainer, IEd
 		}
 	}
 
-	get diagram(): JDiagram {return this._diagram}
+	get diagram(): JDiagram { return this._diagram }
 	get vertices(): JVertex[] { return this._isClosed ? [...this._vertices, this._vertices[0]] : this._vertices }
-	get length(): number { 
+	get length(): number {
 		if (this._length == -1) {
 			this._length = this.calcLength();
 		}
 		return this._length
 	}
 
-	close() {this._isClosed = true;}
+	get ini(): JVertex { return this._vertices[0] }
+	get fin(): JVertex { return this._vertices[this._vertices.length - 1] }
+
+	close() {
+		if (this.ini.isNeightbour(this.fin)) {
+			this._isClosed = true;
+		} else {
+			throw new Error(`no se puede cerrar`)
+		}
+	}
 
 	getVerticesSince(v: JVertex): JVertex[] { // aun no probado
 		let out: JVertex[] = [];
 
 		let idx: number = 0;
 		let curr: JVertex = this._vertices[idx];
-		while(curr.id !== v.id) {
+		while (curr.id !== v.id) {
 			idx++;
 			curr = this._vertices[idx];
 		}
@@ -74,17 +83,13 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 	private getEdges(): JEdge[] {
 		let out: JEdge[] = [];
 		this._vertices.forEach((vertex: JVertex, i: number, a: JVertex[]) => {
-			if (i < a.length-1) {
-				const edge = vertex.getEdgeFromNeighbour(a[i+1]);
+			if (i < a.length - 1) {
+				const edge = vertex.getEdgeFromNeighbour(a[i + 1]);
 				out.push(edge);
 			}
 		})
 		return out;
 	}
-
-	// forEachCell(func: (c: JCell) => void) { // hacer mejor esto
-	// 	throw new Error(`No tiene sentido recorrer las cells de un JLineMap`);
-	// }
 
 	forEachVertex(func: (vertex: JVertex) => void) {
 		this._vertices.forEach((v: JVertex) => func(v));
@@ -111,20 +116,24 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		const cant: number = this._vertices.length;
 		if (cant == 0) {
 			this._vertices.push(vertex);
-		} else {
-			const ini: JVertex = this._vertices[0];
-			const fin: JVertex = this._vertices[cant-1];
+		} else if (!this.isInLine(vertex)) {
+			const ini: JVertex = this.ini;
+			const fin: JVertex = this.fin;
 			if (fin.isNeightbour(vertex)) {
 				this._vertices.push(vertex);
 			} else if (ini.isNeightbour(vertex)) {
 				this._vertices.unshift(vertex);
 			} else {
-				throw new Error(`no se puede agregar el vertex a este JLine`);
+				throw new Error(`no se puede agregar el vertex a este LineMap`);
 			}
-		}		
+		} else {
+			throw new Error(`El vertex ya se encuentra en LineMap`);
+		}
+
+		// if (this.ini.id === this.fin.id) this._isClosed = true;
 	}
 
-	getDrawerParameters(): {center: JPoint, XMAXDIS: number, YMAXDIS: number} {
+	getDrawerParameters(): { center: JPoint, XMAXDIS: number, YMAXDIS: number } {
 		let XMIN = 180, YMIN = 90;
 		let XMAX = -180, YMAX = -90;
 
@@ -134,11 +143,11 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 			if (vertex.point.x > XMAX) XMAX = vertex.point.x;
 			if (vertex.point.y > YMAX) YMAX = vertex.point.y;
 		})
-		
+
 		return {
-			center: new JPoint((XMAX-XMIN)/2 + XMIN, (YMAX-YMIN)/2+YMIN),
-			XMAXDIS: (XMAX-XMIN)+0.3,
-			YMAXDIS: (YMAX-YMIN)+0.3
+			center: new JPoint((XMAX - XMIN) / 2 + XMIN, (YMAX - YMIN) / 2 + YMIN),
+			XMAXDIS: (XMAX - XMIN) + 0.3,
+			YMAXDIS: (YMAX - YMIN) + 0.3
 		}
 	}
 

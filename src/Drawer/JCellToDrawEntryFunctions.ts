@@ -5,10 +5,10 @@ import {
 	altitudinalBeltToNumber,
 	humidityProvinceToNumber,
 	koppenColors, TAltitudinalBelt, THumidityProvinces, TKoppenSubType
-} from './CellInformation/JCellClimate';
+} from '../CellInformation/JCellClimate';
 
-import { IDrawEntry } from './Drawer/DrawerMap';
-import JCell from './Voronoi/JCell';
+import { IDrawEntry } from './DrawerMap';
+import JCell from '../Voronoi/JCell';
 
 
 export const heigh = (alpha: number = 1) => {
