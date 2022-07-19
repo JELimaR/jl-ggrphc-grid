@@ -8,7 +8,6 @@ import NaturalWorld from '../NaturalWorld';
 
 
 import statesPointsLists from '../divisions/countries/statesPointsLists';
-import { JContinentMap, JCountryMap, JIslandMap } from '../RegionMap/RegionMap';
 import JCell from '../Voronoi/JCell';
 import JVertex from '../Voronoi/JVertex';
 import chroma from 'chroma-js';

@@ -401,10 +401,10 @@ export class JContinentMap extends RegionMap {
 	get id(): number { return this._id }
 	get states(): Map<String, JStateMap> { return this._states}
 	get countries(): JCountryMap[] { return this._countries }
-	getInterface(): IJIslandInfo {
+	getInterface(): IJContinentInfo {
 		return {
+			...super.getInterface(),
 			id: this._id,
-			...super.getInterface()
 		}
 	}
 
@@ -450,25 +450,6 @@ export class JContinentMap extends RegionMap {
 		}
 	}
 
-}
-
-export interface IJIslandInfo extends IRegionMapInfo {
-	id: number;
-}
-
-export class JIslandMap extends RegionMap {
-	constructor(private _id: number, /*world: JWorldMap*/ diag: JDiagram, info?: IRegionMapInfo,) {
-		super(diag, info);
-	}
-
-	get id(): number {return this._id}
-
-	getInterface(): IJIslandInfo {
-		return {
-			id: this._id,
-			...super.getInterface()
-		}
-	}
 }
 
 export interface IJCountryInfo extends IRegionMapInfo {

@@ -8,12 +8,12 @@ import chroma from 'chroma-js';
 import JPoint from '../Geom/JPoint';
 
 import JCell from '../Voronoi/JCell';
-import RegionMap from '../RegionMap/RegionMap';
+import RegionMap from '../MapElements/RegionMap';
 import JPanzoom from './JPanzoom';
 import { inRange } from '../utilFunctions';
 import { ICellContainer, IEdgeContainer, IVertexContainer } from '../generalInterfaces';
 import JVertex from '../Voronoi/JVertex';
-import LineMap from '../RegionMap/LineMap';
+import LineMap from '../MapElements/LineMap';
 import JEdge from '../Voronoi/JEdge';
 // import { Bitmap } from 'pureimage/types/bitmap';
 // import { Context } from 'pureimage/types/context';

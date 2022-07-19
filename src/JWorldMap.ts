@@ -2,16 +2,17 @@
 import JCell from "./Voronoi/JCell";
 import JDiagram from "./Voronoi/JDiagram";
 import JPoint from "./Geom/JPoint";
-import RegionMap, { IJContinentInfo, IJIslandInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/RegionMap';
+import RegionMap, { IJContinentInfo, JContinentMap, JCountryMap, JStateMap } from './MapElements/RegionMap';
 
 import DataInformationFilesManager from './DataInformationLoadAndSave';
 import { ICellContainer } from "./generalInterfaces";
+import IslandMap, { IIslandMapInfo } from "./heightmap/IslandMap";
 const dataInfoManager = DataInformationFilesManager.instance;
 
 export default class JWorldMap {
 
 	private _diagram: JDiagram;
-	private _islands: JIslandMap[] = [];
+	private _islands: IslandMap[] = [];
 	private _continents: JContinentMap[] = [];
 
 	constructor(d: JDiagram) {
@@ -20,11 +21,11 @@ export default class JWorldMap {
 		// islands
 		console.log('calculate and setting island')
 		console.time('set Islands');
-		let regionInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.cells.size);
+		let regionInfoArr: IIslandMapInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.cells.size);
 		if (regionInfoArr.length > 0) {
-			regionInfoArr.forEach((iii: IJIslandInfo, i: number) => {
+			regionInfoArr.forEach((iii: IIslandMapInfo, i: number) => {
 				this._islands.push(
-					new JIslandMap(i, this._diagram, iii)
+					new IslandMap(i, this._diagram, iii)
 				);
 			})
 		} else {
@@ -75,7 +76,7 @@ export default class JWorldMap {
 			cell.mark();
 			lista.delete(cell.id);
 
-			let reg: JIslandMap = new JIslandMap(currentId, this.diagram);
+			let reg: IslandMap = new IslandMap(currentId, this.diagram);
 			reg.addCell(cell);
 
 			let qeue: Map<number, JCell> = new Map<number, JCell>();
@@ -107,14 +108,14 @@ export default class JWorldMap {
 		}
 		// ordenar
 		console.log(`sorting island`)
-		this._islands.sort((a: JIslandMap, b: JIslandMap) => { return b.area - a.area });
+		this._islands.sort((a: IslandMap, b: IslandMap) => { return b.area - a.area });
 
 		this._diagram.forEachCell((c: JCell) => { c.dismark(); })
 	}
 
 	private generateContinentList(): void {
 		this._continents[4] = new JContinentMap(4, this._diagram);
-		this._islands.forEach((isl: JIslandMap, i: number) => {
+		this._islands.forEach((isl: IslandMap, i: number) => {
 			if (i < 3) {
 				this._continents[i] = new JContinentMap(i, this._diagram);
 				this._continents[i].addRegion(isl);
@@ -168,14 +169,6 @@ export default class JWorldMap {
 		})
 		return out;
 	}
-
-	forEachCell(func: (c: JCell) => void) {
-		this._diagram.forEachCell(func);
-	}
-
-	// private generateMoisture(): void {
-	// 	console.log('generating moisture');
-	// }
 }
 
 // const generatePieceList = (element: JRegionMap/*, regionGenerator: () => JRegionMap*/): JRegionMap[] => {

@@ -3,7 +3,7 @@ import DataInformationFilesManager from '../DataInformationLoadAndSave';
 // import { IJCellInformation } from "../Voronoi/JCellInformation";
 import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
-import RegionMap, { IJIslandInfo, JIslandMap } from "../RegionMap/RegionMap";
+import RegionMap, {  } from "../MapElements/RegionMap";
 
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 import JPoint from "../Geom/JPoint";
@@ -11,6 +11,7 @@ import { IJVertexHeightInfo } from "../VertexInformation/JVertexHeight";
 import JVertex from "../Voronoi/JVertex";
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 import MapGenerator from "../MapGenerator";
+import IslandMap, { IIslandMapInfo } from "./IslandMap";
 // import JSubCell from "../Voronoi/JSubCell";
 
 class JOceanMap {}
@@ -22,7 +23,7 @@ export default class HeightMapGenerator extends MapGenerator {
 
 	private _ancestor: JDiagram | undefined;
 
-	private _islands: JIslandMap[] = [];
+	private _islands: IslandMap[] = [];
 
 	constructor(d: JDiagram, a?: JDiagram) {
 		super(d);
@@ -99,11 +100,11 @@ export default class HeightMapGenerator extends MapGenerator {
 			console.log('calculate and setting island')
 			console.time(`set Islands`);
 			
-			let islandInfoArr: IJIslandInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
+			let islandInfoArr: IIslandMapInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
 			if (islandInfoArr.length > 0) {
-				islandInfoArr.forEach((iii: IJIslandInfo, i: number) => {
+				islandInfoArr.forEach((iii: IIslandMapInfo, i: number) => {
 					this._islands.push(
-						new JIslandMap(i, this.diagram, iii)
+						new IslandMap(i, this.diagram, iii)
 					);
 				})
 			} else {
@@ -317,7 +318,7 @@ export default class HeightMapGenerator extends MapGenerator {
 
 	/*private*/ getOceanCoastCell() {
 		let out: JCell[] = [];
-		this._islands.forEach((isl: JIslandMap) => {
+		this._islands.forEach((isl: IslandMap) => {
 			let add: boolean = false;
 			isl.getLimitCells().forEach((c: JCell) => {
 				this.diagram.getCellNeighbours(c).forEach((nc: JCell) => {
@@ -348,7 +349,7 @@ export default class HeightMapGenerator extends MapGenerator {
 
 	get landRegion(): RegionMap {
 		let out: RegionMap = new RegionMap(this.diagram);
-		this._islands.forEach((isl: JIslandMap) => {
+		this._islands.forEach((isl: IslandMap) => {
 			out.addRegion(isl);
 		})
 		return out;
@@ -370,7 +371,7 @@ export default class HeightMapGenerator extends MapGenerator {
 			// cell.mark();
 			// lista.delete(cell.id);
 
-			let isl: JIslandMap = new JIslandMap(currentId, this.diagram);
+			let isl: IslandMap = new IslandMap(currentId, this.diagram);
 			// isl.addCell(cell);
 			// cell.info.islandId = isl.id; // nuevo
 
@@ -404,7 +405,7 @@ export default class HeightMapGenerator extends MapGenerator {
 		}
 		// ordenar
 		console.log(`sorting island`)
-		this._islands.sort((a: JIslandMap, b: JIslandMap) => { return b.area - a.area });
+		this._islands.sort((a: IslandMap, b: IslandMap) => { return b.area - a.area });
 
 		this.diagram.dismarkAllCells();
 	}

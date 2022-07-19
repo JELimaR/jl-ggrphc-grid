@@ -14,7 +14,7 @@ import { DivisionMaker } from './divisions/DivisionMaker';
 
 
 import statesPointsLists from './divisions/countries/statesPointsLists';
-import RegionMap, { JIslandMap } from './RegionMap/RegionMap';
+import RegionMap, { } from './MapElements/RegionMap';
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import chroma from 'chroma-js';
@@ -27,8 +27,10 @@ import FluxRoute from './River/FluxRoute';
 import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
 import ShowClimate from './toShow/toShowClimate';
-import LineMap from './RegionMap/LineMap';
+import LineMap from './MapElements/LineMap';
 import JEdge from './Voronoi/JEdge';
+import ShowTest from './toShow/toShowTest';
+import ShowerManager from './toShow/ShowerManager';
 
 const tam: number = 3600;
 let SIZE: JPoint = new JPoint(tam, tam / 2);
@@ -74,24 +76,31 @@ console.log(dm.getPointsBuffCenterLimits());
 
 const AREA: number = 12100; // 810
 const GRAN: number = 2;
-const world: NaturalWorld = new NaturalWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
+const naturalWorld: NaturalWorld = new NaturalWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 
-const monthArr12 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-const monthArr6 = [1, 3, 5, 7, 9, 11];
-const monthArr4 = [1, 4, 7, 10];
+const monthArrObj = {
+	12: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+	6: [1, 3, 5, 7, 9, 11],
+	4: [1, 4, 7, 10],
+}
+const monthCant: keyof typeof monthArrObj = 12;
+/* SHOWERS */
+const showerManager = new ShowerManager(naturalWorld, AREA, GRAN, folderSelected)
+const sh = showerManager.sh;
+const sc = showerManager.sc;
+const sw = showerManager.sw;
 
-const sh = new ShowHeight(world, AREA, GRAN, folderSelected);
-const sc = new ShowClimate(world, AREA, GRAN, folderSelected);
-const sw = new ShowWater(world, AREA, GRAN, folderSelected);
+const stest = showerManager.st;
 
+/*******************************************************************/
 
 sh.drawHeight();
 // sh.printMaxAndMinCellsHeight();
 
 /******************** climate map ********************/
-// for (let month of monthArr12) {	sc.drawTempMonth(month); }
+// for (let month of monthArrObj[monthCant]) {	sc.drawTempMonth(month); }
 sc.drawTempMedia()
-// for (let month of monthArr12) {	sc.drawPrecipMonth(month); }
+// for (let month of monthArrObj[monthCant]) {	sc.drawPrecipMonth(month); }
 sc.drawPrecipMedia()
 
 sc.drawKoppen();

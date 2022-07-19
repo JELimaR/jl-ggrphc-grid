@@ -1,16 +1,7 @@
-import { Site } from 'voronoijs';
+
 import fs from 'fs';
 import Jimp from 'jimp';
 
-import JCell from './Voronoi/JCell';
-import { IJContinentInfo, IJCountryInfo, IJIslandInfo, IJStateInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/RegionMap';
-// import { IJDiagramInfo } from './Voronoi/JDiagram';
-// import { IJEdgeInfo } from './Voronoi/JEdge';
-import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
-// import { IJCellInformation } from './Voronoi/JCellInformation';
-// import { IJCellInformation } from './CellInformation/JCellInformation';
-import { IJCellHeightInfo } from './CellInformation/JCellHeight';
-// import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
 
 export default class PNGDrawsDataManager {
 	static _instance: PNGDrawsDataManager;

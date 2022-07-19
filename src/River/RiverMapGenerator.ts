@@ -1,7 +1,6 @@
 import JDiagram from "../Voronoi/JDiagram";
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 import JCell from "../Voronoi/JCell";
-import RegionMap, { IJIslandInfo, JIslandMap } from "../RegionMap/RegionMap";
 import JCellClimate from '../CellInformation/JCellClimate'
 
 import JPoint from "../Geom/JPoint";

@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
-import { IJContinentInfo, IJCountryInfo, IJIslandInfo, IJStateInfo, JContinentMap, JCountryMap, JIslandMap, JStateMap } from './RegionMap/RegionMap';
+import { IJContinentInfo, IJCountryInfo, IJStateInfo, JContinentMap, JCountryMap, JStateMap } from './MapElements/RegionMap';
 import JPoint, { IPoint } from './Geom/JPoint';
 // import { IJDiagramInfo } from './Voronoi/JDiagram';
 // import { IJEdgeInfo } from './Voronoi/JEdge';
@@ -21,6 +21,7 @@ import { IPrecipData } from './Climate/PrecipGrid';
 import { IJVertexFluxInfo } from './VertexInformation/JVertexFlux';
 import FluxRoute, { IFluxRouteInfo } from './River/FluxRoute';
 import RiverMap, { IRiverMapInfo } from './River/RiverMap';
+import IslandMap, { IIslandMapInfo } from './heightmap/IslandMap';
 
 // dividir esta clase
 export default class DataInformationFilesManager {
@@ -302,8 +303,8 @@ export default class DataInformationFilesManager {
 	}
 
 	// islands o masas
-	loadIslandsInfo(area: number | undefined): IJIslandInfo[] {
-		let out: IJIslandInfo[] = [];
+	loadIslandsInfo(area: number | undefined): IIslandMapInfo[] {
+		let out: IIslandMapInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/${area ? area : ''}IslandsInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
@@ -313,11 +314,11 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveIslandsInfo(islands: JIslandMap[], area: number | undefined): void {
+	saveIslandsInfo(islands: IslandMap[], area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/${area ? area : ''}IslandsInfo.json`;
-		let data: IJIslandInfo[] = [];
-		islands.forEach((i: JIslandMap) => {
+		let data: IIslandMapInfo[] = [];
+		islands.forEach((i: IslandMap) => {
 			data.push(i.getInterface());
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));

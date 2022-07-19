@@ -1,5 +1,5 @@
 import JPoint from "../Geom/JPoint";
-import LineMap, { ILineMapInfo } from "../RegionMap/LineMap";
+import LineMap, { ILineMapInfo } from "../MapElements/LineMap";
 import JDiagram from "../Voronoi/JDiagram";
 import JVertex from "../Voronoi/JVertex";
 

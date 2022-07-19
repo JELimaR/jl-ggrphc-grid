@@ -4,7 +4,7 @@ import HeightMapGenerator from './heightmap/HeightMapGenerator';
 import JGrid from './Geom/JGrid';
 import ClimateMapGenerator from './Climate/ClimateMapGenerator';
 import RiverMapGenerator from './River/RiverMapGenerator';
-import { JIslandMap } from './RegionMap/RegionMap';
+import IslandMap from './heightmap/IslandMap';
 
 export default class NaturalWorld {
 	
@@ -13,7 +13,7 @@ export default class NaturalWorld {
 	// private _climateMap: JClimateMap;
 	_riverMap: RiverMapGenerator;
 
-	_islands: JIslandMap[] = [];
+	_islands: IslandMap[] = [];
 
 	constructor(AREA: number, GRAN: number) {
 		
@@ -36,7 +36,7 @@ export default class NaturalWorld {
 		// c: JClimateMap,
 		r: RiverMapGenerator,
 
-		i: JIslandMap[],
+		i: IslandMap[],
 	} {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();

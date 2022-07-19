@@ -3,7 +3,7 @@ import JPoint from "../Geom/JPoint";
 import JWorldMap, {  } from "../JWorldMap";
 import JCell from "../Voronoi/JCell";
 import * as JCellToDrawEntryFunctions from '../JCellToDrawEntryFunctions'
-import RegionMap from "../RegionMap/RegionMap";
+import RegionMap from "../MapElements/RegionMap";
 import chroma from "chroma-js";
 import { createICellContainer } from "../utilFunctions";
 
