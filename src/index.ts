@@ -97,6 +97,7 @@ const stest = showerManager.st;
 /*******************************************************************/
 
 // sh.drawHeight();
+// sh.drawIslands();
 // sh.printMaxAndMinCellsHeight();
 
 /******************** climate map ********************/
@@ -125,12 +126,12 @@ dm.drawMeridianAndParallels(181,361)
 dm.saveDrawFile(`${AREA}secDiagram.png`)
 */
 // sw.drawRivers('#1112EA', 'h');
+// sw.drawWaterRoutes('#000000', 'l')
 // sw.printRiverData();
 // sw.printRiverDataLongers(3000);
 // sw.printRiverDataShorters(15);
 
 
-// sh.drawIslands();
 
 console.time('convert to line')
 /*
@@ -218,7 +219,7 @@ points.forEach((_: JPoint, i: number, arr: JPoint[]) => {
 		});
 	}
 })
-line.close();
+// line.close();
 */
 const line = naturalWorld.islands[2].getLimitLines()[0];
 

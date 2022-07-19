@@ -36,7 +36,7 @@ export default class ShowWater extends Shower {
 		this.drawFondo(background);
 
 		// rivers
-		this.w._riverMap._rivers.forEach((river: RiverMap) => {
+		this.w.rivers.forEach((river: RiverMap) => {
 			/*
 			color = (color == 'random') ? chroma.random().hex() : color;
 			const points: JPoint[] = river.vertices.map((vertex: JVertex) => vertex.point)
@@ -58,7 +58,7 @@ export default class ShowWater extends Shower {
 		this.drawFondo(background);
 
 		// water routes
-		this.w._riverMap._waterRoutesMap.forEach((fluxRoute: FluxRoute) => {
+		this.w.fluxRoutes.forEach((fluxRoute: FluxRoute) => {
 			color = (color == 'random') ? chroma.random().hex() : color;
 			const points: JPoint[] = fluxRoute.vertices.map((vertex: JVertex) => vertex.point)
 			this.d.draw(points, {
@@ -83,12 +83,12 @@ export default class ShowWater extends Shower {
 
 	printRiverData() {
 		this.printSeparator();
-		console.log('total water route cant', this.w._riverMap._waterRoutesMap.size)
-		console.log('total river cant', this.w._riverMap._rivers.size)
+		console.log('total water route cant', this.w.fluxRoutes.size)
+		console.log('total river cant', this.w.rivers.size)
 	}
 	printRiverDataLongers(minL: number) {
 		this.printSeparator();
-		const riverSorted: RiverMap[] = this.w._riverMap.riverLengthSorted;
+		const riverSorted: RiverMap[] = this.w.riverLengthSorted;
 		let cant: number = 0;
 		let curr: RiverMap = riverSorted[0];
 		while (curr.length > minL && cant < riverSorted.length) {
@@ -118,7 +118,7 @@ export default class ShowWater extends Shower {
 
 	printRiverDataShorters(maxL: number) {
 		this.printSeparator();
-		const riverSorted: RiverMap[] = this.w._riverMap.riverLengthSorted;
+		const riverSorted: RiverMap[] = this.w.riverLengthSorted;
 		let cant: number = 0;
 		let curr: RiverMap = riverSorted[0];
 		while (curr.length > maxL && cant < riverSorted.length) {

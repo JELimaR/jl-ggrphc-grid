@@ -96,6 +96,7 @@ export default class HeightMapGenerator extends MapGenerator {
 		/*
 		 * islands
 		 */
+		/*
 		let islands: IslandMap[] = [];
 		if (!!a) {
 			console.log('calculate and setting island')
@@ -119,6 +120,7 @@ export default class HeightMapGenerator extends MapGenerator {
 			console.timeEnd(`set Islands`);
 		}
 		return islands;
+		*/
 	}
 
 	private getCellsData(): IJCellHeightInfo[] {
@@ -357,10 +359,11 @@ export default class HeightMapGenerator extends MapGenerator {
 		return out;
 	}
 */
+	/*
 	private generateIslandList(): IslandMap[] {
 		/**
 		 * no calcula bien cuando debe calcular los datos de height
-		 */
+		 * /
 		let out: IslandMap[] = [];
 		let lista: Map<number, JCell> = new Map<number, JCell>();
 		this.diagram.forEachCell((c: JCell) => {
@@ -414,5 +417,6 @@ export default class HeightMapGenerator extends MapGenerator {
 
 		return out;
 	}
+	*/
 
 }
