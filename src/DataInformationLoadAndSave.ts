@@ -249,6 +249,7 @@ export default class DataInformationFilesManager {
 	 * grid information
 	 */
 	//
+	/*
 	loadGridTemperature(gran: number): ITempDataGrid[][] {
 		let out: ITempDataGrid[][] = [];
 		try {
@@ -301,7 +302,7 @@ export default class DataInformationFilesManager {
 		let pathName: string = `${this._dirPath}/GridInfo/G${gran}precip.json`;
 		fs.writeFileSync(pathName, JSON.stringify(precipData));
 	}
-
+	*/
 	// islands o masas
 	loadIslandsInfo(area: number | undefined): IIslandMapInfo[] {
 		let out: IIslandMapInfo[] = [];
@@ -435,6 +436,7 @@ export default class DataInformationFilesManager {
 	}
 
 	/* NUEVO */
+	/*
 	load<I, T extends {getInterface: ()=>I}>(area: number | undefined, t: any): I[] {
 		let out: I[] = [];
 		const subFolder: string = '';
@@ -461,9 +463,56 @@ export default class DataInformationFilesManager {
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
+	*/
+	loadGridData<I>(gran: number, TYPE: TypeGridInformation): I[][] {
+		let out: I[][] = [];
+		const subFolder: string = 'GridInfo';
+		const file: string = GRID_DATA[TYPE].file;
+		try {
+			let pathName: string = `${this._dirPath}/${subFolder}/G${gran}${file}.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+
+		}
+		return out;
+	}
+
+	saveGridData<I>(data: I[][], gran: number, TYPE: TypeGridInformation): void {
+		const subFolder: string = 'GridInfo';
+		const file: string = GRID_DATA[TYPE].file;
+		fs.mkdirSync(`${this._dirPath}/${subFolder}`, { recursive: true });
+		let pathName: string = `${this._dirPath}/${subFolder}/G${gran}${file}.json`;
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+	
 }
 
 export type TypeDivisionRegion =
 	| 'country'
 	| 'state'
 
+interface ISaveInformation {
+	subFolder: string;
+	file: string;
+}
+
+/*** GRID INFO **/
+// const GRID_INFORMATION = ['temp', 'precip', 'pressure'];
+type TypeGridInformation = 'temp' | 'precip' | 'pressure';
+type TypeGridData = { [key in TypeGridInformation]: ISaveInformation; };
+const g = {}
+
+const GRID_DATA: TypeGridData = {
+	'temp': {
+		file: 'temperature',
+		subFolder: ''
+	},
+	'pressure': {
+		file: 'pressure',
+		subFolder: ''
+	},
+	'precip': {
+		file: 'precip',
+		subFolder: ''
+	}
+}

@@ -63,7 +63,8 @@ export default class JPressureGrid {
 		console.log('calculate and setting pressures values')
 		console.time('set pressures info');
 		let out: PressureData[][] = [];
-		let info: IPressureDataGrid[][] = dataInfoManager.loadGridPressure(this._grid._granularity);
+		// let info: IPressureDataGrid[][] = dataInfoManager.loadGridPressure(this._grid._granularity);
+		let info: IPressureDataGrid[][] = dataInfoManager.loadGridData<IPressureDataGrid>(this._grid._granularity, 'pressure');
 		if (info.length == 0) {
 			this._grid._points.forEach((col: JGridPoint[], colIdx: number) => {
 				let dataCol: IPressureDataGrid[] = [];
@@ -102,7 +103,8 @@ export default class JPressureGrid {
 					})
 				})
 			})
-			dataInfoManager.saveGridPressure(info, this._grid._granularity)
+			// dataInfoManager.saveGridPressure(info, this._grid._granularity);
+			dataInfoManager.saveGridData<IPressureDataGrid>(info, this._grid._granularity, 'pressure');
 		}
 
 		info.forEach((col: IPressureDataGrid[], _c: number) => {

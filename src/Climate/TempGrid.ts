@@ -57,7 +57,7 @@ export default class TempGrid {
 	// }
 
 	private setTempData2(): ITempDataGrid[][] {
-		let out: ITempDataGrid[][] = dataInfoManager.loadGridTemperature(this._grid._granularity);
+		let out: ITempDataGrid[][] = dataInfoManager.loadGridData<ITempDataGrid>(this._grid._granularity, 'temp');
 		if (out.length == 0) {
 			const caps: number[][] = this.calculateCapPoints();
 			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
@@ -68,8 +68,7 @@ export default class TempGrid {
 				tempLatMonth.forEach((mt: number) => {
 					let tv: number = tempLatMed + (tempLatMed - mt) * caps[cidx][ridx] * 1.1;
 					tv = TempFunctions.parametertoRealTemp(tv);
-					// if (gp._cell.info.isLand)
-					//	tv -= 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000;
+
 					tarr.push(tv);
 				})
 				out[cidx][ridx] = {
@@ -78,7 +77,8 @@ export default class TempGrid {
 					tempMonth: tarr
 				}
 			})
-			dataInfoManager.saveGridTemperature(out, this._grid._granularity);
+			// dataInfoManager.saveGridTemperature(out, this._grid._granularity);
+			dataInfoManager.saveGridData<ITempDataGrid>(out, this._grid._granularity, 'temp');
 		}
 		return out;
 	}

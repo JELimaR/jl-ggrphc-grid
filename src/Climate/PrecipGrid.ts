@@ -17,12 +17,15 @@ export default class PrecipGrid {
 
 	constructor(pressGrid: JPressureGrid, tempGrid: TempGrid) {
 		this._grid = pressGrid._grid;
-		this._precipData = this.setPrecipData(pressGrid, tempGrid);
-		
+		console.log('calculate and setting precip info')
+		console.time('set precip info')
+		this._precipData = this.getPrecipData(pressGrid, tempGrid);
+		console.timeEnd('set precip info')
 	}
 
-	private setPrecipData(pressGrid: JPressureGrid, tempGrid: TempGrid): IPrecipData[][] {
-		let out: IPrecipData[][] = dataInfoManager.loadGridPrecip(this._grid._granularity);
+	private getPrecipData(pressGrid: JPressureGrid, tempGrid: TempGrid): IPrecipData[][] {
+		// let out: IPrecipData[][] = dataInfoManager.loadGridPrecip(this._grid._granularity);
+		let out: IPrecipData[][] = dataInfoManager.loadGridData<IPrecipData>(this._grid._granularity, 'precip');
 		if (out.length == 0) {
 			out = [];
 			const jws: WindSimulate = new WindSimulate(pressGrid, tempGrid);
@@ -40,19 +43,12 @@ export default class PrecipGrid {
 				})
 
 			})
-			// tempGrid.smoothTemp(2)
-			/*
-			ws.routes.forEach((route: JWindRoutePoint[][][], month: number) => {
-				this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
-					out[cidx][ridx].routes[month-1] = route[cidx][ridx];
-				})
-			})
-			*/
+
 			out = this.smoothData(out);
 			out = this.smoothData(out);
 
 			let precipMax: number = 0;
-			this._grid.forEachPoint((_gp: JGridPoint, cidx: number, ridx: number) => {
+			this._grid.forEachPoint((_: JGridPoint, cidx: number, ridx: number) => {
 				const gmax = Math.max(...out[cidx][ridx].precip);
 				if (precipMax < gmax) precipMax = gmax;
 			})
@@ -61,7 +57,8 @@ export default class PrecipGrid {
 				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => ((r/100) ** 1.6) * 3344.1 * (0.2 + 0.8*Math.cos(gp._point.y * Math.PI/180)))
 			})
 
-			dataInfoManager.saveGridPrecip(out, this._grid._granularity);
+			// dataInfoManager.saveGridPrecip(out, this._grid._granularity);
+			dataInfoManager.saveGridData<IPrecipData>(out, this._grid._granularity, 'precip');
 		}
 
 		return out;

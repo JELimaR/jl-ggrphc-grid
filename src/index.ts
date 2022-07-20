@@ -104,7 +104,7 @@ const stest = showerManager.st;
 /**
  * height map
  */
-// sh.drawHeight();
+sh.drawHeight();
 // sh.drawIslands();
 // sh.printMaxAndMinCellsHeight();
 
@@ -112,12 +112,12 @@ const stest = showerManager.st;
  * climate map
  */
 // for (let month of monthArrObj[monthCant]) {	sc.drawTempMonth(month); }
-// sc.drawTempMedia()
+sc.drawTempMedia()
 // for (let month of monthArrObj[monthCant]) {	sc.drawPrecipMonth(month); }
-// sc.drawPrecipMedia()
+sc.drawPrecipMedia()
 
-// sc.drawKoppen();
-// sc.printKoppenData();
+sc.drawKoppen();
+sc.printKoppenData();
 
 /**
  * LIFE ZONES
@@ -140,7 +140,7 @@ console.time('test');
 
 naturalWorld.generateRiverMaps();
 naturalWorld.generateIslandMaps();
-
+/*
 const isl: IslandMap = naturalWorld.islands[1];
 const lineCoast: LineMap = isl.getLimitLines()[0];
 
@@ -170,7 +170,7 @@ dbArr.forEach((drainageBasin: DrainageBasinMap) => {
 	}))
 })
 dm.saveDrawFile('riverIsland3.png')
-
+*/
 console.timeEnd('test')
 
 console.timeEnd('all')
