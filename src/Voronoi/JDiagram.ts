@@ -1,4 +1,4 @@
-import { Cell, Diagram, Halfedge, Edge, Vertex } from 'voronoijs';
+import { Cell, Diagram, Halfedge, Edge } from 'voronoijs';
 import * as turf from '@turf/turf';
 import JPoint, { IPoint } from '../Geom/JPoint';
 import JCell from "./JCell";
@@ -10,11 +10,11 @@ import { ICellContainer, IVertexContainer } from '../generalInterfaces';
 
 const dataInfoManager = DataInformationFilesManager.instance;
 
-export default class JDiagram implements ICellContainer, IVertexContainer{
+export default class JDiagram implements ICellContainer, IVertexContainer {
 	// private _diagram: Diagram;
 	private _cells: Map<number, JCell> = new Map<number, JCell>();
 	private _cells2: Map<string, JCell> = new Map<string, JCell>();
-	
+
 	private _vertices: Map<string, JVertex> = new Map<string, JVertex>();
 	// private _edges: JEdge[] = []; //cambiar
 
@@ -22,7 +22,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 	// private _ancestor: JDiagram | undefined;
 	private _secAreaProm: number | undefined;
 
-	constructor(d: Diagram, ancestor?: {d: JDiagram, a: number, s: {p: IPoint, cid: number}[]}) {
+	constructor(d: Diagram, ancestor?: { d: JDiagram, a: number, s: { p: IPoint, cid: number }[] }) {
 		console.log('Setting JDiagram values');
 		console.time('set JDiagram values');
 		JEdge.diagram = this;
@@ -31,16 +31,16 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		if (ancestor) {
 
 			this._secAreaProm = ancestor.a;
-			
+
 			ancestor.s.forEach((value: { p: IPoint; cid: number; }) => {
 				const subCell: JCell = this.getCellFromCenter(JPoint.fromInterface(value.p));
 				const ancCell: JCell = ancestor.d.cells.get(value.cid) as JCell;
-				
+
 				ancCell.addSubCell(subCell);
 			})
-			
+
 		}
-		
+
 		console.timeEnd('set JDiagram values');
 	}
 
@@ -102,7 +102,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 			//
 			if (!verticesEdgeMap.get(vaId)) verticesEdgeMap.set(vaId, []);
 			verticesEdgeMap.get(vaId)!.push(je);
-			
+
 			if (!verticesEdgeMap.get(vbId)) verticesEdgeMap.set(vbId, []);
 			verticesEdgeMap.get(vbId)!.push(je);
 		})
@@ -132,8 +132,8 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		});
 
 		// if (loadedInfo.length === 0) {
-			// this.smoothHeight();
-			// dataInfoManager.saveCellsInfo(this._cells, this._cells.size);
+		// this.smoothHeight();
+		// dataInfoManager.saveCellsInfo(this._cells, this._cells.size);
 		// }
 
 		// dataInfoManager.saveDiagram(this.getInterface(), this._cells.size);
@@ -146,7 +146,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		})
 		return out;
 	}
-	
+
 	get vertices(): Map<string, JVertex> { return this._vertices }
 
 	get cells(): Map<number, JCell> { return this._cells }
@@ -166,10 +166,6 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		})
 	}
 
-	forEachEdge(func: (e: JEdge) => void) {
-		throw new Error(`no tiene sentido recorrer todos los edges del diagrama.`)
-	}
-
 	getCellNeighbours(cell: JCell): JCell[] { // cambiar a getCellNeighbours
 		let out: JCell[] = [];
 		for (let id of cell.neighborsId) {
@@ -182,8 +178,8 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		return out;
 	}
 
-	getTwoLevelsCellNeighbours(cell: JCell): JCell[] { 
-		let mapOut: Map<number,JCell> = new Map<number,JCell>();
+	getTwoLevelsCellNeighbours(cell: JCell): JCell[] {
+		let mapOut: Map<number, JCell> = new Map<number, JCell>();
 		let ns: JCell[] = this.getCellNeighbours(cell);
 		ns.forEach((neig: JCell) => {
 			mapOut.set(neig.id, neig);
@@ -193,7 +189,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 			})
 		})
 		let out: JCell[] = [];
-		mapOut.forEach((c: JCell) => {			out.push(c)		}) 
+		mapOut.forEach((c: JCell) => { out.push(c) })
 		return out;
 	}
 
@@ -307,24 +303,24 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 	}
 
 	getNeighborsInWindow(cell: JCell, grades: number): JCell[] { // mejorar esta funcion
-		
+
 		let out: JCell[] = [];
 		const center: JPoint = cell.center;
 		const polContainer = turf.polygon([[
-			[center.x-grades, center.y-grades],
-			[center.x-grades, center.y+grades],
-			[center.x+grades, center.y+grades],
-			[center.x+grades, center.y-grades],
-			[center.x-grades, center.y-grades],
+			[center.x - grades, center.y - grades],
+			[center.x - grades, center.y + grades],
+			[center.x + grades, center.y + grades],
+			[center.x + grades, center.y - grades],
+			[center.x - grades, center.y - grades],
 		]]);
 
 		let qeue: Map<number, JCell> = new Map<number, JCell>();
-		qeue.set(cell.id, cell);		
-		
+		qeue.set(cell.id, cell);
+
 		while (qeue.size > 0) {
 			let elem: JCell = qeue.entries().next().value[1];
 			qeue.delete(elem.id)
-			
+
 			if (!turf.booleanDisjoint(polContainer, elem.toTurfPolygonSimple())) {
 				out.push(elem);
 				elem.mark();
@@ -333,7 +329,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 						qeue.set(neighElem.id, neighElem);
 					}
 				})
-			}			
+			}
 		}
 
 		this.dismarkAllCells();
@@ -346,12 +342,12 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		const center: JPoint = cell.center;
 
 		let qeue: Map<number, JCell> = new Map<number, JCell>();
-		qeue.set(cell.id, cell);		
-		
+		qeue.set(cell.id, cell);
+
 		while (qeue.size > 0) {
 			let elem: JCell = qeue.entries().next().value[1];
 			qeue.delete(elem.id)
-			
+
 			if (JPoint.geogDistance(elem.center, center) < radiusInKm) {
 				out.push(elem);
 				elem.mark();
@@ -360,15 +356,15 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 						qeue.set(neighElem.id, neighElem);
 					}
 				})
-			}			
+			}
 		}
-		
+
 		this.dismarkAllCells();
 
 		return out;
 	}
 
-	getCellsInSegment(ini: JPoint, end: JPoint): JCell[] { // agregar funcion de condicion
+	getCellsInSegment(ini: JPoint, end: JPoint, condFunc: (c: JCell) => boolean = (_) => true): JCell[] { // tratar de implementar dijkstra
 		let out: JCell[] = [];
 		const iniCell: JCell = this.getCellFromPoint(ini);
 		const endCell: JCell = this.getCellFromPoint(end);
@@ -379,20 +375,26 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		while (!finished) {
 			let arr: { cell: JCell; dist: number }[] = [];
 			this.getCellNeighbours(currCell).forEach((n: JCell) => {
-				arr.push({ cell: n, dist: JPoint.geogDistance(n.center, end) });
-				// finished = true;
+				if (condFunc(n) && !n.isMarked())
+					arr.push({ cell: n, dist: JPoint.geogDistance(n.center, end) });
 			})
-			arr.sort((a, b) => a.dist - b.dist); // puede simplificarse
+			if (arr.length == 0) {
+				finished = true;
+			} else {
+				arr.sort((a, b) => a.dist - b.dist); // puede simplificarse
 
-			out.push(arr[0].cell);
+				currCell = arr[0].cell;
+				out.push(currCell);
+				currCell.mark();
 
-			currCell = arr[0].cell;
-			finished = endCell.id === currCell.id;
+				finished = endCell.id === currCell.id;
+			}
 		}
+		this.dismarkAllCells();
 		return out;
 	}
 
-	getVerticesInSegment(ini: JPoint, end: JPoint): JVertex[] { // agregar funcion de condicion
+	getVerticesInSegment(ini: JPoint, end: JPoint, condFunc: (v: JVertex) => boolean = (_) => true): JVertex[] {
 		let out: JVertex[] = [];
 		const iniVertex: JVertex = this.getVertexFromPoint(ini);
 		const endVertex: JVertex = this.getVertexFromPoint(end);
@@ -403,41 +405,47 @@ export default class JDiagram implements ICellContainer, IVertexContainer{
 		while (!finished) {
 			let arr: { vertex: JVertex; dist: number }[] = [];
 			this.getVertexNeighbours(currVertex).forEach((n: JVertex) => {
-				arr.push({ vertex: n, dist: JPoint.geogDistance(n.point, end) });
-				// finished = true;
+				if (condFunc(n) && !n.isMarked())
+					arr.push({ vertex: n, dist: JPoint.geogDistance(n.point, end) });
 			})
-			arr.sort((a, b) => a.dist - b.dist); // puede simplificarse
+			if (arr.length == 0) {
+				finished = true;
+			} else {
+				arr.sort((a, b) => a.dist - b.dist); // puede simplificarse
 
-			currVertex = arr[0].vertex;
-			out.push(currVertex);
+				currVertex = arr[0].vertex;
+				out.push(currVertex);
+				currVertex.mark();
 
-			finished = endVertex.id === currVertex.id;
+				finished = endVertex.id === currVertex.id;
+			}
 		}
+		this.dismarkAllVertices();
 		return out;
 	}
 
 	dismarkAllCells(): void {
 		this.forEachCell((c: JCell) => {
 			c.dismark();
-		})	
+		})
 	}
 	dismarkAllVertices(): void {
 		this.forEachVertex((v: JVertex) => {
 			v.dismark();
-		})	
+		})
 	}
 
-	getSubSites(AREA: number): {p: IPoint, cid: number}[] {
-		let out: {p: IPoint, cid: number}[] = [];
+	getSubSites(AREA: number): { p: IPoint, cid: number }[] {
+		let out: { p: IPoint, cid: number }[] = [];
 		this.forEachCell((cell: JCell) => {
 			let b: boolean = false;
 			this.getTwoLevelsCellNeighbours(cell).forEach((nc: JCell) => b = b || nc.info.isLand)
 			if (b || cell.info.isLand) {
 				const ss: JPoint[] = cell.getSubSites(AREA);
-				ss.forEach((p: JPoint) => out.push({p: p.getInterface(), cid: cell.id}));
+				ss.forEach((p: JPoint) => out.push({ p: p.getInterface(), cid: cell.id }));
 			}
 			else
-				out.push({p: cell.center.getInterface(), cid: cell.id})
+				out.push({ p: cell.center.getInterface(), cid: cell.id })
 		})
 		return out;
 	}

@@ -52,8 +52,9 @@ const azgaarFolder: string[] = [
 	'Civaland1', // 11
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
+	'Migny90', // 14
 ];
-const folderSelected: string = azgaarFolder[10];
+const folderSelected: string = azgaarFolder[14];
 
 console.log('folder:', folderSelected)
 
@@ -64,7 +65,7 @@ PNGDrawsDataManager.configPath(__dirname + `/../pngdraws`);
 DataInformationFilesManager.configPath(__dirname + `/../data/${folderSelected}`);
 AzgaarReaderData.configPath(__dirname + `/../AzgaarData/${folderSelected}`);
 
-let dm: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}`);
+let dm: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}`); // borrar, se usa el de stest
 dm.setZoom(0);
 dm.setCenterpan(new JPoint(0, 0));
 // navigate
@@ -76,7 +77,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 12100; // 810
+const AREA: number = 810; // 810
 const GRAN: number = 2;
 const naturalWorld: NaturalWorld = new NaturalWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 
@@ -87,20 +88,24 @@ const monthArrObj = {
 }
 const monthCant: keyof typeof monthArrObj = 12;
 /* SHOWERS */
-const showerManager = new ShowerManager(naturalWorld, AREA, GRAN, folderSelected)
+const showerManager = new ShowerManager(naturalWorld, AREA, GRAN, folderSelected);
+
 const sh = showerManager.sh;
 const sc = showerManager.sc;
 const sw = showerManager.sw;
 
 const stest = showerManager.st;
 
-/*******************************************************************/
-
+/**
+ * height map
+ */
 // sh.drawHeight();
 // sh.drawIslands();
 // sh.printMaxAndMinCellsHeight();
 
-/******************** climate map ********************/
+/**
+ * climate map
+ */
 // for (let month of monthArrObj[monthCant]) {	sc.drawTempMonth(month); }
 // sc.drawTempMedia()
 // for (let month of monthArrObj[monthCant]) {	sc.drawPrecipMonth(month); }
@@ -125,13 +130,14 @@ dm.drawCellMap(world.diagram, ((cell: JCell) => {return {
 dm.drawMeridianAndParallels(181,361)
 dm.saveDrawFile(`${AREA}secDiagram.png`)
 */
+/**
+ * rever map
+ */
 // sw.drawRivers('#1112EA', 'h');
 // sw.drawWaterRoutes('#000000', 'l')
 // sw.printRiverData();
 // sw.printRiverDataLongers(3000);
 // sw.printRiverDataShorters(15);
-
-
 
 console.time('convert to line')
 /*
@@ -206,25 +212,42 @@ const finC = new JPoint(-5,-25);
 
 const points: JPoint[] = [iniC, finC, finV, iniV, iniC];
 
-/*
-const line = new LineMap(naturalWorld.diagram);
-points.forEach((_: JPoint, i: number, arr: JPoint[]) => {
-	if (i !== 0) {
-		const ini = arr[i-1];
-		const fin = arr[i];
-		naturalWorld.diagram.getVerticesInSegment(ini,fin).forEach((v: JVertex) => {
-			if (!line.isInLine(v)) {
-				line.addVertex(v)
-			}
-		});
-	}
-})
+// const line = new LineMap(naturalWorld.diagram);
+
+// const condition = (vertex: JVertex): boolean => {
+// 	return !line.isInLine(vertex);
+// }
+
+// // const segPoints: JPoint[] = [];
+// points.forEach((_: JPoint, i: number, arr: JPoint[]) => {
+// 	if (i !== 0) {
+// 		const ini = arr[i-1];
+// 		const fin = arr[i];
+// 		naturalWorld.diagram.getVerticesInSegment(ini, fin, condition).forEach((v: JVertex) => {
+// 			// console.log(v.point.getInterface(), ' - next', arr[i+1]?.point.getInterface())
+// 			// segPoints.push(v.point);
+// 			if (!line.isInLine(v)) {
+// 				// try {
+// 					line.addVertex(v)
+// 				// } catch (error) {
+// 					// console.log(error)
+// 				// }
+// 			} else {
+// 				// console.log('no agregado')
+// 			}
+// 		});
+// 	}
+// })
 // line.close();
-*/
+
 const line = naturalWorld.islands[2].getLimitLines()[0];
 
 stest.d.drawBackground('#FFFFFF')
-stest.d.drawEdgeContainer(line, (e: any) => {return {
+// stest.d.draw(segPoints, {
+// 	strokeColor: '#00FF00',
+// 	fillColor: 'none'
+// })
+stest.d.drawEdgeContainer(line, (_: any) => {return {
 	strokeColor: '#FF0000',
 	fillColor: 'none'
 }})

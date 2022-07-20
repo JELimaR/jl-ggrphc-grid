@@ -113,10 +113,13 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		if (this._isClosed) {
 			throw new Error(`no se puede agregar un nuevo vertex a este LineMap por esta cerrado`);
 		}
+		if (this.isInLine(vertex)) {
+			throw new Error(`El vertex ya se encuentra en LineMap`);
+		}
 		const cant: number = this._vertices.length;
 		if (cant == 0) {
 			this._vertices.push(vertex);
-		} else if (!this.isInLine(vertex)) {
+		} else {
 			const ini: JVertex = this.ini;
 			const fin: JVertex = this.fin;
 			if (fin.isNeightbour(vertex)) {
@@ -124,12 +127,16 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 			} else if (ini.isNeightbour(vertex)) {
 				this._vertices.unshift(vertex);
 			} else {
-				throw new Error(`no se puede agregar el vertex a este LineMap`);
+				console.log('-------------------------------------------')
+				console.log('ini', ini.point.getInterface())
+				console.log('fin', fin.point.getInterface())
+				console.log(vertex.point.getInterface())
+				console.log('son vecinos?', vertex.isNeightbour(fin));
+				throw new Error(
+					`no se puede agregar el vertex a este LineMap porque no es vecino de los extremos`
+				);
 			}
-		} else {
-			throw new Error(`El vertex ya se encuentra en LineMap`);
 		}
-
 		// if (this.ini.id === this.fin.id) this._isClosed = true;
 	}
 
