@@ -19,7 +19,7 @@ import { ITempDataGrid } from './Climate/TempGrid';
 import { IPressureDataGrid } from './Climate/PressureGrid';
 import { IPrecipData } from './Climate/PrecipGrid';
 import { IJVertexFluxInfo } from './VertexInformation/JVertexFlux';
-import FluxRoute, { IFluxRouteInfo } from './River/FluxRoute';
+import FluxRouteMap, { IFluxRouteMapInfo } from './River/FluxRouteMap';
 import RiverMap, { IRiverMapInfo } from './River/RiverMap';
 import IslandMap, { IIslandMapInfo } from './heightmap/IslandMap';
 
@@ -325,8 +325,8 @@ export default class DataInformationFilesManager {
 	}
 
 	// water routes
-	loadWaterRoutesInfo(area: number | undefined): IFluxRouteInfo[] {
-		let out: IFluxRouteInfo[] = [];
+	loadWaterRoutesInfo(area: number | undefined): IFluxRouteMapInfo[] {
+		let out: IFluxRouteMapInfo[] = [];
 		try {
 			let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
@@ -336,11 +336,11 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveWaterRoutesInfo(fluxRoutes: Map<number,FluxRoute>, area: number | undefined): void {
+	saveWaterRoutesInfo(fluxRoutes: Map<number,FluxRouteMap>, area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}/RiverAndFlux`, { recursive: true });
 		let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
-		let data: IFluxRouteInfo[] = [];
-		fluxRoutes.forEach((fr: FluxRoute) => {
+		let data: IFluxRouteMapInfo[] = [];
+		fluxRoutes.forEach((fr: FluxRouteMap) => {
 			data.push(fr.getInterface());
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));

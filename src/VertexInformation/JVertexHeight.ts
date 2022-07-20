@@ -18,7 +18,7 @@ export default class JVertexHeight {
 	private _vertex: JVertex;
 
 	private _height: number;
-	private _heightType: TypeVertexheight = 'land';
+	private _heightType: TypeVertexheight;
 	// private _island: number = -1;
 	constructor(vertex: JVertex, info: IJVertexHeightInfo) {
 		this._vertex = vertex;

@@ -14,7 +14,7 @@ import JVertex from '../Voronoi/JVertex';
 import chroma from 'chroma-js';
 
 import RiverMap, { } from '../River/RiverMap';
-import FluxRoute from '../River/FluxRoute';
+import FluxRouteMap from '../River/FluxRouteMap';
 import Shower from './Shower';
 import { switchCase } from '@babel/types';
 
@@ -30,35 +30,27 @@ export default class ShowWater extends Shower {
 		super(world, area, gran, folderSelected, 'river');
 	}
 
-	drawRivers(color: string | 'random', background: TBackground) { // crear el JCellToDrawEntryFunction
-		this.d.clear();
+	drawRivers(background: TBackground, zoom: number = 0, center?: JPoint) {
+		this.d.clear(zoom, center);
+
 		// fondo
 		this.drawFondo(background);
 
 		// rivers
 		this.w.rivers.forEach((river: RiverMap) => {
-			/*
-			color = (color == 'random') ? chroma.random().hex() : color;
-			const points: JPoint[] = river.vertices.map((vertex: JVertex) => vertex.point)
-			this.d.draw(points, {
-				fillColor: 'none',
-				strokeColor: color,
-				dashPattern: [1, 0]
-			})
-			*/
 			this.d.drawEdgeContainer(river, JEdgeToDrawEntryFunctions.fluxMedia())
 		})
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}rivers.png`)
 	}
 
-	drawWaterRoutes(color: string | 'random', background: TBackground) { // crear el JCellToDrawEntryFunction
-		this.d.clear();
+	drawWaterRoutes(color: string | 'random', background: TBackground, zoom: number = 0, center?: JPoint) {
+		this.d.clear(zoom, center);
 		// fondo
 		this.drawFondo(background);
 
 		// water routes
-		this.w.fluxRoutes.forEach((fluxRoute: FluxRoute) => {
+		this.w.fluxRoutes.forEach((fluxRoute: FluxRouteMap) => {
 			color = (color == 'random') ? chroma.random().hex() : color;
 			const points: JPoint[] = fluxRoute.vertices.map((vertex: JVertex) => vertex.point)
 			this.d.draw(points, {

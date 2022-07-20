@@ -4,25 +4,25 @@ import JDiagram from "../Voronoi/JDiagram";
 import JVertex from "../Voronoi/JVertex";
 
 /**
- * Un objeto JFluxRoute representa un camino de drenaje desde un punto inicial hacia la costa
+ * Un objeto FluxRouteMap representa un camino de drenaje desde un punto inicial hacia la costa
  * Puede ser un lago o un oceano.
  */
-export interface IFluxRouteInfo extends ILineMapInfo {
+export interface IFluxRouteMapInfo extends ILineMapInfo {
 	id: number;
 }
 
-export default class FluxRoute extends LineMap {
+export default class FluxRouteMap extends LineMap {
 
 	private _id: number;
 
-	constructor(id: number, diagram: JDiagram, info?: IFluxRouteInfo) {
+	constructor(id: number, diagram: JDiagram, info?: IFluxRouteMapInfo) {
 		super(diagram, info);
 		this._id = id;
 	}
 
 	get id(): number { return this._id }
 
-	getInterface(): IFluxRouteInfo {
+	getInterface(): IFluxRouteMapInfo {
 		return {
 			...super.getInterface(),
 			id: this._id,

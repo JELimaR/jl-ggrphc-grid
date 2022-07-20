@@ -33,3 +33,7 @@ export const fluxMonth = (month: number) => {
 		}
 	}
 }
+
+export const colors = (dd: IDrawEntry) => {
+	return (_e: JEdge) => { return dd }
+}

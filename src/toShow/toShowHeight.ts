@@ -3,6 +3,7 @@ import Shower from "./Shower";
 import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions';
 
 import JCell from "../Voronoi/JCell";
+import JPoint from "../Geom/JPoint";
 
 export default class ShowHeight extends Shower {
 
@@ -10,16 +11,16 @@ export default class ShowHeight extends Shower {
 		super(world, area, gran, folderSelected, 'height');
 	}
 
-	drawHeight() {
-		this.d.clear();
+	drawHeight(zoom: number = 0, center?: JPoint) {
+		this.d.clear(zoom, center);
 		this.d.drawBackground()
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.heighLand(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}heightLand.png`);
 	}
 
-	drawIslands() {
-		this.d.clear();
+	drawIslands(zoom: number = 0, center?: JPoint) {
+		this.d.clear(zoom, center);
 		this.d.drawArr(this.w.islands, 1);
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}islands.png`)

@@ -82,11 +82,11 @@ export default class RegionMap implements IDiagramContainer, ICellContainer {
 		})
 		this.sortVerticesList([...verticesLimits.values()]).forEach((verts: JVertex[]) => {
 			let line: LineMap = new LineMap(this.diagram);
-			verts.forEach((elem: JVertex) => {line.addVertex(elem)});
-			line.close()
-			out.push(line)
+			verts.forEach((elem: JVertex) => line.addVertex(elem));
+			line.close();
+			out.push(line);
 		})
-		if (out.length == 0) throw new Error(`en una region debe haber al menos un JLine limit`)
+		if (out.length == 0) throw new Error(`en una region debe haber al menos un LineMap limit`)
 
 		return out;
 	}

@@ -6,7 +6,7 @@ import ClimateMapGenerator from './Climate/ClimateMapGenerator';
 import RiverMapGenerator, { IRiverMapGeneratorOut } from './River/RiverMapGenerator';
 import IslandMap from './heightmap/IslandMap';
 import IslandMapGenerator from './heightmap/IslandMapGenerator';
-import FluxRoute from './River/FluxRoute';
+import FluxRouteMap from './River/FluxRouteMap';
 import RiverMap from './River/RiverMap';
 
 export default class NaturalWorld {
@@ -18,7 +18,7 @@ export default class NaturalWorld {
 
 	// map elements estos elementos pueden ser generados despues y no en el constructor
 	private _islands: IslandMap[] = [];
-	private _fluxRoutes: Map<number, FluxRoute> = new Map<number, FluxRoute>();
+	private _fluxRoutes: Map<number, FluxRouteMap> = new Map<number, FluxRouteMap>();
 	private _rivers: Map<number, RiverMap> = new Map<number, RiverMap>();
 
 	constructor(AREA: number, GRAN: number) {
@@ -36,22 +36,22 @@ export default class NaturalWorld {
 
 	get diagram(): JDiagram { return this._diagram }
 	get islands(): IslandMap[] {
-		if (this._islands.length === 0) this._islands = this.generateIslandMaps(this._diagram);
+		if (this._islands.length === 0) /*this._islands = */this.generateIslandMaps();
 		return this._islands;
 	}
 	get fluxRoutes() {
 		if (this._fluxRoutes.size === 0) {
-			const iro: IRiverMapGeneratorOut = this.generateRiverMaps(this._diagram);
-			this._fluxRoutes = iro.fluxRoutes;
-			this._rivers = iro.rivers;
+			/*const iro: IRiverMapGeneratorOut = */this.generateRiverMaps();
+			// this._fluxRoutes = iro.fluxRoutes;
+			// this._rivers = iro.rivers;
 		}
 		return this._fluxRoutes;
 	}
 	get rivers() {
 		if (this._rivers.size === 0) {
-			const iro: IRiverMapGeneratorOut = this.generateRiverMaps(this._diagram);
-			this._fluxRoutes = iro.fluxRoutes;
-			this._rivers = iro.rivers;
+			/*const iro: IRiverMapGeneratorOut = */this.generateRiverMaps();
+			// this._fluxRoutes = iro.fluxRoutes;
+			// this._rivers = iro.rivers;
 		}
 		return this._rivers;
 	}
@@ -116,13 +116,18 @@ export default class NaturalWorld {
 		const cmg = new ClimateMapGenerator(diagram, grid);
 		cmg.generate();
 	}
-	private generateRiverMaps(diagram: JDiagram): IRiverMapGeneratorOut {
-		const rmg = new RiverMapGenerator(diagram);
-		return rmg.generate();
+	// se generan fuera del constructor
+	generateRiverMaps(): void {//IRiverMapGeneratorOut {
+		const rmg = new RiverMapGenerator(this.diagram);
+		// return rmg.generate();
+		const iro: IRiverMapGeneratorOut = rmg.generate();
+		this._fluxRoutes = iro.fluxRoutes;
+		this._rivers = iro.rivers;
 	}
-	private generateIslandMaps(diagram: JDiagram): IslandMap[] {
-		const img: IslandMapGenerator = new IslandMapGenerator(diagram);
-		return img.generate();
+	generateIslandMaps(): void{//IslandMap[] {
+		const img: IslandMapGenerator = new IslandMapGenerator(this.diagram);
+		this._islands = img.generate();
+		// return img.generate();
 	}
 
 	/* otras funciones genericas */

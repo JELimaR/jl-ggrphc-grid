@@ -24,7 +24,7 @@ export default class ClimateMapGenerator extends MapGenerator {
 	}
 
 	generate(): void {
-		super.generate();
+		// super.generate();
 
 		const dataInfoManager = DataInformationFilesManager.instance;
 
