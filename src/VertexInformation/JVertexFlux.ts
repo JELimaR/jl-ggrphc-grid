@@ -1,22 +1,25 @@
+import { TypeInformationKey } from "../DataInformationLoadAndSave";
 import JVertex from "../Voronoi/JVertex";
+import JVertexGeneric, { IJVertexGenericInfo } from "./JVertexGeneric";
 
-export interface IJVertexFluxInfo {
+export interface IJVertexFluxInfo extends IJVertexGenericInfo {
 	id: string;
-	
+
 	fluxMonth: number[];
 	fluxRouteIds: number[];
 	riverIds: number[];
 }
 
-export default class JVertexFlux {
-	private _vertex: JVertex;
+export default class JVertexFlux extends JVertexGeneric {
+	/// private _vertex: JVertex;
 
 	private _fluxMonth: number[];
 	_fluxRouteIds: number[] = [];
 	_riverIds: number[] = [];
 
 	constructor(vertex: JVertex, info: IJVertexFluxInfo) {
-		this._vertex = vertex;
+		// this._vertex = vertex;
+		super(vertex)
 		this._fluxMonth = [...info.fluxMonth];
 		this._fluxRouteIds = [...info.fluxRouteIds];
 		if (info.riverIds.length > 3) throw new Error(``)
@@ -32,10 +35,14 @@ export default class JVertexFlux {
 
 	getInterface(): IJVertexFluxInfo {
 		return {
-			id: this._vertex.id,
+			id: this.vertex.id,
 			fluxMonth: [...this._fluxMonth],
 			fluxRouteIds: this._fluxRouteIds,
 			riverIds: this._riverIds
 		}
+	}
+
+	static getTypeInformationKey(): TypeInformationKey {
+		return 'vertexFlux';
 	}
 }

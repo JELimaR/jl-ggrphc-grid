@@ -22,18 +22,19 @@ import { IJVertexFluxInfo } from './VertexInformation/JVertexFlux';
 import FluxRouteMap, { IFluxRouteMapInfo } from './River/FluxRouteMap';
 import RiverMap, { IRiverMapInfo } from './River/RiverMap';
 import IslandMap, { IIslandMapInfo } from './heightmap/IslandMap';
+import JVertexGeneric , {IJVertexGenericInfo} from './VertexInformation/JVertexGeneric';
 
 // dividir esta clase
-export default class DataInformationFilesManager {
-	static _instance: DataInformationFilesManager;
+export default class InformationFilesManager {
+	static _instance: InformationFilesManager;
 
 	private _dirPath: string = '';
 
 	private constructor() { }
 
-	static get instance(): DataInformationFilesManager {
-		if (!DataInformationFilesManager._instance) {
-			this._instance = new DataInformationFilesManager();
+	static get instance(): InformationFilesManager {
+		if (!InformationFilesManager._instance) {
+			this._instance = new InformationFilesManager();
 		}
 		return this._instance;
 	}
@@ -469,10 +470,10 @@ export default class DataInformationFilesManager {
 	/**
 	 * cells information
 	 */
-	loadCellsData<I>(area: number | undefined, TYPE: TypeCellInformation): I[] {
+	loadCellsData<I, T extends IgetInterface<I>>(area: number | undefined, TYPE: TypeInformationKey): I[] {
 		let out: I[] = [];
-		const subFolder: string = 'CellsInfo';
-		const file: string = TYPE;
+		const subFolder: string = DATA_INFORMATION[TYPE].subFolder.join('/');
+		const file: string = DATA_INFORMATION[TYPE].file;
 		try {
 			let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
@@ -482,15 +483,15 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveCellsData<I, T extends { id: number, getInterface: () => I }>(cells: Map<number, T> | T[], area: number | undefined, TYPE: TypeCellInformation): void {
-		const subFolder: string = 'CellsInfo';
-		const file: string = TYPE;
+	saveCellsData<I, T extends IgetInterface<I>>(cells: T[], area: number | undefined, TYPE: TypeInformationKey): void {
+		const subFolder: string = DATA_INFORMATION[TYPE].subFolder.join('/');
+		const file: string = DATA_INFORMATION[TYPE].file;
 		fs.mkdirSync(`${this._dirPath}/${subFolder}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
 
 		let data: I[] = [];
-		cells.forEach((cell: T) => {
-			data[cell.id] = cell.getInterface()!;
+		cells.forEach((infoT: T) => {
+			data.push(infoT.getInterface());
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
@@ -498,10 +499,10 @@ export default class DataInformationFilesManager {
 	/**
 	 * vertices information
 	 */
-	loadVerticesData<I, T extends { getInterface: () => I }>(area: number | undefined, TYPE: TypeVerticesInformation): I[] {
+	loadVerticesData<I, T extends IgetInterface<I>>(area: number | undefined, TYPE: TypeInformationKey): I[] {
 		let out: I[] = [];
-		const subFolder: string = 'VerticesInfo';
-		const file: string = TYPE;
+		const subFolder: string = DATA_INFORMATION[TYPE].subFolder.join('/');
+		const file: string = DATA_INFORMATION[TYPE].file;
 		try {
 			let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
@@ -511,16 +512,15 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveVerticesData<I, T extends IgetInterface<I>>(vertices: T[], area: number | undefined, TYPE: TypeVerticesInformation): void {
-		const subFolder: string = 'VerticesInfo';
-
-		const file: string = TYPE;
+	saveVerticesData<I, T extends IgetInterface<I>>(vertices: T[], area: number | undefined, TYPE: TypeInformationKey): void {
+		const subFolder: string = DATA_INFORMATION[TYPE].subFolder.join('/');
+		const file: string = DATA_INFORMATION[TYPE].file;
 		fs.mkdirSync(`${this._dirPath}/${subFolder}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
 
 		let data: I[] = [];
-		vertices.forEach((vertex: T) => {
-			data.push(vertex.getInterface());
+		vertices.forEach((infoT: T) => {
+			data.push(infoT.getInterface());
 			// data.push(vertex.info.getFluxInfo()!);
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
@@ -552,18 +552,38 @@ export default class DataInformationFilesManager {
 }
 
 interface IgetInterface<I> {
-	getInterface: ()=>I;
+	getInterface: () => I;
 }
 
 type TypeGridInformation = 'temperature' | 'precip' | 'pressure';
-type TypeCellInformation = 'height' | 'climate';
-type TypeVerticesInformation = 'height' | 'flux';
-
-type TypeInformationKey = 'cellHeight';
-export type TypeInformation = { [key in TypeInformationKey]: ISaveInformation } // sirve para crear una constante con todo
 
 
 export interface ISaveInformation {
 	subFolder: string[];
 	file: string;
 }
+export type TypeInformationKey = 
+	| 'cellHeight' | 'cellClimate'
+	| 'vertexHeight' | 'vertexFlux';
+
+export type TypeInformation = { [key in TypeInformationKey]: ISaveInformation } // sirve para crear una constante con todo
+
+const DATA_INFORMATION: TypeInformation = {
+	cellHeight: {
+		file: 'height',
+		subFolder: ['CellsInfo'],
+	},
+	cellClimate: {
+		file: 'climate',
+		subFolder: ['CellsInfo'],
+	},
+	vertexHeight: {
+		file: 'height',
+		subFolder: ['VerticesInfo'],
+	},
+	vertexFlux: {
+		file: 'flux',
+		subFolder: ['VerticesInfo'],
+	}
+}
+

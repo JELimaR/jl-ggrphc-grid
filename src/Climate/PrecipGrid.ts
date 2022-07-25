@@ -1,10 +1,10 @@
 import JGrid, { JGridPoint } from '../Geom/JGrid';
 import JPressureGrid from './PressureGrid';
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
+import InformationFilesManager from '../DataInformationLoadAndSave';
 import JPoint from '../Geom/JPoint';
 import WindSimulate, { IPrecipDataGenerated } from './WindSimulator';
 import TempGrid from './TempGrid';
-const dataInfoManager = DataInformationFilesManager.instance;
+const dataInfoManager = InformationFilesManager.instance;
 
 export interface IPrecipData {
 	precip: number[];

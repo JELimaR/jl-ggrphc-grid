@@ -2,8 +2,8 @@ import JCell from '../Voronoi/JCell';
 import JDiagram from '../Voronoi/JDiagram';
 import JPoint from './JPoint';
 import { GRAD2RAD, WRADIUS } from './constants'
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
-const dataInfoManager = DataInformationFilesManager.instance;
+import InformationFilesManager from '../DataInformationLoadAndSave';
+const dataInfoManager = InformationFilesManager.instance;
 
 export interface IJGridPointInfo {
 	point: { x: number, y: number };

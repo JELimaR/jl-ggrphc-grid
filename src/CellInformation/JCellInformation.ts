@@ -19,7 +19,7 @@ export default class JCellInformation {
 	set mark(b: boolean) {this._mark = b}
 
 	/*
-	 * height or relief
+	 * height
 	 */
 	setHeightInfo(h: IJCellHeightInfo) { this._height = new JCellHeight(this._cell, h);	}
 	getHeightInfo(): IJCellHeightInfo | undefined { return this._height!.getInterface(); }	
@@ -34,22 +34,6 @@ export default class JCellInformation {
 
 	set islandId(id: number) { this._height!.island = id; } // se puede eliminar
 	get islandId(): number { return this._height!.island; }
-
-	/*
-	 * temp
-	 */
-	// setTempInfo(t: IJCellTempInfo) { this._temp = new JCellTemp(this._cell, t);	}
-	// getTempInfo(): IJCellTempInfo | undefined { return this._temp!.getInterface();	}
-	// get cellTemp(): JCellTemp {
-	// 	return this._temp!;
-	// }
-
-	// get tempMonthArr(): number[] { return this._temp!.tempMonth }
-	// get tempMedia(): number { 
-	// 	let out: number = 0;
-	// 	this._temp!.tempMonth.forEach((t: number) => out += t)
-	// 	return out/12;
-	// }
 
 	/*
 	 * climate
@@ -67,3 +51,4 @@ export default class JCellInformation {
 	// 	return out/12;
 	// }
 }
+

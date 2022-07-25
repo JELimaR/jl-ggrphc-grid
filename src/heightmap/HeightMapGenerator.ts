@@ -1,5 +1,5 @@
 import JDiagram from "../Voronoi/JDiagram";
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
+import InformationFilesManager from '../DataInformationLoadAndSave';
 // import { IJCellInformation } from "../Voronoi/JCellInformation";
 import JCellHeight, { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
@@ -31,7 +31,7 @@ export default class HeightMapGenerator extends MapGenerator {
 	}
 
 	generate() {
-		const dataInfoManager = DataInformationFilesManager.instance;
+		const dataInfoManager = InformationFilesManager.instance;
 		const a = this._ancestor;
 		/*
 		 * height cells
@@ -40,7 +40,7 @@ export default class HeightMapGenerator extends MapGenerator {
 		console.time(`${a ? 's' : 'p'}-set height info`);
 		// ver como se debe hacer esto
 		// let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(this.diagram.secAreaProm);
-		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsData<IJCellHeightInfo>(this.diagram.secAreaProm, 'height');
+		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsData<IJCellHeightInfo, JCellHeight>(this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
 
 		const isLoaded: boolean = loadedHeightInfo.length !== 0;
 		if (!isLoaded) {
@@ -50,8 +50,8 @@ export default class HeightMapGenerator extends MapGenerator {
 				loadedHeightInfo = this.getCellsData();
 			}
 		}
-		this.diagram.forEachCell((cell: JCell) => {
-			const hinf: IJCellHeightInfo = loadedHeightInfo[cell.id];
+		loadedHeightInfo.forEach((hinf: IJCellHeightInfo) => {
+			const cell: JCell = this.diagram.getCellById(hinf.id) as JCell;
 			cell.info.setHeightInfo(hinf);
 		})
 
@@ -68,12 +68,12 @@ export default class HeightMapGenerator extends MapGenerator {
 
 			// dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
 			const heightArr: JCellHeight[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellHeight)
-			dataInfoManager.saveCellsData<IJCellHeightInfo, JCellHeight>(heightArr, this.diagram.secAreaProm, 'height');
+			dataInfoManager.saveCellsData<IJCellHeightInfo, JCellHeight>(heightArr, this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
 		}
 
 		// vertices
 		// let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesHeigth(this.diagram.secAreaProm);
-		let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesData<IJVertexHeightInfo, JVertexHeight>(this.diagram.secAreaProm, 'height');
+		let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesData<IJVertexHeightInfo, JVertexHeight>(this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
 		const isVertexLoaded: boolean = loadedVertexInfo.length !== 0;
 		if (!isVertexLoaded) {
 			loadedVertexInfo = this.getVertexValues();
@@ -94,7 +94,7 @@ export default class HeightMapGenerator extends MapGenerator {
 			
 			// dataInfoManager.saveVerticesHeigth(this.diagram.vertices, this.diagram.secAreaProm);
 			const verticesArr: JVertexHeight[] = [...this.diagram.vertices.values()].map((vertex: JVertex) => vertex.info.vertexHeight)
-			dataInfoManager.saveVerticesData<IJVertexHeightInfo, JVertexHeight>(verticesArr, this.diagram.secAreaProm, 'height');
+			dataInfoManager.saveVerticesData<IJVertexHeightInfo, JVertexHeight>(verticesArr, this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
 		}
 
 		console.timeEnd(`${a ? 's' : 'p'}-set height info`);

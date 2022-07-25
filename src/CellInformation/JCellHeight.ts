@@ -1,12 +1,13 @@
-import { ISaveInformation } from "../DataInformationLoadAndSave";
+import { TypeInformationKey } from "../DataInformationLoadAndSave";
 import JCell from "../Voronoi/JCell";
+import JCellGeneric, { IJCellGenericInfo } from "./JCellGeneric";
 
 export type TypeCellheight =
 	| 'ocean'
 	| 'lake'
 	| 'land'
 
-export interface IJCellHeightInfo {
+export interface IJCellHeightInfo extends IJCellGenericInfo {
 	id: number;
 
 	height: number;
@@ -15,8 +16,8 @@ export interface IJCellHeightInfo {
 	islandId: number; // no se guarda este dato nunca
 }
 
-export default class JCellHeight {
-	private _cell: JCell;
+export default class JCellHeight extends JCellGeneric {
+	// private _cell: JCell;
 
 	private _height: number;
 	private _prevHeight: number = 0;
@@ -24,14 +25,15 @@ export default class JCellHeight {
 	private _islandId: number = -1;
 
 	constructor(c: JCell, info: IJCellHeightInfo) {
-		this._cell = c;
+		super(c);
+		// this._cell = c;
 		
 		this._height = info.height;
 		this._prevHeight = info.prevHeight;
 		this._heightType = info.heightType;
 	}
 
-	get id(): number {return this._cell.id}
+	// get id(): number {return this._cell.id}
 	
 	get height(): number {return this._height}
 	get heightInMeters(): number { return 6121.258 * ((this._height - 0.2)/0.8) ** 1.8 } // corregir
@@ -56,9 +58,9 @@ export default class JCellHeight {
 	get island(): number { return this._islandId }
 	// get inLandZone(): boolean {return this._heightType === ''}
 
-	getInterface(): IJCellHeightInfo { 
+	getInterface(): IJCellHeightInfo {
 		return {
-			id: this._cell.id,
+			...super.getInterface(),
 
 			height: this._height,
 			prevHeight: this._prevHeight,
@@ -67,10 +69,7 @@ export default class JCellHeight {
 		}
 	}
 
-	static getInformation(): ISaveInformation {
-		return {
-			subFolder: ['CellsInfo'],
-			file: 'height'
-		}
+	static getTypeInformationKey(): TypeInformationKey {
+		return 'cellHeight';
 	}
 }

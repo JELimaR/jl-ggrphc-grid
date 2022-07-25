@@ -1,6 +1,6 @@
 
 import JDiagram from "../Voronoi/JDiagram";
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
+import InformationFilesManager from '../DataInformationLoadAndSave';
 // import { IJCellInformation } from "../Voronoi/JCellInformation";
 import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
@@ -29,7 +29,7 @@ export default class IslandMapGenerator extends MapGenerator {
 	}
 
 	generate(): IslandMap[] {
-		const dataInfoManager = DataInformationFilesManager.instance;
+		const dataInfoManager = InformationFilesManager.instance;
 
 		let out: IslandMap[] = [];
 

@@ -4,10 +4,10 @@ import JDiagram from "./Voronoi/JDiagram";
 import JPoint from "./Geom/JPoint";
 import RegionMap, { IJContinentInfo, JContinentMap, JCountryMap, JStateMap } from './MapElements/RegionMap';
 
-import DataInformationFilesManager from './DataInformationLoadAndSave';
+import InformationFilesManager from './DataInformationLoadAndSave';
 import { ICellContainer } from "./generalInterfaces";
 import IslandMap, { IIslandMapInfo } from "./heightmap/IslandMap";
-const dataInfoManager = DataInformationFilesManager.instance;
+const dataInfoManager = InformationFilesManager.instance;
 
 export default class JWorldMap {
 

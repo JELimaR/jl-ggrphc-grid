@@ -1,4 +1,6 @@
+import { TypeInformationKey } from "../DataInformationLoadAndSave";
 import JVertex from "../Voronoi/JVertex";
+import JVertexGeneric, { IJVertexGenericInfo } from "./JVertexGeneric";
 
 export type TypeVertexheight =
 	| 'ocean'
@@ -7,21 +9,22 @@ export type TypeVertexheight =
 	| 'lakeCoast'
 	| 'lake'
 
-export interface IJVertexHeightInfo {
+export interface IJVertexHeightInfo extends IJVertexGenericInfo {
 	id: string;
 
 	height: number;
 	heightType: TypeVertexheight;
 }
 
-export default class JVertexHeight {
-	private _vertex: JVertex;
+export default class JVertexHeight extends JVertexGeneric {
+	// private _vertex: JVertex;
 
 	private _height: number;
 	private _heightType: TypeVertexheight;
 	// private _island: number = -1;
 	constructor(vertex: JVertex, info: IJVertexHeightInfo) {
-		this._vertex = vertex;
+		super(vertex);
+		// this._vertex = vertex;
 		this._height = info.height;
 		this._heightType = info.heightType;
 	}
@@ -33,10 +36,14 @@ export default class JVertexHeight {
 
 	getInterface(): IJVertexHeightInfo {
 		return {
-			id: this._vertex.id,
+			id: this.vertex.id,
 
 			height: this._height,
 			heightType: this._heightType
 		}
+	}
+
+	static getTypeInformationKey(): TypeInformationKey {
+		return 'vertexHeight';
 	}
 }

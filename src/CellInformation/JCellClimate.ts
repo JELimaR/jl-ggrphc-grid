@@ -1,4 +1,7 @@
+import { TypeInformationKey } from "../DataInformationLoadAndSave";
+import { inRange } from "../utilFunctions";
 import JCell from "../Voronoi/JCell";
+import JCellGeneric, { IJCellGenericInfo } from "./JCellGeneric";
 
 /**
  * A: Af, As, Aw Am
@@ -27,23 +30,23 @@ export const koppenColors = {
 	ET: '#B2B2B2', EF: '#686868',
 }
 
-export interface IJCellClimateInfo {
+export interface IJCellClimateInfo extends IJCellGenericInfo {
 	id: number;
 	tempMonth: number[];
 	precipMonth: number[];
 }
 
-export default class JCellClimate {
-	private _cell: JCell;
+export default class JCellClimate extends JCellGeneric {
+	// private _cell: JCell;
 	private _tempMonth: number[];
 	private _precipMonth: number[];
 	constructor(cell: JCell, info: IJCellClimateInfo) {
-		this._cell = cell;
+		super(cell);
 		this._tempMonth = info.tempMonth;
 		this._precipMonth = info.precipMonth;
 	}
 
-	get id(): number {return this._cell.id}
+	// get id(): number {return this._cell.id}
 	get tempMonth(): number[] { return this._tempMonth }
 	// set tempMonth(tempArr: number[]) { this._tempMonth = [...tempArr] }
 	get precipMonth(): number[] { return this._precipMonth }
@@ -85,14 +88,14 @@ export default class JCellClimate {
 
 	getMonthsSet(): { calido: number[], frio: number[] } {
 		return {
-			calido: (this._cell.center.y < 0) ? [1, 2, 3, 4, 11, 12] : [5, 6, 7, 8, 9, 10],
-			frio: (this._cell.center.y < 0) ? [5, 6, 7, 8, 9, 10] : [1, 2, 3, 4, 11, 12]
+			calido: (this.cell.center.y < 0) ? [1, 2, 3, 4, 11, 12] : [5, 6, 7, 8, 9, 10],
+			frio: (this.cell.center.y < 0) ? [5, 6, 7, 8, 9, 10] : [1, 2, 3, 4, 11, 12]
 		}
 	}
 
 	getInterface(): IJCellClimateInfo {
 		return {
-			id: this._cell.id,
+			...super.getInterface(),
 			tempMonth: this._tempMonth,
 			precipMonth: this._precipMonth
 		}
@@ -107,7 +110,7 @@ export default class JCellClimate {
 	 * E	si Tmáx < 10.
 	 */
 	koppenType(): TKoppenType | 'O' {
-		if (!this._cell.info.isLand) return 'O';
+		if (!this.cell.info.isLand) return 'O';
 		if (this.annualPrecip < 1.0 * this.pumbral) return 'B'; //if (this.annualPrecip < 1.2 * this.pumbral) return 'B';
 		else if (this.tmin > 18) return 'A';
 		else if (this.tmax >= 10 && this.tmin > 0) return 'C'
@@ -161,7 +164,7 @@ export default class JCellClimate {
 	}
 
 	koppenSubType(): TKoppenSubType | 'O' {
-		if (!this._cell.info.isLand) return 'O';
+		if (!this.cell.info.isLand) return 'O';
 
 		switch (this.koppenType()) {
 			// A
@@ -211,7 +214,7 @@ export default class JCellClimate {
 		this._tempMonth.forEach((t: number) => {
 			let temp = (t < 0) ? 0 : t;
 			if (temp > 24)
-				temp = temp - 3 * this._cell.center.y / 100 * ((t - 24) ** 2);
+				temp = temp - 3 * this.cell.center.y / 100 * ((t - 24) ** 2);
 			out += inRange(temp / 12, 0, 24);
 		})
 		return out;
@@ -308,7 +311,7 @@ export default class JCellClimate {
 
 		const id = minABIdx + inRange(humidityProvinceToNumber[HP], 0, maxHPIdx) as keyof typeof lifeZonesList;
 
-		return lifeZonesList[id]
+		return lifeZonesList[id];
 	}
 
 	// statics
@@ -317,6 +320,9 @@ export default class JCellClimate {
 	static get maxAnnual(): number { return this._maxAnnual }
 	static set maxAnnual(maxAnnual: number) { this._maxAnnual = maxAnnual }
 
+	static getTypeInformationKey(): TypeInformationKey {
+		return 'cellClimate';
+	}
 }
 /*
 Polar (glacial)	0 a 1,5 ºC	Nival
@@ -370,53 +376,44 @@ export const humidityProvinceToNumber = {
 export interface ILifeZone { id: number, desc: string, desc2: string, color: string }
 
 export const lifeZonesList = {
-	1: { id: 1,desc: 'Desierto polar', desc2: 'Polar desert', color: '#FFFFFF' },
-	2: { id: 2,desc: 'Tundra seca', desc2: 'Subpolar dry tundra', color: '#808080' },
-	3: { id: 3,desc: 'Tundra húmeda', desc2: 'Subpolar moist tundra', color: '#608080' },
-	4: { id: 4,desc: 'Tundra muy húmeda', desc2: 'Subpolar wet tundra', color: '#408090' },
-	5: { id: 5,desc: 'Tundra pluvial', desc2: 'Subpolar rain tundra', color: '#2080C0' },
-	6: { id: 6,desc: 'Desierto boreal', desc2: 'Boreal desert', color: '#A0A080' },
-	7: { id: 7,desc: 'Matorral boreal seco', desc2: 'Boreal dry scrub', color: '#80A080' },
-	8: { id: 8,desc: 'Bosque boreal húmedo', desc2: 'Boreal moist forest', color: '#60A080' },
-	9: { id: 9,desc: 'Bosque boreal muy húmedo', desc2: 'Boreal wet forest', color: '#40A090' },
-	10: {id: 10, desc: 'Bosque boreal pluvial', desc2: 'Boreal rain forest', color: '#20A0C0' },
-	11: {id: 11, desc: 'Desierto templado frío', desc2: 'Cool temperate desert', color: '#C0C080' },
-	12: {id: 12, desc: 'Matorral templado frío', desc2: 'Cool temperate desert scrub', color: '#A0C080' },
-	13: {id: 13, desc: 'Estepa templada fría', desc2: 'Cool temperate steppe', color: '#80C080' },
-	14: {id: 14, desc: 'Bosque húmedo templado frío', desc2: 'Cool temperate moist forest', color: '#60C080' },
-	15: {id: 15, desc: 'Bosque muy húmedo templado frío', desc2: 'Cool temperate wet forest', color: '#40C090' },
-	16: {id: 16, desc: 'Bosque pluvial templado frío', desc2: 'Cool temperate rain forest', color: '#20C0C0' },
-	17: {id: 17, desc: 'Desierto templado cálido', desc2: 'Warm temperate desert', color: '#E0E080' },
-	18: {id: 18, desc: 'Matorral xerófilo templado cálido', desc2: 'Warm temperate desert scrub', color: '#C0E080' },
-	19: {id: 19, desc: 'Matorral espinoso templado cálido', desc2: 'Warm temperate thorn scrub', color: '#A0E080' },
-	20: {id: 20, desc: 'Bosque seco templado cálido', desc2: 'Warm temperate dry forest', color: '#80E080' },
-	21: {id: 21, desc: 'Bosque húmedo templado cálido', desc2: 'Warm temperate moist forest', color: '#60E080' },
-	22: {id: 22, desc: 'Bosque muy húmedo templado cálido', desc2: 'Warm temperate wet forest', color: '#40E090' },
-	23: {id: 23, desc: 'Bosque pluvial templado cálido', desc2: 'Warm temperate rain forest', color: '#20E0C0' },
-	24: {id: 24, desc: 'Desierto subtropical', desc2: 'Subtropical desert', color: '#E0E080' },
-	25: {id: 25, desc: 'Matorral xerófilo subtropical', desc2: 'Subtropical desert scrub', color: '#C0E080' },
-	26: {id: 26, desc: 'Floresta espinosa subtropical', desc2: 'Subtropical thorn woodland', color: '#A0E080' },
-	27: {id: 27, desc: 'Bosque seco subtropical', desc2: 'Subtropical dry forest', color: '#80E080' },
-	28: {id: 28, desc: 'Selva húmeda subtropical', desc2: 'Subtropical moist forest', color: '#60E080' },
-	29: {id: 29, desc: 'Selva muy húmeda subtropical', desc2: 'Subtropical wet forest', color: '#40E090' },
-	30: {id: 30, desc: 'Selva pluvial subtropical', desc2: 'Subtropical rain forest', color: '#20E0C0' },
-	31: {id: 31, desc: 'Desierto tropical', desc2: 'Tropical desert', color: '#FFFF80' },
-	32: {id: 32, desc: 'Matorral xerófilo tropical', desc2: 'Tropical desert scrub', color: '#E0FF80' },
-	33: {id: 33, desc: 'Floresta espinosa tropical', desc2: 'Tropical thorn woodland', color: '#C0FF80' },
-	34: {id: 34, desc: 'Bosque muy seco tropical', desc2: 'Tropical very dry forest', color: '#A0FF80' },
-	35: {id: 35, desc: 'Bosque seco tropical', desc2: 'Tropical dry forest', color: '#80FF80' },
-	36: {id: 36, desc: 'Selva húmeda tropical', desc2: 'Tropical moist forest', color: '#60FF80' },
-	37: {id: 37, desc: 'Selva muy húmeda tropical', desc2: 'Tropical wet forest', color: '#40FF80' },
-	38: {id: 38, desc: 'Selva pluvial tropical', desc2: 'Tropical rain forest', color: '#20FFA0' },
-}
-
-const inRange = (value: number, minimo: number, maximo: number): number => {
-	let out = value;
-
-	if (out > maximo) out = maximo;
-	if (out < minimo) out = minimo;
-
-	return out;
+	1: { id: 1, desc: 'Desierto polar', desc2: 'Polar desert', color: '#FFFFFF' },
+	2: { id: 2, desc: 'Tundra seca', desc2: 'Subpolar dry tundra', color: '#808080' },
+	3: { id: 3, desc: 'Tundra húmeda', desc2: 'Subpolar moist tundra', color: '#608080' },
+	4: { id: 4, desc: 'Tundra muy húmeda', desc2: 'Subpolar wet tundra', color: '#408090' },
+	5: { id: 5, desc: 'Tundra pluvial', desc2: 'Subpolar rain tundra', color: '#2080C0' },
+	6: { id: 6, desc: 'Desierto boreal', desc2: 'Boreal desert', color: '#A0A080' },
+	7: { id: 7, desc: 'Matorral boreal seco', desc2: 'Boreal dry scrub', color: '#80A080' },
+	8: { id: 8, desc: 'Bosque boreal húmedo', desc2: 'Boreal moist forest', color: '#60A080' },
+	9: { id: 9, desc: 'Bosque boreal muy húmedo', desc2: 'Boreal wet forest', color: '#40A090' },
+	10: { id: 10, desc: 'Bosque boreal pluvial', desc2: 'Boreal rain forest', color: '#20A0C0' },
+	11: { id: 11, desc: 'Desierto templado frío', desc2: 'Cool temperate desert', color: '#C0C080' },
+	12: { id: 12, desc: 'Matorral templado frío', desc2: 'Cool temperate desert scrub', color: '#A0C080' },
+	13: { id: 13, desc: 'Estepa templada fría', desc2: 'Cool temperate steppe', color: '#80C080' },
+	14: { id: 14, desc: 'Bosque húmedo templado frío', desc2: 'Cool temperate moist forest', color: '#60C080' },
+	15: { id: 15, desc: 'Bosque muy húmedo templado frío', desc2: 'Cool temperate wet forest', color: '#40C090' },
+	16: { id: 16, desc: 'Bosque pluvial templado frío', desc2: 'Cool temperate rain forest', color: '#20C0C0' },
+	17: { id: 17, desc: 'Desierto templado cálido', desc2: 'Warm temperate desert', color: '#E0E080' },
+	18: { id: 18, desc: 'Matorral xerófilo templado cálido', desc2: 'Warm temperate desert scrub', color: '#C0E080' },
+	19: { id: 19, desc: 'Matorral espinoso templado cálido', desc2: 'Warm temperate thorn scrub', color: '#A0E080' },
+	20: { id: 20, desc: 'Bosque seco templado cálido', desc2: 'Warm temperate dry forest', color: '#80E080' },
+	21: { id: 21, desc: 'Bosque húmedo templado cálido', desc2: 'Warm temperate moist forest', color: '#60E080' },
+	22: { id: 22, desc: 'Bosque muy húmedo templado cálido', desc2: 'Warm temperate wet forest', color: '#40E090' },
+	23: { id: 23, desc: 'Bosque pluvial templado cálido', desc2: 'Warm temperate rain forest', color: '#20E0C0' },
+	24: { id: 24, desc: 'Desierto subtropical', desc2: 'Subtropical desert', color: '#E0E080' },
+	25: { id: 25, desc: 'Matorral xerófilo subtropical', desc2: 'Subtropical desert scrub', color: '#C0E080' },
+	26: { id: 26, desc: 'Floresta espinosa subtropical', desc2: 'Subtropical thorn woodland', color: '#A0E080' },
+	27: { id: 27, desc: 'Bosque seco subtropical', desc2: 'Subtropical dry forest', color: '#80E080' },
+	28: { id: 28, desc: 'Selva húmeda subtropical', desc2: 'Subtropical moist forest', color: '#60E080' },
+	29: { id: 29, desc: 'Selva muy húmeda subtropical', desc2: 'Subtropical wet forest', color: '#40E090' },
+	30: { id: 30, desc: 'Selva pluvial subtropical', desc2: 'Subtropical rain forest', color: '#20E0C0' },
+	31: { id: 31, desc: 'Desierto tropical', desc2: 'Tropical desert', color: '#FFFF80' },
+	32: { id: 32, desc: 'Matorral xerófilo tropical', desc2: 'Tropical desert scrub', color: '#E0FF80' },
+	33: { id: 33, desc: 'Floresta espinosa tropical', desc2: 'Tropical thorn woodland', color: '#C0FF80' },
+	34: { id: 34, desc: 'Bosque muy seco tropical', desc2: 'Tropical very dry forest', color: '#A0FF80' },
+	35: { id: 35, desc: 'Bosque seco tropical', desc2: 'Tropical dry forest', color: '#80FF80' },
+	36: { id: 36, desc: 'Selva húmeda tropical', desc2: 'Tropical moist forest', color: '#60FF80' },
+	37: { id: 37, desc: 'Selva muy húmeda tropical', desc2: 'Tropical wet forest', color: '#40FF80' },
+	38: { id: 38, desc: 'Selva pluvial tropical', desc2: 'Tropical rain forest', color: '#20FFA0' },
 }
 
 /**

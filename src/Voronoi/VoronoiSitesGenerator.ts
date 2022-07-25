@@ -4,9 +4,10 @@ import * as turf from '@turf/turf';
 // import {BuffRegs} from '../zones/BuffRegs';
 import { pointInArrReg } from '../Geom/utilsTurfFunctions';
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
+import InformationFilesManager from '../DataInformationLoadAndSave';
 import { IPoint } from '../Geom/JPoint';
 import JDiagram from './JDiagram';
+import { RandomNumberGenerator } from 'jl-utlts';
 
 
 const XDIF: number = 360;
@@ -19,7 +20,7 @@ export default class VoronoiSitesGenerator {
 	}
 
 	static getSecSites(jd: JDiagram, AREA: number) {
-		const dataInfoManager = DataInformationFilesManager._instance;
+		const dataInfoManager = InformationFilesManager._instance;
 		
 		let subSitesData: {p: IPoint, cid: number}[] = dataInfoManager.loadSites(AREA);
 		if (subSitesData.length == 0) {
@@ -67,11 +68,22 @@ export default class VoronoiSitesGenerator {
 	static isInBuffZone(pos: turf.Position): boolean {
 		return true;//pointInArrReg(pos, BuffRegs);
 	}
+*/
+
+	static getRandomSites(count: number): Site[] {
+		let out: Site[] = [];
+		const randFunc = RandomNumberGenerator.makeRandomFloat(count);
+		
+		for (let i = 0; i< count; i++) {
+			let pos: turf.Position = this.randomSite(randFunc);
+					out.push({id: i, x: pos[0], y: pos[1]});
+		}
+		return out;
+	}
 
 	private static randomSite(randFloat: () => number): turf.Position {
 		let xx = Math.round( randFloat()*XDIF*1000000 )/1000000 - 180;
 		let yy = Math.round( randFloat()*YDIF*1000000 )/1000000 - 90;
 		return [xx, yy];
 	}
-*/
 }

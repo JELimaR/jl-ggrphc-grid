@@ -5,10 +5,10 @@ import JCell from "./JCell";
 import JEdge from "./JEdge";
 import JSite from './JSite';
 import JVertex from './JVertex';
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
+import InformationFilesManager from '../DataInformationLoadAndSave';
 import { ICellContainer, IVertexContainer } from '../generalInterfaces';
 
-const dataInfoManager = DataInformationFilesManager.instance;
+const dataInfoManager = InformationFilesManager.instance;
 
 export default class JDiagram implements ICellContainer, IVertexContainer {
 	// private _diagram: Diagram;

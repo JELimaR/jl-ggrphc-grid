@@ -3,8 +3,8 @@ import JPoint from "../Geom/JPoint";
 import * as TempFunctions from './TempFunctions';
 import * as turf from '@turf/turf'
 import { IPressureZone } from './PressureGrid'
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
-const dataInfoManager = DataInformationFilesManager.instance;
+import InformationFilesManager from '../DataInformationLoadAndSave';
+const dataInfoManager = InformationFilesManager.instance;
 
 export interface ITempDataGrid {
 	tempCap: number;

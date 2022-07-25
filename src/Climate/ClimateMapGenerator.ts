@@ -1,5 +1,5 @@
 import JDiagram from "../Voronoi/JDiagram";
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
+import InformationFilesManager from '../DataInformationLoadAndSave';
 // import { IJCellInformation } from "../Voronoi/JCellInformation";
 import JCell from "../Voronoi/JCell";
 
@@ -26,10 +26,10 @@ export default class ClimateMapGenerator extends MapGenerator {
 	generate(): void {
 		// super.generate();
 
-		const dataInfoManager = DataInformationFilesManager.instance;
+		const dataInfoManager = InformationFilesManager.instance;
 
 		// let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
-		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsData<IJCellClimateInfo>(this.diagram.secAreaProm, 'climate');
+		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsData<IJCellClimateInfo, JCellClimate>(this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
 		const isLoaded: boolean = climateData.length !== 0;
 		if (!isLoaded) {
 			climateData = this.generateClimateData(this._grid);
@@ -46,7 +46,7 @@ export default class ClimateMapGenerator extends MapGenerator {
 			this.smoothData();
 			// dataInfoManager.saveCellsClimate(this.diagram.cells, this.diagram.secAreaProm);
 			const climateArr: JCellClimate[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellClimate)
-			dataInfoManager.saveCellsData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, 'climate');
+			dataInfoManager.saveCellsData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
 		}
 
 		this.setVertexInfo();

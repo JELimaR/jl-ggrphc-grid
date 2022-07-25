@@ -2,10 +2,10 @@ import JGrid, { JGridPoint } from "../Geom/JGrid";
 import JPoint from "../Geom/JPoint";
 import { calcFieldInPoint } from './PressureFieldFunctions';
 
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
+import InformationFilesManager from '../DataInformationLoadAndSave';
 import TempGrid from "./TempGrid";
 // import { calcMovementState, IMovementState } from "../Geom/Movement";
-const dataInfoManager = DataInformationFilesManager.instance;
+const dataInfoManager = InformationFilesManager.instance;
 
 export interface IPressureZone {
 	mag: number;

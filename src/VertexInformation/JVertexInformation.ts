@@ -1,6 +1,6 @@
 import JVertex from "../Voronoi/JVertex";
-import JVertexHeight, {IJVertexHeightInfo} from "./JVertexHeight";
-import JVertexClimate, {IJVertexClimateInfo} from "./JVertexClimate";
+import JVertexHeight, { IJVertexHeightInfo } from "./JVertexHeight";
+import JVertexClimate, { IJVertexClimateInfo } from "./JVertexClimate";
 import JVertexFlux, { IJVertexFluxInfo } from "./JVertexFlux";
 
 export default class JVertexInformation {
@@ -15,19 +15,19 @@ export default class JVertexInformation {
 		this._vertex = vertex;
 	}
 
-	get mark(): boolean {return this._mark}
-	set mark(b: boolean) {this._mark = b}
+	get mark(): boolean { return this._mark }
+	set mark(b: boolean) { this._mark = b }
 
 	/*
 	 * height or relief
 	 */
-	
-	setHeightInfo(h: IJVertexHeightInfo) { this._height = new JVertexHeight(this._vertex, h);	}
-	getHeightInfo(): IJVertexHeightInfo | undefined { return this._height!.getInterface(); }	
+
+	setHeightInfo(h: IJVertexHeightInfo) { this._height = new JVertexHeight(this._vertex, h); }
+	getHeightInfo(): IJVertexHeightInfo | undefined { return this._height!.getInterface(); }
 	get vertexHeight(): JVertexHeight {
 		return this._height!;
 	}
-	
+
 	// get isLand(): boolean { return this._height!.heightType === 'land' }
 	get height(): number { return this._height!.height }
 	set height(h: number) { this._height!.height = h }
@@ -54,9 +54,9 @@ export default class JVertexInformation {
 	/*
 	 * climate
 	 */
-	
-	setClimateInfo(c: IJVertexClimateInfo) { this._climate = new JVertexClimate(this._vertex, c);	}
-	getClimateInfo(): IJVertexClimateInfo | undefined { return this._climate!.getInterface(); }	
+
+	setClimateInfo(c: IJVertexClimateInfo) { this._climate = new JVertexClimate(this._vertex, c); }
+	getClimateInfo(): IJVertexClimateInfo | undefined { return this._climate!.getInterface(); }
 	get vertexClimate(): JVertexClimate {
 		return this._climate!;
 	}
@@ -72,9 +72,9 @@ export default class JVertexInformation {
 	/*
 	 * flux
 	 */
-	
-	setFluxInfo(f: IJVertexFluxInfo) { this._flux = new JVertexFlux(this._vertex, f);	}
-	getFluxInfo(): IJVertexFluxInfo | undefined { return this._flux!.getInterface(); }	
+
+	setFluxInfo(f: IJVertexFluxInfo) { this._flux = new JVertexFlux(this._vertex, f); }
+	getFluxInfo(): IJVertexFluxInfo | undefined { return this._flux!.getInterface(); }
 	get vertexFlux(): JVertexFlux {
 		return this._flux!;
 	}
