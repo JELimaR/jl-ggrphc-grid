@@ -1,13 +1,13 @@
 import JDiagram from "../Voronoi/JDiagram";
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 // import { IJCellInformation } from "../Voronoi/JCellInformation";
-import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
+import JCellHeight, { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
 import RegionMap, {  } from "../MapElements/RegionMap";
 
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 import JPoint from "../Geom/JPoint";
-import { IJVertexHeightInfo } from "../VertexInformation/JVertexHeight";
+import JVertexHeight, { IJVertexHeightInfo } from "../VertexInformation/JVertexHeight";
 import JVertex from "../Voronoi/JVertex";
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 import MapGenerator from "../MapGenerator";
@@ -39,7 +39,8 @@ export default class HeightMapGenerator extends MapGenerator {
 		console.log('calculate and setting height');
 		console.time(`${a ? 's' : 'p'}-set height info`);
 		// ver como se debe hacer esto
-		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(this.diagram.secAreaProm);
+		// let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(this.diagram.secAreaProm);
+		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsData<IJCellHeightInfo>(this.diagram.secAreaProm, 'height');
 
 		const isLoaded: boolean = loadedHeightInfo.length !== 0;
 		if (!isLoaded) {
@@ -65,11 +66,14 @@ export default class HeightMapGenerator extends MapGenerator {
 			console.timeEnd(`${a ? 's' : 'p'}-resolve cells depressions`)
 			if (!!a) this.smootData()
 
-			dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
+			// dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
+			const heightArr: JCellHeight[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellHeight)
+			dataInfoManager.saveCellsData<IJCellHeightInfo, JCellHeight>(heightArr, this.diagram.secAreaProm, 'height');
 		}
 
 		// vertices
-		let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesHeigth(this.diagram.secAreaProm);
+		// let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesHeigth(this.diagram.secAreaProm);
+		let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesData<IJVertexHeightInfo, JVertexHeight>(this.diagram.secAreaProm, 'height');
 		const isVertexLoaded: boolean = loadedVertexInfo.length !== 0;
 		if (!isVertexLoaded) {
 			loadedVertexInfo = this.getVertexValues();
@@ -88,7 +92,9 @@ export default class HeightMapGenerator extends MapGenerator {
 			this.resolveVertexDepressions();
 			console.timeEnd(`${a ? 's' : 'p'}-resolve vertices depressions`)
 			
-			dataInfoManager.saveVerticesHeigth(this.diagram.vertices, this.diagram.secAreaProm);
+			// dataInfoManager.saveVerticesHeigth(this.diagram.vertices, this.diagram.secAreaProm);
+			const verticesArr: JVertexHeight[] = [...this.diagram.vertices.values()].map((vertex: JVertex) => vertex.info.vertexHeight)
+			dataInfoManager.saveVerticesData<IJVertexHeightInfo, JVertexHeight>(verticesArr, this.diagram.secAreaProm, 'height');
 		}
 
 		console.timeEnd(`${a ? 's' : 'p'}-set height info`);

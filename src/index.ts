@@ -9,9 +9,6 @@ import DrawerMap, { IDrawEntry } from './Drawer/DrawerMap'
 
 import JPoint from './Geom/JPoint';
 import NaturalWorld from './NaturalWorld';
-import DataInformationFilesManager from './DataInformationLoadAndSave';
-import PNGDrawsDataManager from './PNGDrawsDataManager'
-import AzgaarReaderData from './AzgaarData/AzgaarReaderData';
 import { DivisionMaker } from './divisions/DivisionMaker';
 
 
@@ -37,6 +34,7 @@ import { createICellContainer, createIVertexContainer } from './utilFunctions';
 import IslandMap from './heightmap/IslandMap';
 import DrainageBasinMapGenerator from './River/DrainageBasinMapGenerator';
 import DrainageBasinMap from './River/DrainageBasinMap';
+import config from './config';
 
 const tam: number = 3600;
 let SIZE: JPoint = new JPoint(tam, tam / 2);
@@ -60,17 +58,14 @@ const azgaarFolder: string[] = [
 	'Zia20', // 15
 ];
 const folderSelected: string = azgaarFolder[10];
-
 console.log('folder:', folderSelected)
+
+config(folderSelected);
 
 let colorScale: chroma.Scale;
 let color: string;
 
-PNGDrawsDataManager.configPath(__dirname + `/../pngdraws`);
-DataInformationFilesManager.configPath(__dirname + `/../data/${folderSelected}`);
-AzgaarReaderData.configPath(__dirname + `/../AzgaarData/${folderSelected}`);
-
-let dm: DrawerMap = new DrawerMap(SIZE, __dirname + `/../img/${folderSelected}`); // borrar, se usa el de stest
+let dm: DrawerMap = new DrawerMap(SIZE, ``); // borrar, se usa el de stest
 dm.setZoom(0);
 dm.setCenterpan(new JPoint(0, 0));
 // navigate
@@ -117,7 +112,7 @@ sc.drawTempMedia()
 sc.drawPrecipMedia()
 
 sc.drawKoppen();
-sc.printKoppenData();
+// sc.printKoppenData();
 
 /**
  * LIFE ZONES
@@ -125,7 +120,7 @@ sc.printKoppenData();
 // sc.drawAltitudinalBelts();
 // sc.drawHumidityProvinces();
 // sc.drawLifeZones();
-// sc.printLifeZonesData();
+sc.printLifeZonesData();
 
 /**
  * river map
@@ -169,8 +164,9 @@ dbArr.forEach((drainageBasin: DrainageBasinMap) => {
 		fillColor: color,
 	}))
 })
-dm.saveDrawFile('riverIsland3.png')
 */
+// dm.saveDrawFile('riverIsland3.png')
+
 console.timeEnd('test')
 
 console.timeEnd('all')

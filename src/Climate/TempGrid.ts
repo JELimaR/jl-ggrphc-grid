@@ -57,7 +57,7 @@ export default class TempGrid {
 	// }
 
 	private setTempData2(): ITempDataGrid[][] {
-		let out: ITempDataGrid[][] = dataInfoManager.loadGridData<ITempDataGrid>(this._grid._granularity, 'temp');
+		let out: ITempDataGrid[][] = dataInfoManager.loadGridData<ITempDataGrid>(this._grid._granularity, 'temperature');
 		if (out.length == 0) {
 			const caps: number[][] = this.calculateCapPoints();
 			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
@@ -78,7 +78,7 @@ export default class TempGrid {
 				}
 			})
 			// dataInfoManager.saveGridTemperature(out, this._grid._granularity);
-			dataInfoManager.saveGridData<ITempDataGrid>(out, this._grid._granularity, 'temp');
+			dataInfoManager.saveGridData<ITempDataGrid>(out, this._grid._granularity, 'temperature');
 		}
 		return out;
 	}

@@ -1,30 +1,36 @@
-/*import { Site } from 'voronoijs';
+import { Site } from 'voronoijs';
 import * as turf from '@turf/turf';
 
-import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
-import DataInformationFilesManager from '../DataInformationLoadAndSave';
 // import {BuffRegs} from '../zones/BuffRegs';
 import { pointInArrReg } from '../Geom/utilsTurfFunctions';
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
+import DataInformationFilesManager from '../DataInformationLoadAndSave';
+import { IPoint } from '../Geom/JPoint';
+import JDiagram from './JDiagram';
 
-const dataInfoManager = DataInformationFilesManager.instance;
 
 const XDIF: number = 360;
 const YDIF: number = 180;
 
-export default class GenerateMapVoronoiSites {
-	static randomSimpleSites(n: number): Site[] {
-		let out: Site[] = [];
-
-		const randFunc = RandomNumberGenerator.makeRandomFloat(n);
-
-		for (let i=0; i<n; i++ ) {
-			const pos = this.randomSite(randFunc);
-			out.push( {id: i%2, x: pos[0], y: pos[1]} );
-		}
-		return out;
+export default class VoronoiSitesGenerator {
+	static getAzgaarSites(): Site[] {
+		const ard: AzgaarReaderData = AzgaarReaderData.instance;
+		return ard.sites();
 	}
 
+	static getSecSites(jd: JDiagram, AREA: number) {
+		const dataInfoManager = DataInformationFilesManager._instance;
+		
+		let subSitesData: {p: IPoint, cid: number}[] = dataInfoManager.loadSites(AREA);
+		if (subSitesData.length == 0) {
+			subSitesData = jd.getSubSites(AREA);
+			dataInfoManager.saveSites(subSitesData, AREA);
+		}
+
+
+		return subSitesData;
+	}
+/*
 	static randomOnBuffRegsSites(total: number): Site[] {
 		const loaded: Site[] = dataInfoManager.loadSites(total);
 		if (loaded.length > 0) {
@@ -67,5 +73,5 @@ export default class GenerateMapVoronoiSites {
 		let yy = Math.round( randFloat()*YDIF*1000000 )/1000000 - 90;
 		return [xx, yy];
 	}
-}
 */
+}

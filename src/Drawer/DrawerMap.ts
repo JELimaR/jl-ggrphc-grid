@@ -9,7 +9,7 @@ import JPoint from '../Geom/JPoint';
 
 import JCell from '../Voronoi/JCell';
 import RegionMap from '../MapElements/RegionMap';
-import JPanzoom from './JPanzoom';
+import JPanzoom from './Panzoom';
 import { inRange } from '../utilFunctions';
 import { ICellContainer, IEdgeContainer, IVertexContainer } from '../generalInterfaces';
 import JVertex from '../Voronoi/JVertex';
@@ -35,14 +35,20 @@ export default class DrawerMap {
 	private _panzoom: JPanzoom;
 	private _dirPath: string;
 
+	static _srcPath: string;
+
 	constructor(SIZE: JPoint, dirPath: string) {
 		this._size = SIZE;
 		this._cnvs = createCanvas(SIZE.x, SIZE.y);
 		// this._cnvs = PImage.make(SIZE.x, SIZE.y, {});
 
 		this._panzoom = new JPanzoom(this._size);
-		this._dirPath = dirPath;
+		this._dirPath = DrawerMap._srcPath + `/${dirPath}`;
 		fs.mkdirSync(this._dirPath, { recursive: true });
+	}
+
+	static configPath(path: string): void {
+		this._srcPath = path;
 	}
 
 	// borrar
@@ -53,7 +59,7 @@ export default class DrawerMap {
 			(-this._panzoom.centerY + this._size.y / 2) / this._panzoom.scale
 		);
 	}
-	get zoomValue(): number {	return this._panzoom.zoom; }
+	get zoomValue(): number { return this._panzoom.zoom; }
 
 	setZoom(n: number) {
 		this._panzoom.zoom = n;
@@ -132,7 +138,7 @@ export default class DrawerMap {
 			[this.getPointsBuffDrawLimits().map((p: JPoint) => p.toTurfPosition())]
 		)
 	}
-	
+
 	drawCellContainer(cc: ICellContainer, func: (c: JCell) => IDrawEntry): void {
 		const polContainer = this.getPolygonContainer();
 		cc.forEachCell((c: JCell) => {
@@ -148,21 +154,21 @@ export default class DrawerMap {
 		vc.forEachEdge((edge: JEdge) => {
 			if (!turf.booleanDisjoint(polContainer, edge.toTurfLineString())) {
 				const points: JPoint[] = (this.zoomValue < 8) ? [edge.vertexA, edge.vertexB] : edge.points;
-				this.draw(points, {...func(edge), fillColor: 'none'});					
+				this.draw(points, { ...func(edge), fillColor: 'none' });
 			}
 		})
 	}
 
-	drawVertexContainer(vc: IVertexContainer, vde: /*func: (v: JVertex) =>*/ IDrawEntry) { 
+	drawVertexContainer(vc: IVertexContainer, vde: /*func: (v: JVertex) =>*/ IDrawEntry) {
 		const polContainer = this.getPolygonContainer();
 
 		let lsin: turf.Position[] = [];
 		vc.forEachVertex((v: JVertex) => lsin.push(v.point.toTurfPosition()));
 		const lineString: turf.Feature<turf.LineString> = turf.lineString(lsin);
-		
+
 		if (!turf.booleanDisjoint(polContainer, lineString)) {
 			const points: JPoint[] = [];
-			if(this.zoomValue < 8) {
+			if (this.zoomValue < 8) {
 				vc.forEachVertex((v: JVertex) => points.push(v.point));
 			}
 			this.draw(points, vde);
@@ -174,7 +180,7 @@ export default class DrawerMap {
 		// meridianos
 		for (let i = 0; i < cantMer; i++) {
 			const val = 180 / (cantMer - 1) * (i) - 90;
-			const dashPattern = (val === 0) ? [1] : [5,5]
+			const dashPattern = (val === 0) ? [1, 0] : [5, 5]
 			this.draw([new JPoint(-200, val), new JPoint(200, val)], {
 				fillColor: 'none',
 				dashPattern,
@@ -184,7 +190,7 @@ export default class DrawerMap {
 		// paralelos
 		for (let i = 0; i < cantPar; i++) {
 			const val = 360 / (cantPar - 1) * (i) - 180;
-			const dashPattern = (val === 0) ? [1] : [5,5]
+			const dashPattern = (val === 0) ? [1] : [5, 5]
 			this.draw([new JPoint(val, -100), new JPoint(val, 100)], {
 				fillColor: 'none',
 				dashPattern,
@@ -220,7 +226,7 @@ export default class DrawerMap {
 
 	/** uso del canvas */
 	private get context(): CanvasRenderingContext2D {
-	// private get context(): Context {
+		// private get context(): Context {
 		return this._cnvs.getContext('2d');
 	}
 
@@ -241,7 +247,7 @@ export default class DrawerMap {
 		}
 
 		if (ent.dashPattern) context.setLineDash(ent.dashPattern);
-		else context.setLineDash([1,0]);
+		else context.setLineDash([1, 0]);
 		if (ent.lineWidth) context.lineWidth = ent.lineWidth; // depende del zoom
 		else context.lineWidth = 1;
 		context.strokeStyle = ent.strokeColor;
@@ -268,16 +274,16 @@ export default class DrawerMap {
 
 		let list: JPoint[] = [];
 
-		list.push(new JPoint(p.x-w/2,p.y-w/2));
-		list.push(new JPoint(p.x+w/2,p.y-w/2));
-		list.push(new JPoint(p.x+w/2,p.y+w/2));
-		list.push(new JPoint(p.x-w/2,p.y+w/2));
+		list.push(new JPoint(p.x - w / 2, p.y - w / 2));
+		list.push(new JPoint(p.x + w / 2, p.y - w / 2));
+		list.push(new JPoint(p.x + w / 2, p.y + w / 2));
+		list.push(new JPoint(p.x - w / 2, p.y + w / 2));
 
 		this.draw(list, ent);
 	}
 
 	/**/
-	clear(zoomValue: number = 0, center: JPoint = new JPoint(0,0)) {
+	clear(zoomValue: number = 0, center: JPoint = new JPoint(0, 0)) {
 		this.setZoom(zoomValue);
 		this.setCenterpan(center);
 		this.context.clearRect(0, 0, this._cnvs.width, this._cnvs.height);

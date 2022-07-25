@@ -16,7 +16,7 @@ export default abstract class Shower {
 		this._a = area;
 		this._g = gran;
 		this._f = folderSelected;
-		this._d = new DrawerMap(SIZE, __dirname + `/../../img/${this.f}/${subFolder}`);
+		this._d = new DrawerMap(SIZE, `/${subFolder}`);
 	}
 
 	get w(): NaturalWorld { return this._w}

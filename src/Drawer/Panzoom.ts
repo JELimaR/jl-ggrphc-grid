@@ -1,6 +1,14 @@
 import JPoint from "../Geom/JPoint";
 
-export default class JPanzoom {
+export interface IPanzoom {
+	
+  zoom: number;
+  centerX: number;
+  centerY: number;
+
+}
+
+export default class Panzoom {
 	private _zoom: number;
 	private _centerX: number;
 	private _centerY: number;

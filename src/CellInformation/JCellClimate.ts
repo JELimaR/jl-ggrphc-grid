@@ -35,14 +35,15 @@ export interface IJCellClimateInfo {
 
 export default class JCellClimate {
 	private _cell: JCell;
-	_tempMonth: number[];
-	_precipMonth: number[];
+	private _tempMonth: number[];
+	private _precipMonth: number[];
 	constructor(cell: JCell, info: IJCellClimateInfo) {
 		this._cell = cell;
 		this._tempMonth = info.tempMonth;
 		this._precipMonth = info.precipMonth;
 	}
 
+	get id(): number {return this._cell.id}
 	get tempMonth(): number[] { return this._tempMonth }
 	// set tempMonth(tempArr: number[]) { this._tempMonth = [...tempArr] }
 	get precipMonth(): number[] { return this._precipMonth }

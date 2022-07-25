@@ -1,7 +1,7 @@
 import JCell from '../Voronoi/JCell';
 import JDiagram from '../Voronoi/JDiagram';
 import JPoint from './JPoint';
-import { WRADIUS } from './constants'
+import { GRAD2RAD, WRADIUS } from './constants'
 import DataInformationFilesManager from '../DataInformationLoadAndSave';
 const dataInfoManager = DataInformationFilesManager.instance;
 
@@ -39,10 +39,8 @@ export class JGridPoint {
 	}
 
 	getPixelArea(): number {
-		const grad2radConst = Math.PI / 180;
-
-		let out = WRADIUS * (JGridPoint._gran * grad2radConst);
-		out *= WRADIUS * Math.cos(this._point.y * grad2radConst) * (JGridPoint._gran * grad2radConst);
+		let out = WRADIUS * (JGridPoint._gran * GRAD2RAD);
+		out *= WRADIUS * Math.cos(this._point.y * GRAD2RAD) * (JGridPoint._gran * GRAD2RAD);
 
 		return out;
 	}

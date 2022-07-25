@@ -28,7 +28,8 @@ export default class ClimateMapGenerator extends MapGenerator {
 
 		const dataInfoManager = DataInformationFilesManager.instance;
 
-		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
+		// let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
+		let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsData<IJCellClimateInfo>(this.diagram.secAreaProm, 'climate');
 		const isLoaded: boolean = climateData.length !== 0;
 		if (!isLoaded) {
 			climateData = this.generateClimateData(this._grid);
@@ -43,7 +44,9 @@ export default class ClimateMapGenerator extends MapGenerator {
 		if (!isLoaded) {
 			console.log('smooth climate data')
 			this.smoothData();
-			dataInfoManager.saveCellsClimate(this.diagram.cells, this.diagram.secAreaProm)
+			// dataInfoManager.saveCellsClimate(this.diagram.cells, this.diagram.secAreaProm);
+			const climateArr: JCellClimate[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellClimate)
+			dataInfoManager.saveCellsData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, 'climate');
 		}
 
 		this.setVertexInfo();

@@ -88,7 +88,7 @@ export default class NaturalWorld {
 	private createInitialVoronoiDiagram(): JDiagram {
 		console.log('-----init voronoi-------');
 		console.time('primary voronoi');
-		const iniDiagram: JDiagram = VoronoiDiagramCreator.createDiagram();
+		const iniDiagram: JDiagram = VoronoiDiagramCreator.createAzgaarInitialDiagram();
 		console.timeEnd('primary voronoi');
 		return iniDiagram;
 	}
@@ -133,7 +133,7 @@ export default class NaturalWorld {
 	/* otras funciones genericas */
 	get riverLengthSorted(): RiverMap[] { // mover esta funcion a algo superior a world
 		let out: RiverMap[] = [];
-		this._rivers.forEach((river: RiverMap) => out.push(river));
+		this.rivers.forEach((river: RiverMap) => out.push(river));
 		out = out.sort((a: RiverMap, b: RiverMap) => b.length - a.length)
 		return out;
 	}

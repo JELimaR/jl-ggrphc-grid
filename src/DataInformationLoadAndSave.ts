@@ -14,7 +14,7 @@ import { IJCellHeightInfo } from './CellInformation/JCellHeight';
 // import JCellTemp, { IJCellTempInfo } from './CellInformation/JCellTemp';
 
 import { IJCellClimateInfo } from './CellInformation/JCellClimate';
-import { IJVertexHeightInfo } from './VertexInformation/JVertexHeight';
+import JVertexHeight, { IJVertexHeightInfo } from './VertexInformation/JVertexHeight';
 import { ITempDataGrid } from './Climate/TempGrid';
 import { IPressureDataGrid } from './Climate/PressureGrid';
 import { IPrecipData } from './Climate/PrecipGrid';
@@ -155,6 +155,7 @@ export default class DataInformationFilesManager {
 	 * cells information
 	 */
 	// height info cell
+	/*
 	loadCellsHeigth(area: number | undefined): IJCellHeightInfo[] {
 		let out: IJCellHeightInfo[] = [];
 		try {
@@ -197,10 +198,11 @@ export default class DataInformationFilesManager {
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
-
+	*/
 	/**
 	 * vertex information
 	 */
+	/*
 	// height info vertex
 	loadVerticesHeigth(area: number | undefined): IJVertexHeightInfo[] {
 		let out: IJVertexHeightInfo[] = [];
@@ -244,7 +246,7 @@ export default class DataInformationFilesManager {
 		})
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
-
+	*/
 	/**
 	 * grid information
 	 */
@@ -337,7 +339,7 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveWaterRoutesInfo(fluxRoutes: Map<number,FluxRouteMap>, area: number | undefined): void {
+	saveWaterRoutesInfo(fluxRoutes: Map<number, FluxRouteMap>, area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}/RiverAndFlux`, { recursive: true });
 		let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}FluxRoutesInfo.json`;
 		let data: IFluxRouteMapInfo[] = [];
@@ -359,7 +361,7 @@ export default class DataInformationFilesManager {
 		return out;
 	}
 
-	saveRiversInfo(rivers: Map<number,RiverMap>, area: number | undefined): void {
+	saveRiversInfo(rivers: Map<number, RiverMap>, area: number | undefined): void {
 		fs.mkdirSync(`${this._dirPath}/RiverAndFlux`, { recursive: true });
 		let pathName: string = `${this._dirPath}/RiverAndFlux/${area ? area : ''}RiversInfo.json`;
 		let data: IRiverMapInfo[] = [];
@@ -464,10 +466,72 @@ export default class DataInformationFilesManager {
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 	*/
+	/**
+	 * cells information
+	 */
+	loadCellsData<I>(area: number | undefined, TYPE: TypeCellInformation): I[] {
+		let out: I[] = [];
+		const subFolder: string = 'CellsInfo';
+		const file: string = TYPE;
+		try {
+			let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+
+		}
+		return out;
+	}
+
+	saveCellsData<I, T extends { id: number, getInterface: () => I }>(cells: Map<number, T> | T[], area: number | undefined, TYPE: TypeCellInformation): void {
+		const subFolder: string = 'CellsInfo';
+		const file: string = TYPE;
+		fs.mkdirSync(`${this._dirPath}/${subFolder}`, { recursive: true });
+		let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
+
+		let data: I[] = [];
+		cells.forEach((cell: T) => {
+			data[cell.id] = cell.getInterface()!;
+		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+
+	/**
+	 * vertices information
+	 */
+	loadVerticesData<I, T extends { getInterface: () => I }>(area: number | undefined, TYPE: TypeVerticesInformation): I[] {
+		let out: I[] = [];
+		const subFolder: string = 'VerticesInfo';
+		const file: string = TYPE;
+		try {
+			let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
+			out = JSON.parse(fs.readFileSync(pathName).toString());
+		} catch (e) {
+
+		}
+		return out;
+	}
+
+	saveVerticesData<I, T extends IgetInterface<I>>(vertices: T[], area: number | undefined, TYPE: TypeVerticesInformation): void {
+		const subFolder: string = 'VerticesInfo';
+
+		const file: string = TYPE;
+		fs.mkdirSync(`${this._dirPath}/${subFolder}`, { recursive: true });
+		let pathName: string = `${this._dirPath}/${subFolder}/${area ? area : ''}${file}.json`;
+
+		let data: I[] = [];
+		vertices.forEach((vertex: T) => {
+			data.push(vertex.getInterface());
+			// data.push(vertex.info.getFluxInfo()!);
+		})
+		fs.writeFileSync(pathName, JSON.stringify(data));
+	}
+	/**
+	 * gird information
+	 */
 	loadGridData<I>(gran: number, TYPE: TypeGridInformation): I[][] {
 		let out: I[][] = [];
 		const subFolder: string = 'GridInfo';
-		const file: string = GRID_DATA[TYPE].file;
+		const file: string = TYPE;
 		try {
 			let pathName: string = `${this._dirPath}/${subFolder}/G${gran}${file}.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
@@ -479,40 +543,27 @@ export default class DataInformationFilesManager {
 
 	saveGridData<I>(data: I[][], gran: number, TYPE: TypeGridInformation): void {
 		const subFolder: string = 'GridInfo';
-		const file: string = GRID_DATA[TYPE].file;
+		const file: string = TYPE;
 		fs.mkdirSync(`${this._dirPath}/${subFolder}`, { recursive: true });
 		let pathName: string = `${this._dirPath}/${subFolder}/G${gran}${file}.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
-	
+
 }
 
-export type TypeDivisionRegion =
-	| 'country'
-	| 'state'
+interface IgetInterface<I> {
+	getInterface: ()=>I;
+}
 
-interface ISaveInformation {
-	subFolder: string;
+type TypeGridInformation = 'temperature' | 'precip' | 'pressure';
+type TypeCellInformation = 'height' | 'climate';
+type TypeVerticesInformation = 'height' | 'flux';
+
+type TypeInformationKey = 'cellHeight';
+export type TypeInformation = { [key in TypeInformationKey]: ISaveInformation } // sirve para crear una constante con todo
+
+
+export interface ISaveInformation {
+	subFolder: string[];
 	file: string;
-}
-
-/*** GRID INFO **/
-// const GRID_INFORMATION = ['temp', 'precip', 'pressure'];
-type TypeGridInformation = 'temp' | 'precip' | 'pressure';
-type TypeGridData = { [key in TypeGridInformation]: ISaveInformation; };
-const g = {}
-
-const GRID_DATA: TypeGridData = {
-	'temp': {
-		file: 'temperature',
-		subFolder: ''
-	},
-	'pressure': {
-		file: 'pressure',
-		subFolder: ''
-	},
-	'precip': {
-		file: 'precip',
-		subFolder: ''
-	}
 }

@@ -1,12 +1,4 @@
-import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
-/*import { BuffRegs } from "../zones/BuffRegs";
-import { pointInArrReg } from "../Geom/utilsTurfFunctions";
-import { HHRegs } from "../zones/HHRegs";
-import { HLRegs } from "../zones/HLRegs";
-import { LHRegs } from "../zones/LHRegs";
-import { LLRegs } from "../zones/LLRegs";
-import { MHRegs } from "../zones/MHRegs";
-import { MLRegs } from "../zones/MLRegs";*/
+import { ISaveInformation } from "../DataInformationLoadAndSave";
 import JCell from "../Voronoi/JCell";
 
 export type TypeCellheight =
@@ -39,6 +31,8 @@ export default class JCellHeight {
 		this._heightType = info.heightType;
 	}
 
+	get id(): number {return this._cell.id}
+	
 	get height(): number {return this._height}
 	get heightInMeters(): number { return 6121.258 * ((this._height - 0.2)/0.8) ** 1.8 } // corregir
 	get prevHeight(): number {return this._prevHeight}
@@ -70,6 +64,13 @@ export default class JCellHeight {
 			prevHeight: this._prevHeight,
 			heightType: this._heightType,
 			islandId: this._islandId,
+		}
+	}
+
+	static getInformation(): ISaveInformation {
+		return {
+			subFolder: ['CellsInfo'],
+			file: 'height'
 		}
 	}
 }
