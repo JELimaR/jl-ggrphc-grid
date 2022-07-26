@@ -1,13 +1,14 @@
 import VoronoiDiagramCreator from './Voronoi/VoronoiDiagramCreator';
 import JDiagram from './Voronoi/JDiagram';
 import HeightMapGenerator from './heightmap/HeightMapGenerator';
-import JGrid from './Geom/JGrid';
+import Grid from './Geom/Grid';
 import ClimateMapGenerator from './Climate/ClimateMapGenerator';
 import RiverMapGenerator, { IRiverMapGeneratorOut } from './River/RiverMapGenerator';
 import IslandMap from './heightmap/IslandMap';
 import IslandMapGenerator from './heightmap/IslandMapGenerator';
 import FluxRouteMap from './River/FluxRouteMap';
 import RiverMap from './River/RiverMap';
+import GridCreator from './Geom/GridCreator';
 
 export default class NaturalWorld {
 
@@ -16,7 +17,7 @@ export default class NaturalWorld {
 	// private _climateMap: JClimateMap;
 	// _riverMap: RiverMapGenerator;
 
-	// map elements estos elementos pueden ser generados despues y no en el constructor
+	// map elements estos elementos son generados despues y no en el constructor
 	private _islands: IslandMap[] = [];
 	private _fluxRoutes: Map<number, FluxRouteMap> = new Map<number, FluxRouteMap>();
 	private _rivers: Map<number, RiverMap> = new Map<number, RiverMap>();
@@ -67,7 +68,7 @@ export default class NaturalWorld {
 	} {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
-		const iniGrid: JGrid = this.createGrid(iniDiagram)
+		const iniGrid: Grid = this.createGrid(iniDiagram)
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		this.generateHeightMap(diagram, iniDiagram);
 		this.generateClimateMap(diagram, iniGrid);
@@ -101,10 +102,10 @@ export default class NaturalWorld {
 		console.timeEnd('second voronoi');
 		return diagram;
 	}
-	private createGrid(diagram: JDiagram): JGrid {
+	private createGrid(diagram: JDiagram): Grid {
 		console.log('-----init grid------');
 		console.time('grid');
-		const grid: JGrid = new JGrid(diagram);
+		const grid: Grid = GridCreator.createGrid(diagram);
 		console.timeEnd('grid');
 		return grid;
 	}
@@ -112,7 +113,7 @@ export default class NaturalWorld {
 		const hmg = new HeightMapGenerator(diagram, iniDiagram);
 		hmg.generate();
 	}
-	private generateClimateMap(diagram: JDiagram, grid: JGrid): void {
+	private generateClimateMap(diagram: JDiagram, grid: Grid): void {
 		const cmg = new ClimateMapGenerator(diagram, grid);
 		cmg.generate();
 	}

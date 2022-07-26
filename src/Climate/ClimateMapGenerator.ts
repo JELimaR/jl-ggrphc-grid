@@ -7,7 +7,7 @@ import PrecipGrid, { IPrecipData } from "./PrecipGrid";
 
 import JCellClimate, { IJCellClimateInfo } from '../CellInformation/JCellClimate'
 
-import JGrid, {  } from '../Geom/JGrid';
+import Grid, {  } from '../Geom/Grid';
 import { IJVertexClimateInfo } from "../VertexInformation/JVertexClimate";
 import JVertex from "../Voronoi/JVertex";
 import TempGrid from "./TempGrid";
@@ -17,8 +17,8 @@ import MapGenerator from "../MapGenerator";
 
 
 export default class ClimateMapGenerator extends MapGenerator {
-	private _grid: JGrid;
-	constructor(d: JDiagram, grid: JGrid) {
+	private _grid: Grid;
+	constructor(d: JDiagram, grid: Grid) {
 		super(d);
 		this._grid = grid;
 	}
@@ -62,7 +62,7 @@ export default class ClimateMapGenerator extends MapGenerator {
 
 	}
 
-	private generateClimateData(grid: JGrid): IJCellClimateInfo[] {
+	private generateClimateData(grid: Grid): IJCellClimateInfo[] {
 
 		const tempGrid = new TempGrid(grid);
 		const pressGrid = new JPressureGrid(grid, tempGrid);

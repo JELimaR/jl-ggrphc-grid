@@ -1,25 +1,23 @@
 import JCell from '../Voronoi/JCell';
-import JDiagram from '../Voronoi/JDiagram';
-import JPoint from './JPoint';
+import Point from './Point';
 import { GRAD2RAD, GRAN, WRADIUS } from './constants'
-import InformationFilesManager from '../DataInformationLoadAndSave';
-const dataInfoManager = InformationFilesManager.instance;
+import { inRange } from '../utilFunctions';
 
-export interface IJGridPointInfo {
+export interface IGridPointInfo {
 	point: { x: number, y: number };
 	cellId: number;
 }
 
-export class JGridPoint {
-	private _point: JPoint;
+export class GridPoint {
+	private _point: Point;
 	private _cell: JCell;
-	constructor(p: JPoint, cell: JCell) {
+	constructor(p: Point, cell: JCell) {
 		this._point = p;
 		this._cell = cell;
 	}
 
 	get cell(): JCell {return this._cell}
-	get point(): JPoint {return this._point}
+	get point(): Point {return this._point}
 
 	get rowValue() {
 		return inRange(
@@ -44,7 +42,7 @@ export class JGridPoint {
 		return out;
 	}
 
-	getInterface(): IJGridPointInfo {
+	getInterface(): IGridPointInfo {
 		return {
 			point: this._point.getInterface(),
 			cellId: this._cell.id
@@ -52,43 +50,16 @@ export class JGridPoint {
 	}
 }
 
-export default class JGrid {
-	private _points: JGridPoint[][];
+export default class Grid {
+	private _points: GridPoint[][];
 
-	constructor(diagram: JDiagram) {
-
-		const loadedData = dataInfoManager.loadGridPoints(GRAN, diagram.secAreaProm);
-		if (loadedData.length === 0) {
-			this._points = this.createGridPoints(diagram);
-			dataInfoManager.saveGridPoints(this._points, GRAN, diagram.secAreaProm)
-		} else {
-			this._points = loadedData.map((coli: IJGridPointInfo[]) => {
-				return coli.map((info: IJGridPointInfo) => {
-					return new JGridPoint(new JPoint(info.point.x, info.point.y), diagram.cells.get(info.cellId)!);
-				})
-			})
-		}
+	constructor(points: GridPoint[][]) {
+		this._points = points;
 	}
 
-	private createGridPoints(diagram: JDiagram): JGridPoint[][] {
-		let out: JGridPoint[][] = [];
-		for (let i = -180; i < 180; i += GRAN) {
-			console.log('x value:', i);
-			let col: JGridPoint[] = [];
-			for (let j = -90; j <= 90; j += GRAN) {
-				const point: JPoint = new JPoint(i, j);
-				const cell: JCell = diagram.getCellFromPoint(point);
-				const gp = new JGridPoint(point, cell);
-				col.push(gp);
-			}
-			out.push(col);
-		}
-		return out;
-	}
-
-	getRow(n: number): JGridPoint[] {
-		let out: JGridPoint[] = [];
-		this._points.forEach((col: JGridPoint[]) => out.push(col[n]))
+	getRow(n: number): GridPoint[] {
+		let out: GridPoint[] = [];
+		this._points.forEach((col: GridPoint[]) => out.push(col[n]))
 		return out;
 	}
 	get rowsNumber(): number {
@@ -98,17 +69,17 @@ export default class JGrid {
 	get colsNumber(): number {
 		return this._points.length;
 	}
-	get points(): JGridPoint[][] { return this._points }
+	get points(): GridPoint[][] { return this._points }
 
-	forEachPoint(func: (gp: JGridPoint, col: number, row: number) => void) {
-		this._points.forEach((col: JGridPoint[], cidx: number) => {
-			col.forEach((gp: JGridPoint, ridx: number) => {
+	forEachPoint(func: (gp: GridPoint, col: number, row: number) => void) {
+		this._points.forEach((col: GridPoint[], cidx: number) => {
+			col.forEach((gp: GridPoint, ridx: number) => {
 				func(gp, cidx, ridx);
 			})
 		})
 	}
 
-	getGridPointIndexes(p: JPoint) {
+	getGridPointIndexes(p: Point) {
 		if (Math.abs(p.x) > 180 || Math.abs(p.y) > 90)
 			throw new Error(`el punto: ${p.toTurfPosition()} se encuentra fuera de rango`)
 		return {
@@ -117,16 +88,16 @@ export default class JGrid {
 		}
 	}
 
-	getGridPoint(p: JPoint): JGridPoint {
+	getGridPoint(p: Point): GridPoint {
 		const INDXS = this.getGridPointIndexes(p);
 		return this._points[INDXS.c][INDXS.r];
 	}
 
-	getGridPointsInWindow(point: JPoint, windKm: number): JGridPoint[] {
-		let out: JGridPoint[] = [];
+	getGridPointsInWindow(point: Point, windKm: number): GridPoint[] {
+		let out: GridPoint[] = [];
 
-		this.getGridPointsInWindowGrade(point, windKm / 3).forEach((gp: JGridPoint) => {
-			if (JPoint.geogDistance(point, gp.point) <= windKm) {
+		this.getGridPointsInWindowGrade(point, windKm / 3).forEach((gp: GridPoint) => {
+			if (Point.geogDistance(point, gp.point) <= windKm) {
 				out.push(gp);
 			}
 		})
@@ -143,10 +114,10 @@ export default class JGrid {
 	}
 
 	// obtener puntos en una ventana (en principio se cortan los bordes)
-	getGridPointsInWindowGrade(point: JPoint, windowGrades: number): JGridPoint[] {
+	getGridPointsInWindowGrade(point: Point, windowGrades: number): GridPoint[] {
 		// const cWindow = (windowGrades > 360) ? 360 : windowGrades;
 		// const rWindow = (windowGrades > 180) ? 180 : windowGrades;
-		let out: JGridPoint[] = [];
+		let out: GridPoint[] = [];
 		const INDXS = this.getGridPointIndexes(point);
 
 		const cidxs: number[] = this.getIndexsInWindow(INDXS.c, windowGrades);
@@ -169,7 +140,7 @@ export default class JGrid {
 					c = Math.round((c < this.colsNumber / 2) ? c + this.colsNumber / 2 : c - this.colsNumber / 2)
 				}
 				if (!this._points[c]) console.log('c', c)
-				const p: JGridPoint = this._points[c][r];
+				const p: GridPoint = this._points[c][r];
 				out.push(p)
 			})
 		})
@@ -177,8 +148,8 @@ export default class JGrid {
 	}
 
 	//dada una lista de puntos de recorrido horizontal, (un punto para cada columna), se devuelve el recorrido "suavizado"
-	soft(points: JPoint[], miny: number = -90, maxy: number = 90): JGridPoint[] {
-		let out: JPoint[] = points.map((p: JPoint, idx: number) => {
+	soft(points: Point[], miny: number = -90, maxy: number = 90): GridPoint[] {
+		let out: Point[] = points.map((p: Point, idx: number) => {
 			let val: number = 0, cant = 0;
 			let arr: number[] = [];
 			const stepCantMed: number = Math.round(10 / GRAN);
@@ -189,22 +160,13 @@ export default class JGrid {
 					cant++;
 				}
 			})
-			return new JPoint(p.x, GRAN * Math.round(val / cant / GRAN));
+			return new Point(p.x, GRAN * Math.round(val / cant / GRAN));
 		})
 
-		return out.map((point: JPoint) => {
+		return out.map((point: Point) => {
 			const y = inRange(point.y, miny, maxy);
 			const x = point.x;
-			return this.getGridPoint(new JPoint(x, y));
+			return this.getGridPoint(new Point(x, y));
 		})
 	}
-}
-
-const inRange = (value: number, minimo: number, maximo: number): number => {
-	let out = value;
-
-	if (out > maximo) out = maximo;
-	if (out < minimo) out = minimo;
-
-	return out;
 }

@@ -1,7 +1,5 @@
-import JPoint from "../Geom/JPoint";
 
 const MAXROT: number = 23;
-const BOLTZMAN: number = 5.67 * Math.pow(10, -8);
 
 interface IDay {
 	d: number;

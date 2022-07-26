@@ -1,25 +1,24 @@
-import JPoint from "../Geom/JPoint";
+import Point from "../Geom/Point";
 
 interface IPressureZone {
 	mag: number;
-	point: JPoint;
+	point: Point;
 }
 
-const MAGCOR: number = 10;
 const MASS = 1;
 const time = .075;
 
-export const calcFieldInPoint = (point: JPoint, pressureCenters: IPressureZone[]): { vec: JPoint, pot: number } => {
-	let out: JPoint = new JPoint(0, 0);
+export const calcFieldInPoint = (point: Point, pressureCenters: IPressureZone[]): { vec: Point, pot: number } => {
+	let out: Point = new Point(0, 0);
 	let magSum: number = 0;
 
 	pressureCenters.forEach((pz: IPressureZone) => {
 		//const dist = JPoint.geogDistance(pz.point, point) + 10;
-		let pz2: JPoint = point.point2(pz.point);
-		const dist: number = JPoint.distance(pz2, point) + 1;
+		let pz2: Point = point.point2(pz.point);
+		const dist: number = Point.distance(pz2, point) + 1;
 		const magnitude: number = pz.mag / (dist ** 2);
 		
-		let dir: JPoint = point.sub(pz2).normalize();
+		let dir: Point = point.sub(pz2).normalize();
 		dir = dir.scale(magnitude);
 		out = out.add(dir);
 
@@ -31,7 +30,7 @@ export const calcFieldInPoint = (point: JPoint, pressureCenters: IPressureZone[]
 
 const VELROTVALUE: number = 2;
 
-export const calcCoriolisForce = (state: IMovementState): JPoint => {
+export const calcCoriolisForce = (state: IMovementState): Point => {
 	const lat: number = state.pos.y;
 	// const indexes = tempGrid._grid.getGridPointIndexes(state.pos);
 	const dev: number = 0//tempGrid.getITCZPoints(4)[indexes.r]!._point.y;
@@ -45,20 +44,20 @@ export const calcCoriolisForce = (state: IMovementState): JPoint => {
 
 // calc air movement
 export interface IMovementState {
-	vel: JPoint;
-	pos: JPoint;
+	vel: Point;
+	pos: Point;
 }
 
 
-export const calcMovementState = (currState: IMovementState, force: JPoint, GRAN: number): IMovementState => {
+export const calcMovementState = (currState: IMovementState, force: Point, GRAN: number): IMovementState => {
 	
-	const A: JPoint = force.scale(1/MASS);
-	let vel: JPoint = A.scale(time).add(currState.vel);
-	let pos: JPoint = A.scale(time/2).scale(time).add(currState.vel.scale(time)).add(currState.pos);
+	const A: Point = force.scale(1/MASS);
+	let vel: Point = A.scale(time).add(currState.vel);
+	let pos: Point = A.scale(time/2).scale(time).add(currState.vel.scale(time)).add(currState.pos);
 
 	// constant distance
-	const dir: JPoint = pos.sub(currState.pos).normalize();
-	const pos2: JPoint = dir.scale(GRAN * 0.8).add(currState.pos);
+	const dir: Point = pos.sub(currState.pos).normalize();
+	const pos2: Point = dir.scale(GRAN * 0.8).add(currState.pos);
 
 	const newT = calcTime(A, currState, pos2);
 	if (newT > 0) {
@@ -72,7 +71,7 @@ export const calcMovementState = (currState: IMovementState, force: JPoint, GRAN
 	}
 }
 
-const calcTime = (A: JPoint, currState: IMovementState, pos2: JPoint): number => {
+const calcTime = (A: Point, currState: IMovementState, pos2: Point): number => {
 	let calculatedTime: number = 0;
 
 	let a = A.x/2;

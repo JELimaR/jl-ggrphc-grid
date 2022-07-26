@@ -4,7 +4,7 @@ import JCellHeight, { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
 
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
-import JPoint from "../Geom/JPoint";
+import Point from "../Geom/Point";
 import JVertexHeight, { IJVertexHeightInfo } from "../VertexInformation/JVertexHeight";
 import JVertex from "../Voronoi/JVertex";
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
@@ -105,7 +105,7 @@ export default class HeightMapGenerator extends MapGenerator {
 		let out: IJCellHeightInfo[] = [];
 		const azgaarHeight = ard.hs();
 		azgaarHeight.forEach((elem: { id: number, x: number, y: number, h: number }) => {
-			const cellId = this.diagram.getCellFromCenter(new JPoint(elem.x, elem.y)).id;
+			const cellId = this.diagram.getCellFromCenter(new Point(elem.x, elem.y)).id;
 			out.push({
 				id: cellId,
 				prevHeight: 0, // ya no se usa
@@ -258,7 +258,7 @@ export default class HeightMapGenerator extends MapGenerator {
 
 
 	private setOceanTypeCell() {
-		const initCell = this.diagram.getCellFromPoint(new JPoint(-180, 0));
+		const initCell = this.diagram.getCellFromPoint(new Point(-180, 0));
 		if (initCell.info.height > 0.2) throw new Error('en initCell de ocean type');
 
 		let lista: JCell[] = [initCell];

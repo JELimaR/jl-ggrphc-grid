@@ -1,5 +1,5 @@
 import { Edge } from 'voronoijs';
-import JPoint from '../Geom/JPoint';
+import Point from '../Geom/Point';
 import JSite from './JSite';
 import JDiagram from './JDiagram';
 
@@ -18,18 +18,18 @@ interface IJEdgeConstructor {
 	//e: Edge;
 	ls: JSite;
 	rs?: JSite;
-	va: JPoint;
-	vb: JPoint;
+	va: Point;
+	vb: Point;
 }
 
 export default class JEdge {
 
 	private _lSite: JSite;
 	private _rSite: JSite | undefined;
-	private _vertexA: JPoint;
-	private _vertexB: JPoint;
+	private _vertexA: Point;
+	private _vertexB: Point;
 
-	private _points: JPoint[] = [];
+	private _points: Point[] = [];
 	private _length: number | undefined;
 
 	static _diagram: JDiagram;
@@ -45,8 +45,8 @@ export default class JEdge {
 
 	get lSite(): JSite { return this._lSite }
 	get rSite(): JSite | undefined { return this._rSite }
-	get vertexA(): JPoint { return this._vertexA }
-	get vertexB(): JPoint { return this._vertexB }
+	get vertexA(): Point { return this._vertexA }
+	get vertexB(): Point { return this._vertexB }
 
 	get vertices(): JVertex[] {
 		return [
@@ -75,9 +75,9 @@ export default class JEdge {
 	get length(): number {
 		if (!this._length) {
 			let out: number = 0;
-			this.points.forEach((p: JPoint, i: number, a: JPoint[]) => {
+			this.points.forEach((p: Point, i: number, a: Point[]) => {
 				if (i > 0) {
-					out += JPoint.geogDistance(p, a[i - 1]);
+					out += Point.geogDistance(p, a[i - 1]);
 				}
 			})
 			this._length = out;
@@ -85,9 +85,9 @@ export default class JEdge {
 		return this._length;
 	}
 
-	get points(): JPoint[] {
+	get points(): Point[] {
 		if (this._points.length === 0) {
-			let out: JPoint[] = [];
+			let out: Point[] = [];
 			if (this._rSite) {
 				const randf: () => number = RandomNumberGenerator.makeRandomFloat(this._rSite.id);
 				const pointsList: turf.Position[] = noiseTraceLine(
@@ -96,7 +96,7 @@ export default class JEdge {
 					randf
 				);
 				pointsList.forEach((element: turf.Position) => {
-					out.push(new JPoint(element[0], element[1]))
+					out.push(new Point(element[0], element[1]))
 				})
 			} else {
 				out = [this._vertexA, this._vertexB];
@@ -124,8 +124,8 @@ export default class JEdge {
 
 }
 
-export const edgeNoisePoints = (edge: Edge): JPoint[] => {
-	let out: JPoint[] = [];
+export const edgeNoisePoints = (edge: Edge): Point[] => {
+	let out: Point[] = [];
 	if (edge.rSite) {
 		const randf: () => number = RandomNumberGenerator.makeRandomFloat(edge.rSite.id);
 		const pointsList: turf.Position[] = noiseTraceLine(
@@ -133,9 +133,9 @@ export const edgeNoisePoints = (edge: Edge): JPoint[] => {
 			constructDiamond(edge),
 			randf
 		);
-		pointsList.forEach((element: turf.Position) => out.push(JPoint.fromTurfPosition(element)))
+		pointsList.forEach((element: turf.Position) => out.push(Point.fromTurfPosition(element)))
 	} else {
-		out = [JPoint.fromVertex(edge.va), JPoint.fromVertex(edge.vb)];
+		out = [Point.fromVertex(edge.va), Point.fromVertex(edge.vb)];
 	}
 	return out;
 }

@@ -1,9 +1,9 @@
 import DrawerMap from "../Drawer/DrawerMap";
-import JPoint from "../Geom/JPoint";
+import Point from "../Geom/Point";
 import NaturalWorld from "../NaturalWorld";
 
 const tam: number = 3600;
-let SIZE: JPoint = new JPoint(tam, tam / 2);
+let SIZE: Point = new Point(tam, tam / 2);
 
 export default abstract class Shower {
 	private _w: NaturalWorld;

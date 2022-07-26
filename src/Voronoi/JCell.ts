@@ -1,6 +1,5 @@
-// import { Cell, Halfedge } from "voronoijs";
-import JPoint from '../Geom/JPoint';
-import JTriangle from '../Geom/JTriangle';
+import Point from '../Geom/Point';
+import Triangle from '../Geom/Triangle';
 import JEdge from './JEdge';
 import JHalfEdge from './JHalfEdge';
 import JSite from './JSite';
@@ -18,7 +17,7 @@ export default class JCell {
 	private _halfedges: JHalfEdge[] = [];
 	private _cellInformation: JCellInformation; // eliminar esto
 	private _subCells: JCell[] = [];
-	private _subsites: JPoint[] = [];
+	private _subsites: Point[] = [];
 
 	constructor( s: JSite, arrEdges: JEdge[]) {
 	
@@ -37,9 +36,9 @@ export default class JCell {
 
 	get site(): JSite { return this._site }
 	get id(): number { return this._site.id }
-	get center(): JPoint { return this._site.point }
-	get allVertices(): JPoint[] {
-		let out: JPoint[] = [];
+	get center(): Point { return this._site.point }
+	get allVertices(): Point[] {
+		let out: Point[] = [];
 		for (let he of this._halfedges) {
 			const pts = he.points
 			for (let i = 1; i < pts.length; i++) {
@@ -49,8 +48,8 @@ export default class JCell {
 		return out;
 	}
 
-	get voronoiVertices(): JPoint[] {
-		let out: JPoint[] = [];
+	get voronoiVertices(): Point[] {
+		let out: Point[] = [];
 		for (let he of this._halfedges) {
 			out.push(he.initialPoint)
 		}
@@ -59,7 +58,7 @@ export default class JCell {
 
 	get verticesId(): string[] {
 		let out: string[] = [];
-		this.voronoiVertices.forEach((p: JPoint) => out.push(p.id))
+		this.voronoiVertices.forEach((p: Point) => out.push(p.id))
 		return out;
 	}
 
@@ -93,22 +92,22 @@ export default class JCell {
 	}
 
 	private toTurfPolygonComplete(): turf.Feature<turf.Polygon> {
-		let verts: JPoint[] = this.allVertices;
+		let verts: Point[] = this.allVertices;
 		verts.push(verts[0]);
 		return turf.polygon([
-			verts.map((p: JPoint) => p.toTurfPosition())
+			verts.map((p: Point) => p.toTurfPosition())
 		])
 	}
 
 	toTurfPolygonSimple(): turf.Feature<turf.Polygon> {
-		let verts: JPoint[] = this.voronoiVertices;
+		let verts: Point[] = this.voronoiVertices;
 		verts.push(verts[0]);
 		return turf.polygon([
-			verts.map((p: JPoint) => p.toTurfPosition())
+			verts.map((p: Point) => p.toTurfPosition())
 		])
 	}
 
-	isPointIn(p: JPoint): boolean {
+	isPointIn(p: Point): boolean {
 		return turf.booleanPointInPolygon(turf.point(p.toTurfPosition()), this.toTurfPolygonSimple())
 	}
 	/*
@@ -137,36 +136,36 @@ export default class JCell {
 		}
 	}
 	*/
-	private tesselate(): JTriangle[] {
-		let out: JTriangle[] = [];
+	private tesselate(): Triangle[] {
+		let out: Triangle[] = [];
 		const ts: turf.FeatureCollection<turf.Polygon> = turf.tesselate(this.toTurfPolygonSimple());
 		ts.features.forEach((t: turf.Feature<turf.Polygon>) => {
-			out.push(new JTriangle(t));
+			out.push(new Triangle(t));
 		})
 		return out;
 	}
 
-	getSubSites(AREA: number): JPoint[] {
+	getSubSites(AREA: number): Point[] {
 		if (this._subsites.length == 0) {
 			const cantSites: number = Math.round(this.area / AREA) + 1;
-			let points: JPoint[] = [];
+			let points: Point[] = [];
 
-			let triangles: JTriangle[] = this.tesselate();
-			triangles = triangles.sort((a: JTriangle, b: JTriangle) => b.area - a.area); // de mayor a menor area
+			let triangles: Triangle[] = this.tesselate();
+			triangles = triangles.sort((a: Triangle, b: Triangle) => b.area - a.area); // de mayor a menor area
 
 			while (triangles.length < cantSites) {
-				const tri: JTriangle = triangles.shift() as JTriangle;
+				const tri: Triangle = triangles.shift() as Triangle;
 				const div = tri.divide();
 				triangles.push(div.t1);
 				triangles.push(div.t2);
-				triangles = triangles.sort((a: JTriangle, b: JTriangle) => b.area - a.area); // de mayor a menor area
+				triangles = triangles.sort((a: Triangle, b: Triangle) => b.area - a.area); // de mayor a menor area
 			}
 
 			for (let i = 0; i < cantSites; i++) {
 				points.push(triangles[i].centroid)
 			}
 
-			if (this.id == 3545) console.log(triangles.map((t: JTriangle) => t.area));
+			if (this.id == 3545) console.log(triangles.map((t: Triangle) => t.area));
 			if (this.id == 3545) console.log(this.areaSimple)
 			if (this.id == 3545) console.log(points)
 

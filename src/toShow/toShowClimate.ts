@@ -5,7 +5,7 @@ import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions'
 import JCell from "../Voronoi/JCell";
 import { inRange } from "../utilFunctions";
 import { lifeZonesList, TKoppenSubType, TKoppenType } from "../CellInformation/JCellClimate";
-import JPoint from "../Geom/JPoint";
+import Point from "../Geom/Point";
 
 export default class ShowClimate extends Shower {
 
@@ -13,7 +13,7 @@ export default class ShowClimate extends Shower {
 		super(world, area, folderSelected, 'climate');
 	}
 
-	drawKoppen(zoom: number = 0, center?: JPoint) {
+	drawKoppen(zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		this.d.drawBackground()
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.koppen(1))
@@ -21,14 +21,14 @@ export default class ShowClimate extends Shower {
 		this.d.saveDrawFile(`${this.a}koppen.png`);
 	}
 
-	drawLifeZones(zoom: number = 0, center?: JPoint) {
+	drawLifeZones(zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.lifeZones(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}lifeZones.png`);
 	}
 
-	drawPrecipMonth(month: number, zoom: number = 0, center?: JPoint) {
+	drawPrecipMonth(month: number, zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		month = inRange(month, 1, 12);
 		this.d.drawBackground()
@@ -37,14 +37,14 @@ export default class ShowClimate extends Shower {
 		this.d.saveDrawFile(`${this.a}precip${(month < 10 ? `0${month}` : `${month}`)}.png`);
 	}
 
-	drawPrecipMedia(zoom: number = 0, center?: JPoint) {
+	drawPrecipMedia(zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.precipitationMedia())
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}precipMedia.png`);
 	}
 
-	drawTempMonth(month: number, zoom: number = 0, center?: JPoint) {
+	drawTempMonth(month: number, zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		month = inRange(month, 1, 12);
 		this.d.drawBackground()
@@ -53,21 +53,21 @@ export default class ShowClimate extends Shower {
 		this.d.saveDrawFile(`${this.a}temp${(month < 10 ? `0${month}` : `${month}`)}.png`);
 	}
 
-	drawTempMedia(zoom: number = 0, center?: JPoint) {
+	drawTempMedia(zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.temperatureMedia())
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}tempMedia.png`);
 	}
 
-	drawAltitudinalBelts(zoom: number = 0, center?: JPoint) {
+	drawAltitudinalBelts(zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.altitudinalBelts(1))
 		this.d.drawMeridianAndParallels();
 		this.d.saveDrawFile(`${this.a}altitudinalBelts.png`)
 	}
 
-	drawHumidityProvinces(zoom: number = 0, center?: JPoint) {
+	drawHumidityProvinces(zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.humidityProvinces(1))
 		this.d.drawMeridianAndParallels();

@@ -1,8 +1,8 @@
 import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import IMapElement from "../IMapElement";
+import IMapElement from "../MapElement";
 import JCell from "../Voronoi/JCell";
 
-export interface IJCellGenericInfo  {
+export interface IJCellGenericInfo {
 	id: number;
 }
 

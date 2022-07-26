@@ -7,35 +7,10 @@ import VorPolygon from './Voronoi/VorPolygon';
 import IslandCenters from './CentersGenerator';
 import { makeNoise2D } from 'fast-simplex-noise';
 
-interface IVoronoiConstructorEntry {
-	seed: number;
-	rel: number;
-	cant: number
-}
-
 export default class Map {
-	static _SIZE: JVector = new JVector( {x: 3600, y: 1800} );
 
-	private _diagram: VorDiagram;
-	private _oc: OCanvas; // usar canvas distintos?
-	// private _rndInt: (N: number) => number; // no es necesario
-	// private _rnd: () => number;
-
-	constructor(diag: VorDiagram, pathName: string) {
-		
-		this._diagram = diag;
-
-		this._oc = new OCanvas(Map._SIZE);
-		this._oc.saveDraw( pathName );
-	}
-
-	static createVoronoi(entry: IVoronoiConstructorEntry): VoronoiDiagramMapCreator {
-
-		const vdc: VoronoiDiagramMapCreator = new VoronoiDiagramMapCreator(Map._SIZE, entry.seed, entry.cant);
-		vdc.createDiagram( entry.rel );
-		return vdc;
-	}
-
+	constructor() {	}
+ 
 	generateHeigh(otherSeed: number) {
 		console.log('generating heighmap');
 		const rnd = RandomNumberGenerator.makeRandomFloat(otherSeed);
@@ -124,40 +99,6 @@ export default class Map {
 		}
 	}
 
-	generateMoisture(): void {
-		console.log('generating moisture');
-		const borderPol: VorPolygon[] = this._diagram.getBorderPolygons();
-		borderPol.sort( (a: VorPolygon, b: VorPolygon) => a.center.x - b.center.x)
-		// borderPol.forEach((p: VorPolygon) => {
-		// 	p.height=1;
-		// 	p.typeHeight='land'
-		// })
-		let startPol: VorPolygon = borderPol[0];
-		let nb: VorPolygon;
-		const dir: JVector = new JVector({x: 1, y:0});
-		startPol.height = 1;
-		startPol.typeHeight = 'land';
-		this._diagram.getNeighbors(startPol).forEach((n: VorPolygon)=>{
-			if (!nb) {
-				nb = n;
-			} else {
-				if ( JVector.angleDif(dir, new JVector( n.center, startPol.center )) <  JVector.angleDif(dir, new JVector( nb.center, startPol.center ))) {
-					nb = n;
-				}
-			}
-		})
-		nb!.height = 1;
-		nb!.typeHeight = 'land'
-		startPol.mark = true;
-	}
-
-	drawLandmap(): void {
-		this._diagram.drawL(this._oc.context)
-	}
-
-	drawHeighmap(drawHeighWater: boolean): void {
-		this._diagram.drawH( this._oc.context, drawHeighWater );
-	}
 
 }
 */

@@ -1,13 +1,13 @@
-import JPoint from '../Geom/JPoint';
+import Point from '../Geom/Point';
 import JVertexInformation from '../VertexInformation/JVertexInformation';
 import JEdge from "./JEdge";
 
 export default class JVertex {
-	_point: JPoint;
+	_point: Point;
 	_edges: JEdge[];
 
 	_vertexInformation: JVertexInformation;
-	constructor(point: JPoint, edges: JEdge[]) {
+	constructor(point: Point, edges: JEdge[]) {
 		this._point = point;
 		if (!(edges.length == 2 || edges.length == 3)) {
 			console.log(point)
@@ -22,7 +22,7 @@ export default class JVertex {
 	}
 
 	get id(): string {return this._point.id}
-	get point(): JPoint {return this._point}
+	get point(): Point {return this._point}
 	get edges(): JEdge[] {return this._edges}
 	get cellIds() {
 		let list: Set<number> = new Set<number>();

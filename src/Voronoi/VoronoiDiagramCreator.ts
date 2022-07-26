@@ -1,9 +1,6 @@
-import { Voronoi, BoundingBox, Site, Cell, Diagram } from 'voronoijs';
-/// import DataInformationFilesManager from '../DataInformationLoadAndSave';
-
-
+import { Voronoi, BoundingBox, Site, Diagram } from 'voronoijs';
 import JDiagram from './JDiagram';
-import { IPoint } from '../Geom/JPoint';
+import { IPoint } from '../Geom/Point';
 import VoronoiSitesGenerator from './VoronoiSitesGenerator';
 
 export default class VoronoiDiagramCreator {
@@ -25,8 +22,7 @@ export default class VoronoiDiagramCreator {
 		return new JDiagram(diagram);
 	}
 
-	static createSubDiagram(jd: JDiagram, AREA: number): JDiagram {
-		
+	static createSubDiagram(jd: JDiagram, AREA: number): JDiagram {		
 		console.time('compute sec')
 
 		let diagram: Diagram;

@@ -1,31 +1,14 @@
 
 import JDiagram from "../Voronoi/JDiagram";
 import InformationFilesManager from '../DataInformationLoadAndSave';
-// import { IJCellInformation } from "../Voronoi/JCellInformation";
-import { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
-import RegionMap, { } from "../MapElements/RegionMap";
-
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
-import JPoint from "../Geom/JPoint";
-import { IJVertexHeightInfo } from "../VertexInformation/JVertexHeight";
-import JVertex from "../Voronoi/JVertex";
-import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 import MapGenerator from "../MapGenerator";
 import IslandMap, { IIslandMapInfo } from "./IslandMap";
-// import JSubCell from "../Voronoi/JSubCell";
-
-class JOceanMap { }
-class JLakeMap { }
-
-const ard: AzgaarReaderData = AzgaarReaderData.instance;
 
 export default class IslandMapGenerator extends MapGenerator {
-
-
 	constructor(d: JDiagram) {
 		super(d);
-
 	}
 
 	generate(): IslandMap[] {

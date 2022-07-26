@@ -1,6 +1,6 @@
 import { Cell, Diagram, Halfedge, Edge } from 'voronoijs';
 import * as turf from '@turf/turf';
-import JPoint, { IPoint } from '../Geom/JPoint';
+import Point, { IPoint } from '../Geom/Point';
 import JCell from "./JCell";
 import JEdge from "./JEdge";
 import JSite from './JSite';
@@ -30,7 +30,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			this._secAreaProm = ancestor.a;
 
 			ancestor.s.forEach((value: { p: IPoint; cid: number; }) => {
-				const subCell: JCell = this.getCellFromCenter(JPoint.fromInterface(value.p));
+				const subCell: JCell = this.getCellFromCenter(Point.fromInterface(value.p));
 				const ancCell: JCell = ancestor.d.cells.get(value.cid) as JCell;
 
 				ancCell.addSubCell(subCell);
@@ -54,20 +54,20 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		});
 
 		let edgesMap = new Map<Edge, JEdge>();
-		let verticesPointMap = new Map<string, JPoint>();
+		let verticesPointMap = new Map<string, Point>();
 		let verticesEdgeMap = new Map<string, JEdge[]>();
 		d.edges.forEach((e: Edge) => {
 			// obtener vertices: va y vb
-			let vaId: string = JPoint.getIdfromVertex(e.va);
+			let vaId: string = Point.getIdfromVertex(e.va);
 			if (!verticesPointMap.get(vaId)) {
-				verticesPointMap.set(vaId, JPoint.fromVertex(e.va));
+				verticesPointMap.set(vaId, Point.fromVertex(e.va));
 			}
-			let va: JPoint = verticesPointMap.get(vaId) as JPoint;
-			let vbId: string = JPoint.getIdfromVertex(e.vb);
+			let va: Point = verticesPointMap.get(vaId) as Point;
+			let vbId: string = Point.getIdfromVertex(e.vb);
 			if (!verticesPointMap.get(vbId)) {
-				verticesPointMap.set(vbId, JPoint.fromVertex(e.vb));
+				verticesPointMap.set(vbId, Point.fromVertex(e.vb));
 			}
-			let vb: JPoint = verticesPointMap.get(vbId) as JPoint;
+			let vb: Point = verticesPointMap.get(vbId) as Point;
 
 			// obtener los sites: lSite y rSite
 			const ls: JSite = sitesMap.get(e.lSite.id) as JSite;
@@ -90,7 +90,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			verticesEdgeMap.get(vbId)!.push(je);
 		})
 		// setear vertices
-		verticesPointMap.forEach((p: JPoint) => {
+		verticesPointMap.forEach((p: Point) => {
 			const edges: JEdge[] = verticesEdgeMap.get(p.id) as JEdge[];
 			const jv: JVertex = new JVertex(p, edges);
 			this._vertices.set(p.id, jv)
@@ -208,14 +208,14 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		return this._cells.get(id);
 	}
 
-	getCellFromPoint(p: JPoint): JCell {
+	getCellFromPoint(p: Point): JCell {
 		// se puede verificar si el punto se encuentra en la cell
 		let out: JCell | undefined;
 		let minDis: number = Infinity;
 
 		this._cells.forEach((vp: JCell) => {
-			let c: JPoint = vp.center;
-			let dis: number = JPoint.distance(c, p);
+			let c: Point = vp.center;
+			let dis: number = Point.distance(c, p);
 			if (dis < minDis) {
 				out = vp;
 				minDis = dis;
@@ -229,13 +229,13 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		}
 	}
 
-	getVertexFromPoint(p: JPoint): JVertex {
+	getVertexFromPoint(p: Point): JVertex {
 		let out: JVertex | undefined;
 		const cellAso: JCell = this.getCellFromPoint2(p);
 		let minDis: number = Infinity;
 
 		this.getVerticesAssociated(cellAso).forEach((vp: JVertex) => {
-			let dis: number = JPoint.distance(vp.point, p);
+			let dis: number = Point.distance(vp.point, p);
 			if (dis < minDis) {
 				out = vp;
 				minDis = dis;
@@ -249,7 +249,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		}
 	}
 
-	getCellFromPoint2(p: JPoint): JCell {
+	getCellFromPoint2(p: Point): JCell {
 		let out: JCell | undefined;
 		let founded: boolean = false;
 		let i: number = 0;
@@ -267,7 +267,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		}
 	}
 
-	getCellFromCenter(p: JPoint): JCell {
+	getCellFromCenter(p: Point): JCell {
 		let out: JCell | undefined;
 		out = this._cells2.get(p.id);
 		if (out)
@@ -340,7 +340,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		return out;
 	}
 	*/
-	getCellsInSegment(ini: JPoint, end: JPoint, condFunc: (c: JCell) => boolean = (_) => true): JCell[] { // tratar de implementar dijkstra
+	getCellsInSegment(ini: Point, end: Point, condFunc: (c: JCell) => boolean = (_) => true): JCell[] { // tratar de implementar dijkstra
 		let out: JCell[] = [];
 		const iniCell: JCell = this.getCellFromPoint(ini);
 		const endCell: JCell = this.getCellFromPoint(end);
@@ -352,7 +352,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			let arr: { cell: JCell; dist: number }[] = [];
 			this.getCellNeighbours(currCell).forEach((n: JCell) => {
 				if (condFunc(n) && !n.isMarked())
-					arr.push({ cell: n, dist: JPoint.geogDistance(n.center, end) });
+					arr.push({ cell: n, dist: Point.geogDistance(n.center, end) });
 			})
 			if (arr.length == 0) {
 				finished = true;
@@ -370,7 +370,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		return out;
 	}
 
-	getVerticesInSegment(ini: JPoint, end: JPoint, condFunc: (v: JVertex) => boolean = (_) => true): JVertex[] {
+	getVerticesInSegment(ini: Point, end: Point, condFunc: (v: JVertex) => boolean = (_) => true): JVertex[] {
 		let out: JVertex[] = [];
 		const iniVertex: JVertex = this.getVertexFromPoint(ini);
 		const endVertex: JVertex = this.getVertexFromPoint(end);
@@ -382,7 +382,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			let arr: { vertex: JVertex; dist: number }[] = [];
 			this.getVertexNeighbours(currVertex).forEach((n: JVertex) => {
 				if (condFunc(n) && !n.isMarked())
-					arr.push({ vertex: n, dist: JPoint.geogDistance(n.point, end) });
+					arr.push({ vertex: n, dist: Point.geogDistance(n.point, end) });
 			})
 			if (arr.length == 0) {
 				finished = true;
@@ -417,8 +417,8 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			let b: boolean = false;
 			this.getTwoLevelsCellNeighbours(cell).forEach((nc: JCell) => b = b || nc.info.isLand)
 			if (b || cell.info.isLand) {
-				const ss: JPoint[] = cell.getSubSites(AREA);
-				ss.forEach((p: JPoint) => out.push({ p: p.getInterface(), cid: cell.id }));
+				const ss: Point[] = cell.getSubSites(AREA);
+				ss.forEach((p: Point) => out.push({ p: p.getInterface(), cid: cell.id }));
 			}
 			else
 				out.push({ p: cell.center.getInterface(), cid: cell.id })

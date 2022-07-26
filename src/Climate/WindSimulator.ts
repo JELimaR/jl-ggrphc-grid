@@ -1,21 +1,21 @@
 import { calcCoriolisForce, calcMovementState, IMovementState } from "./PressureFieldFunctions";
-import JGrid, { JGridPoint } from "../Geom/JGrid";
-import JPoint from "../Geom/JPoint";
+import Grid, { GridPoint } from "../Geom/Grid";
+import Point from "../Geom/Point";
 import JPressureGrid, { IPressureZone, PressureData } from "./PressureGrid";
 import TempGrid from "./TempGrid";
 import { GRAN } from "../Geom/constants";
-import { getArrayOfN } from "../utilFunctions";
+import { getArrayOfN, getPointInValidCoords } from "../utilFunctions";
 import ShowerManager from "../toShow/ShowerManager";
 
 const sat: number = 8000;
 const roz = 0.71;
 const MAXEVAP = 200;
 const MAXRAIN = 100;
-const tempMin = -25;
+const tempMin = -30;
 
 export class WindRoutePoint {
 	constructor(
-		public point: JPoint,
+		public point: Point,
 		public precipOut: number,
 		public evapOut: number,
 		public accOut: number
@@ -23,7 +23,7 @@ export class WindRoutePoint {
 
 	static fromInterface(wr: IWindRoute) {
 		return new WindRoutePoint(
-			JPoint.fromInterface(wr.point), wr.precipOut, wr.evapOut, wr.accOut
+			Point.fromInterface(wr.point), wr.precipOut, wr.evapOut, wr.accOut
 		)
 	}
 
@@ -53,11 +53,11 @@ export interface IPrecipDataGenerated {
 
 export default class WindSimulate {
 
-	private _grid: JGrid;
+	private _grid: Grid;
 	private _pressGrid: JPressureGrid;
 	private _tempGrid: TempGrid;
 
-	constructor(grid: JGrid, pressGrid: JPressureGrid, tempGrid: TempGrid) {
+	constructor(grid: Grid, pressGrid: JPressureGrid, tempGrid: TempGrid) {
 		this._grid = grid;
 		this._pressGrid = pressGrid;
 		this._tempGrid = tempGrid;
@@ -73,14 +73,14 @@ export default class WindSimulate {
 			console.log('month:', m);
 			let dataPrecip: IPrecipDataGenerated[][] = [];
 			let dataRoutes: Array<WindRoutePoint>[][] = [];
-			this._grid.forEachPoint((_gp: JGridPoint, cidx: number, ridx: number) => {
+			this._grid.forEachPoint((_gp: GridPoint, cidx: number, ridx: number) => {
 				if (!dataPrecip[cidx]) dataPrecip[cidx] = [];
 				dataPrecip[cidx][ridx] = { precipValue: 0, precipCant: 0, deltaTempCant: 0, deltaTempValue: 0 };
 				if (!dataRoutes[cidx]) dataRoutes[cidx] = [];
 				dataRoutes[cidx][ridx] = [];
 			})
 
-			let sortedList: JGridPoint[] = this._pressGrid.getPointsSorted(m);
+			let sortedList: GridPoint[] = this._pressGrid.getPointsSorted(m);
 
 			while (sortedList.length > 0) {
 				// tiempos
@@ -89,11 +89,11 @@ export default class WindSimulate {
 					console.timeLog('wind sim iteration');
 				}
 
-				const gp: JGridPoint = sortedList.shift() as JGridPoint;
+				const gp: GridPoint = sortedList.shift() as GridPoint;
 				if (gp.cell.isMarked()) continue
 
 				let route: WindRoutePoint[] = [];
-				const currPos: JPoint = new JPoint(gp.point.x, gp.point.y);
+				const currPos: Point = new Point(gp.point.x, gp.point.y);
 				let wsOut: { dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[] }// = { dataPrecip: [], route: [] }
 				// if (pressGrid._pressureCentersLocationGrid.get(m)![gp.colValue][gp.rowValue] !== 1) {
 				wsOut = this.windSimIteration(currPos, m, dataPrecip, route);
@@ -102,7 +102,7 @@ export default class WindSimulate {
 				//}
 
 			}
-			this._grid.forEachPoint((gp: JGridPoint) => {
+			this._grid.forEachPoint((gp: GridPoint) => {
 				gp.cell.dismark();
 			})
 			precipOut.set(m, dataPrecip);
@@ -115,14 +115,14 @@ export default class WindSimulate {
 		}
 	}
 
-	windSimIteration(initPoint: JPoint, month: number, dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[]): { dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[] } {
+	windSimIteration(initPoint: Point, month: number, dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[]): { dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[] } {
 
 		route = [];
 		let currPos = initPoint;
-		let currVel = new JPoint(0, 0);
+		let currVel = new Point(0, 0);
 		let acc = 0;
 
-		let gpprev: JGridPoint | undefined, gpnew: JGridPoint | undefined;
+		let gpprev: GridPoint | undefined, gpnew: GridPoint | undefined;
 
 		let cont: number = 0;
 		// let it: number = 0;
@@ -137,12 +137,12 @@ export default class WindSimulate {
 
 			// calc force
 			let pd: PressureData = this._pressGrid.getPointInfo(currPos);
-			let vec: JPoint = pd.vecs[month - 1];
-			let cor: JPoint = calcCoriolisForce({ pos: currPos, vel: currVel });
+			let vec: Point = pd.vecs[month - 1];
+			let cor: Point = calcCoriolisForce({ pos: currPos, vel: currVel });
 			let netForce = vec.add(cor).sub(currVel.scale(roz));
 			// new state
 			const newState: IMovementState = calcMovementState({ pos: currPos, vel: currVel }, netForce, GRAN);
-			currPos = JPoint.pointToCoord(newState.pos);
+			currPos = getPointInValidCoords(newState.pos);
 			currVel = newState.vel;
 			gpnew = this._grid.getGridPoint(currPos);
 			// calc iter : evap and precip for currPos
@@ -159,17 +159,10 @@ export default class WindSimulate {
 				route.push(new WindRoutePoint(currPos, precipOut, evapOut, accOut));
 
 			// asignar
-			dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += /*((Math.cos(gpprev._point.y * Math.PI / 180) * 0.7 + 0.3) ** 1.0) */ precipOut;
+			dataPrecip[gpprev.colValue][gpprev.rowValue].precipValue += precipOut;
 			dataPrecip[gpprev.colValue][gpprev.rowValue].precipCant++;
 			dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempValue += deltaTempOut;
 			dataPrecip[gpnew.colValue][gpnew.rowValue].deltaTempCant++;
-			/*
-						this._grid.getGridPointsInWindowGrade(currPos, this._grid._granularity).forEach((gpn: JGridPoint) => {
-							dataPrecip[gpn.colValue][gpn.rowValue].value += Math.cos(gpprev!._point.y * Math.PI / 180) * precipOut * 0.65;
-							dataPrecip[gpn.colValue][gpn.rowValue].cant++;
-						})
-						*/
-			// }
 		}
 
 		return {
@@ -179,7 +172,7 @@ export default class WindSimulate {
 
 	}
 
-	calcMoistureValuesIter(gpnew: JGridPoint, gpprev: JGridPoint, acc: number, month: number): {
+	calcMoistureValuesIter(gpnew: GridPoint, gpprev: GridPoint, acc: number, month: number): {
 		precipOut: number,
 		evapOut: number,
 		accOut: number,

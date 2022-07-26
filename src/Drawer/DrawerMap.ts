@@ -5,7 +5,7 @@ import * as turf from '@turf/turf';
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
 
-import JPoint from '../Geom/JPoint';
+import Point from '../Geom/Point';
 
 import JCell from '../Voronoi/JCell';
 import RegionMap from '../MapElements/RegionMap';
@@ -27,7 +27,7 @@ export interface IDrawEntry {
 
 export default class DrawerMap {
 
-	private _size: JPoint;
+	private _size: Point;
 	private _cnvs: Canvas;
 	// private _cnvs: Bitmap;
 
@@ -36,7 +36,7 @@ export default class DrawerMap {
 
 	static _srcPath: string;
 
-	constructor(SIZE: JPoint, dirPath: string) {
+	constructor(SIZE: Point, dirPath: string) {
 		this._size = SIZE;
 		this._cnvs = createCanvas(SIZE.x, SIZE.y);
 		// this._cnvs = PImage.make(SIZE.x, SIZE.y, {});
@@ -52,8 +52,8 @@ export default class DrawerMap {
 
 	// borrar
 	getPanzoom() { return this._panzoom }
-	get centerPoint(): JPoint {
-		return new JPoint(
+	get centerPoint(): Point {
+		return new Point(
 			(-this._panzoom.centerX + this._size.x / 2) / this._panzoom.scale,
 			(-this._panzoom.centerY + this._size.y / 2) / this._panzoom.scale
 		);
@@ -64,50 +64,50 @@ export default class DrawerMap {
 		this._panzoom.zoom = n;
 	}
 
-	setCenterpan(p: JPoint) {
+	setCenterpan(p: Point) {
 		this._panzoom.centerX = -p.x * this._panzoom.scale + this._size.x / 2;
 		this._panzoom.centerY = -p.y * this._panzoom.scale + this._size.y / 2;
 	}
 
-	getPointsBuffDrawLimits(): JPoint[] {
+	getPointsBuffDrawLimits(): Point[] {
 		return this._panzoom.pointsBuffDrawLimits;
 	}
 
-	getPointsBuffCenterLimits(): JPoint[] {
+	getPointsBuffCenterLimits(): Point[] {
 		return this._panzoom.pointsBuffCenterLimits;
 	}
 
 	/**navigation */
 	zoomIn() {
-		const center: JPoint = this.centerPoint;
+		const center: Point = this.centerPoint;
 		this.setZoom(this.zoomValue + 1);
 		this.setCenterpan(center);
 	}
 	zoomOut() {
-		const center: JPoint = this.centerPoint;
+		const center: Point = this.centerPoint;
 		this.setZoom(this.zoomValue - 1);
 		this.setCenterpan(center);
 	}
 	toTop() {
-		this.setCenterpan(new JPoint(
+		this.setCenterpan(new Point(
 			this.centerPoint.x,
 			this.centerPoint.y - this._panzoom.getYstep()
 		));
 	}
 	toBottom() {
-		this.setCenterpan(new JPoint(
+		this.setCenterpan(new Point(
 			this.centerPoint.x,
 			this.centerPoint.y + this._panzoom.getYstep()
 		));
 	}
 	toRight() {
-		this.setCenterpan(new JPoint(
+		this.setCenterpan(new Point(
 			this.centerPoint.x + this._panzoom.getXstep(),
 			this.centerPoint.y
 		));
 	}
 	toLeft() {
-		this.setCenterpan(new JPoint(
+		this.setCenterpan(new Point(
 			this.centerPoint.x - this._panzoom.getXstep(),
 			this.centerPoint.y
 		));
@@ -134,7 +134,7 @@ export default class DrawerMap {
 
 	private getPolygonContainer(): turf.Feature<turf.Polygon> {
 		return turf.polygon(
-			[this.getPointsBuffDrawLimits().map((p: JPoint) => p.toTurfPosition())]
+			[this.getPointsBuffDrawLimits().map((p: Point) => p.toTurfPosition())]
 		)
 	}
 
@@ -142,7 +142,7 @@ export default class DrawerMap {
 		const polContainer = this.getPolygonContainer();
 		cc.forEachCell((c: JCell) => {
 			if (!turf.booleanDisjoint(polContainer, c.toTurfPolygonSimple())) {
-				const points: JPoint[] = (this.zoomValue < 8) ? c.voronoiVertices : c.allVertices;
+				const points: Point[] = (this.zoomValue < 8) ? c.voronoiVertices : c.allVertices;
 				this.draw(points, func(c));
 			}
 		});
@@ -152,7 +152,7 @@ export default class DrawerMap {
 		const polContainer = this.getPolygonContainer();
 		vc.forEachEdge((edge: JEdge) => {
 			if (!turf.booleanDisjoint(polContainer, edge.toTurfLineString())) {
-				const points: JPoint[] = (this.zoomValue < 8) ? [edge.vertexA, edge.vertexB] : edge.points;
+				const points: Point[] = (this.zoomValue < 8) ? [edge.vertexA, edge.vertexB] : edge.points;
 				this.draw(points, { ...func(edge), fillColor: 'none' });
 			}
 		})
@@ -166,7 +166,7 @@ export default class DrawerMap {
 		const lineString: turf.Feature<turf.LineString> = turf.lineString(lsin);
 
 		if (!turf.booleanDisjoint(polContainer, lineString)) {
-			const points: JPoint[] = [];
+			const points: Point[] = [];
 			if (this.zoomValue < 8) {
 				vc.forEachVertex((v: JVertex) => points.push(v.point));
 			}
@@ -180,7 +180,7 @@ export default class DrawerMap {
 		for (let i = 0; i < cantMer; i++) {
 			const val = 180 / (cantMer - 1) * (i) - 90;
 			const dashPattern = (val === 0) ? [1, 0] : [5, 5]
-			this.draw([new JPoint(-200, val), new JPoint(200, val)], {
+			this.draw([new Point(-200, val), new Point(200, val)], {
 				fillColor: 'none',
 				dashPattern,
 				strokeColor: '#000000'
@@ -190,7 +190,7 @@ export default class DrawerMap {
 		for (let i = 0; i < cantPar; i++) {
 			const val = 360 / (cantPar - 1) * (i) - 180;
 			const dashPattern = (val === 0) ? [1] : [5, 5]
-			this.draw([new JPoint(val, -100), new JPoint(val, 100)], {
+			this.draw([new Point(val, -100), new Point(val, 100)], {
 				fillColor: 'none',
 				dashPattern,
 				strokeColor: '#000000'
@@ -217,7 +217,7 @@ export default class DrawerMap {
 
 	drawBackground(color?: string) {
 		color = color || chroma.scale('Spectral').domain([1, 0])(0.05).hex();
-		this.draw([new JPoint(-200, -100), new JPoint(-200, 100), new JPoint(200, 100), new JPoint(200, -100), new JPoint(-200, -100)], {
+		this.draw([new Point(-200, -100), new Point(-200, 100), new Point(200, 100), new Point(200, -100), new Point(-200, -100)], {
 			strokeColor: color,
 			fillColor: color
 		})
@@ -229,7 +229,7 @@ export default class DrawerMap {
 		return this._cnvs.getContext('2d');
 	}
 
-	draw(points: JPoint[], ent: IDrawEntry): void {
+	draw(points: Point[], ent: IDrawEntry): void {
 		// let len: number = points.length;
 
 		let context: CanvasRenderingContext2D = this.context;
@@ -240,7 +240,7 @@ export default class DrawerMap {
 		// const initialPoint: JPoint = this._panzoom.convertPointToDrawer(points[len - 1]);
 		// context.moveTo(initialPoint.x, initialPoint.y);
 		for (let point of points) {
-			const p: JPoint = this._panzoom.convertPointToDrawer(point);
+			const p: Point = this._panzoom.convertPointToDrawer(point);
 			// console.log(p)
 			context.lineTo(p.x, p.y);
 		}
@@ -269,20 +269,20 @@ export default class DrawerMap {
 	}
 
 	/**/
-	drawDot(p: JPoint, ent: IDrawEntry, w: number): void {
+	drawDot(p: Point, ent: IDrawEntry, w: number): void {
 
-		let list: JPoint[] = [];
+		let list: Point[] = [];
 
-		list.push(new JPoint(p.x - w / 2, p.y - w / 2));
-		list.push(new JPoint(p.x + w / 2, p.y - w / 2));
-		list.push(new JPoint(p.x + w / 2, p.y + w / 2));
-		list.push(new JPoint(p.x - w / 2, p.y + w / 2));
+		list.push(new Point(p.x - w / 2, p.y - w / 2));
+		list.push(new Point(p.x + w / 2, p.y - w / 2));
+		list.push(new Point(p.x + w / 2, p.y + w / 2));
+		list.push(new Point(p.x - w / 2, p.y + w / 2));
 
 		this.draw(list, ent);
 	}
 
 	/**/
-	clear(zoomValue: number = 0, center: JPoint = new JPoint(0, 0)) {
+	clear(zoomValue: number = 0, center: Point = new Point(0, 0)) {
 		this.setZoom(zoomValue);
 		this.setCenterpan(center);
 		this.context.clearRect(0, 0, this._cnvs.width, this._cnvs.height);

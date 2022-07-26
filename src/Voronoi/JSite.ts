@@ -1,5 +1,5 @@
 import {Site} from 'voronoijs';
-import JPoint from '../Geom/JPoint';
+import Point from '../Geom/Point';
 
 /*
 export interface IJSiteInfo {
@@ -11,17 +11,17 @@ export interface IJSiteInfo {
 export default class JSite {
 
 	private _id: number;
-	private _point: JPoint;
+	private _point: Point;
 
 	constructor(s: Site) {
 		this._id = s.id;
 		if (Math.abs(s.x) > 180 || Math.abs(s.y) > 90)
 			throw new Error(`El Site ${s.id} es invalido. {x: ${s.x}, y: ${s.y}}`);
-		this._point = new JPoint(s.x, s.y);
+		this._point = new Point(s.x, s.y);
 	}
 
 	get id(): number {return this._id}
-	get point(): JPoint {return this._point}
+	get point(): Point {return this._point}
 /*
 	getInterface(): IJSiteInfo {
 		return {

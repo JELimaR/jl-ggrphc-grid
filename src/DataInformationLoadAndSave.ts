@@ -1,7 +1,8 @@
 import fs from 'fs';
-import { IPoint } from './Geom/JPoint';
-import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
-import MapElement from './IMapElement';
+import { IPoint } from './Geom/Point';
+import { IGridPointInfo, GridPoint } from './Geom/Grid';
+import MapElement from './MapElement';
+import { GRAN } from './Geom/constants';
 
 // dividir esta clase
 export default class InformationFilesManager {
@@ -46,10 +47,10 @@ export default class InformationFilesManager {
 	/**
 	 * grid ppints
 	 */
-	loadGridPoints(gran: number, area: number | undefined): IJGridPointInfo[][] {
-		let out: IJGridPointInfo[][] = [];
+	loadGridPoints(area: number | undefined): IGridPointInfo[][] {
+		let out: IGridPointInfo[][] = [];
 		try {
-			let pathFile: string = `${this._dirPath}/${area ? area : ''}G${gran}_grid.json`;
+			let pathFile: string = `${this._dirPath}/${area ? area : ''}G${GRAN}_grid.json`;
 			out = JSON.parse(fs.readFileSync(pathFile).toString());
 		} catch (e) {
 
@@ -57,15 +58,15 @@ export default class InformationFilesManager {
 		return out;
 	}
 
-	saveGridPoints(gridPoints: JGridPoint[][], gran: number, area: number | undefined) {
-		const data: IJGridPointInfo[][] = gridPoints.map((col: JGridPoint[]) => {
-			return col.map((gp: JGridPoint) => gp.getInterface());
+	saveGridPoints(gridPoints: GridPoint[][], area: number | undefined) {
+		const data: IGridPointInfo[][] = gridPoints.map((col: GridPoint[]) => {
+			return col.map((gp: GridPoint) => gp.getInterface());
 		})
 		fs.mkdirSync(`${this._dirPath}`, { recursive: true });
-		let pathName: string = `${this._dirPath}/${area ? area : ''}G${gran}_grid.json`;
+		let pathName: string = `${this._dirPath}/${area ? area : ''}G${GRAN}_grid.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
-	
+
 	/**
 	 * MapElement data
 	 */
@@ -98,12 +99,12 @@ export default class InformationFilesManager {
 	/**
 	 * gird information
 	 */
-	loadGridData<I>(gran: number, TYPE: TypeGridInformation): I[][] {
+	loadGridData<I>(TYPE: TypeInformationKey): I[][] {
 		let out: I[][] = [];
-		const subFolder: string = 'GridInfo';
-		const file: string = TYPE;
+		const subFolder: string = DATA_INFORMATION[TYPE].subFolder.join('/');
+		const file: string = DATA_INFORMATION[TYPE].file;
 		try {
-			let pathName: string = `${this._dirPath}/${subFolder}/G${gran}${file}.json`;
+			let pathName: string = `${this._dirPath}/${subFolder}/G${GRAN}${file}.json`;
 			out = JSON.parse(fs.readFileSync(pathName).toString());
 		} catch (e) {
 
@@ -111,29 +112,28 @@ export default class InformationFilesManager {
 		return out;
 	}
 
-	saveGridData<I>(data: I[][], gran: number, TYPE: TypeGridInformation): void {
-		const subFolder: string = 'GridInfo';
-		const file: string = TYPE;
+	saveGridData<I>(data: I[][], TYPE: TypeInformationKey): void {
+		const subFolder: string = DATA_INFORMATION[TYPE].subFolder.join('/');
+		const file: string = DATA_INFORMATION[TYPE].file;
 		fs.mkdirSync(`${this._dirPath}/${subFolder}`, { recursive: true });
-		let pathName: string = `${this._dirPath}/${subFolder}/G${gran}${file}.json`;
+		let pathName: string = `${this._dirPath}/${subFolder}/G${GRAN}${file}.json`;
 		fs.writeFileSync(pathName, JSON.stringify(data));
 	}
 }
-
-export type TypeGridInformation = 'temperature' | 'precip' | 'pressure';
 
 export interface ISaveInformation {
 	subFolder: string[];
 	file: string;
 }
-export type TypeInformationKey = 
-	| 'islands' | 'rivers' | 'fluxRoutes'
-	| 'cellHeight' | 'cellClimate'
-	| 'vertexHeight' | 'vertexFlux';
+export type TypeInformationKey =
+	| 'islands' | 'rivers' | 'fluxRoutes' // Container
+	| 'cellHeight' | 'cellClimate' // cell info
+	| 'vertexHeight' | 'vertexFlux' // vertex info
+	| 'temperature' | 'precip' | 'pressure';; // grid info
 
-export type TypeInformation = { [key in TypeInformationKey]: ISaveInformation } // sirve para crear una constante con todo
+export type TypeInformationObject = { [key in TypeInformationKey]: ISaveInformation } // sirve para crear una constante con todo
 
-export const DATA_INFORMATION: TypeInformation = {
+export const DATA_INFORMATION: TypeInformationObject = {
 	cellHeight: {
 		file: 'height',
 		subFolder: ['CellsInfo'],
@@ -162,5 +162,17 @@ export const DATA_INFORMATION: TypeInformation = {
 		file: 'fluxRoutesInfo',
 		subFolder: ['RiverAndFlux']
 	},
+	temperature: {
+		file: 'temperature',
+		subFolder: ['GridInfo'],
+	},
+	pressure: {
+		file: 'pressure',
+		subFolder: ['GridInfo'],
+	},
+	precip: {
+		file: 'precip',
+		subFolder: ['GridInfo'],
+	}
 }
 

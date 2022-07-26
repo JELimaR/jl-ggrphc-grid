@@ -1,5 +1,5 @@
-import JGrid, { JGridPoint } from "../Geom/JGrid";
-import JPoint from "../Geom/JPoint";
+import Grid, { GridPoint } from "../Geom/Grid";
+import Point from "../Geom/Point";
 import { calcFieldInPoint } from './PressureFieldFunctions';
 
 import InformationFilesManager from '../DataInformationLoadAndSave';
@@ -10,7 +10,7 @@ const dataInfoManager = InformationFilesManager.instance;
 
 export interface IPressureZone {
 	mag: number;
-	point: JPoint;
+	point: Point;
 }
 
 export interface IPressureDataGrid {
@@ -19,13 +19,13 @@ export interface IPressureDataGrid {
 }
 
 export class PressureData {
-	private _vecs: JPoint[];
+	private _vecs: Point[];
 	private _pots: number[];
 
 	constructor(id: IPressureDataGrid) {
 		if (id.vecs.length !== 12) throw new Error('cantidad debe ser 12')
 		if (id.pots.length !== 12) throw new Error('cantidad debe ser 12')
-		this._vecs = id.vecs.map((v: { x: number, y: number }) => new JPoint(v.x, v.y));
+		this._vecs = id.vecs.map((v: { x: number, y: number }) => new Point(v.x, v.y));
 		this._pots = [...id.pots];
 	}
 
@@ -33,20 +33,20 @@ export class PressureData {
 	get pots() { return this._pots }
 	getInterface(): IPressureDataGrid {
 		return {
-			vecs: this.vecs.map((vec: JPoint) => { return { x: vec.x, y: vec.y } }),
+			vecs: this.vecs.map((vec: Point) => { return { x: vec.x, y: vec.y } }),
 			pots: this._pots
 		}
 	}
 }
 
 export default class JPressureGrid {
-	private _grid: JGrid;
+	private _grid: Grid;
 	private _pressureData: PressureData[][] = [];
 	private _pressureCenters: Map<number, IPressureZone[]> = new Map<number, IPressureZone[]>();
 	private _pressureCentersLocationGrid: Map<number, number[][]> = new Map<number, number[][]>();
 	private _mmmData: Map<number, { med: number, max: number, min: number }> = new Map<number, { med: number, max: number, min: number }>();
 
-	constructor(grid: JGrid, tempGrid: TempGrid) {
+	constructor(grid: Grid, tempGrid: TempGrid) {
 		this._grid = grid;
 		// this._tempGrid = tempGrid;
 		console.time('set pressures centers');
@@ -63,11 +63,11 @@ export default class JPressureGrid {
 		console.log('calculate and setting pressures values')
 		console.time('set pressures info');
 		let out: PressureData[][] = [];
-		let info: IPressureDataGrid[][] = dataInfoManager.loadGridData<IPressureDataGrid>(GRAN, 'pressure');
+		let info: IPressureDataGrid[][] = dataInfoManager.loadGridData<IPressureDataGrid>('pressure');
 		if (info.length == 0) {
-			this._grid.points.forEach((col: JGridPoint[], colIdx: number) => {
+			this._grid.points.forEach((col: GridPoint[], colIdx: number) => {
 				let dataCol: IPressureDataGrid[] = [];
-				col.forEach((gp: JGridPoint) => {
+				col.forEach((gp: GridPoint) => {
 					let vecData: { x: number, y: number }[] = [];
 					let potData: number[] = [];
 					this._pressureCenters.forEach((pcs: IPressureZone[], m: number) => {
@@ -96,14 +96,14 @@ export default class JPressureGrid {
 					})
 				})
 				med = med / (this._grid.colsNumber * this._grid.rowsNumber);
-				this._grid.points.forEach((col: JGridPoint[], cidx: number) => {
-					col.forEach((_gp: JGridPoint, ridx: number) => {
+				this._grid.points.forEach((col: GridPoint[], cidx: number) => {
+					col.forEach((_gp: GridPoint, ridx: number) => {
 						info[cidx][ridx].pots[m - 1] -= med;
 					})
 				})
 			})
 
-			// dataInfoManager.saveGridData<IPressureDataGrid>(info, GRAN, 'pressure');
+			// dataInfoManager.saveGridData<IPressureDataGrid>(info, 'pressure');
 		}
 
 		info.forEach((col: IPressureDataGrid[], _c: number) => {
@@ -120,12 +120,12 @@ export default class JPressureGrid {
 	
 	smoothData(info: IPressureDataGrid[][]): IPressureDataGrid[][] {
 		let out: IPressureDataGrid[][] = [];
-		this._grid.points.forEach((col: JGridPoint[], colIdx: number) => {
+		this._grid.points.forEach((col: GridPoint[], colIdx: number) => {
 
 			let dataCol: IPressureDataGrid[] = [];
-			col.forEach((gp: JGridPoint, rowIdx: number) => {
+			col.forEach((gp: GridPoint, rowIdx: number) => {
 				let potValArr: number[] = [...info[colIdx][rowIdx].pots], cant: number = 1;
-				this._grid.getGridPointsInWindowGrade(gp.point, 5).forEach((wp: JGridPoint) => {
+				this._grid.getGridPointsInWindowGrade(gp.point, 5).forEach((wp: GridPoint) => {
 					const indexes = this._grid.getGridPointIndexes(wp.point);
 					cant++;
 					info[indexes.c][indexes.r].pots.forEach((p: number, i: number) => potValArr[i] += p)
@@ -141,7 +141,7 @@ export default class JPressureGrid {
 		return out;
 	}
 	
-	getPointInfo(p: JPoint): PressureData {
+	getPointInfo(p: Point): PressureData {
 		const indexes = this._grid.getGridPointIndexes(p);
 		return this._pressureData[indexes.c][indexes.r];
 	}
@@ -166,7 +166,7 @@ export default class JPressureGrid {
 		}
 	}
 
-	isCloseLowPressure(point: JPoint, month: number): boolean {
+	isCloseLowPressure(point: Point, month: number): boolean {
 		let out: boolean = false;
 		const gp = this._grid.getGridPoint(point);
 
@@ -174,14 +174,14 @@ export default class JPressureGrid {
 		return locations[gp.colValue][gp.rowValue] === -1;
 	}
 
-	getPointsSorted(month: number): JGridPoint[] {
-		let out: JGridPoint[];
-		let list: { p: JGridPoint, v: number }[] = []
-		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+	getPointsSorted(month: number): GridPoint[] {
+		let out: GridPoint[];
+		let list: { p: GridPoint, v: number }[] = []
+		this._grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
 			list.push({ p: gp, v: this._pressureData[cidx][ridx].pots[month - 1] });
 		})
-		list = list.sort((a: { p: JGridPoint, v: number }, b: { p: JGridPoint, v: number }) => a.v - b.v);
-		out = list.map((elem: { p: JGridPoint, v: number }) => elem.p);
+		list = list.sort((a: { p: GridPoint, v: number }, b: { p: GridPoint, v: number }) => a.v - b.v);
+		out = list.map((elem: { p: GridPoint, v: number }) => elem.p);
 		return out;
 	}
 }

@@ -1,5 +1,5 @@
 
-import JPoint from '../Geom/JPoint';
+import Point from '../Geom/Point';
 import JEdge from './JEdge';
 import JSite from './JSite';
 
@@ -16,18 +16,18 @@ export default class JHalfEdge {
 		this._edge = edge;
 	}
 
-	get initialPoint(): JPoint {
+	get initialPoint(): Point {
 
 		return this._edge.lSite === this._site ? this._edge.vertexA : this._edge.vertexB;
 	}
-	get finalPoint(): JPoint {
+	get finalPoint(): Point {
 
 		return this._edge.lSite === this._site ? this._edge.vertexB : this._edge.vertexA;
 	}
 
-	get points(): JPoint[] {
-		let out: JPoint[] = this._edge.points;
-		if (!JPoint.equal(out[0], this.initialPoint)) {
+	get points(): Point[] {
+		let out: Point[] = this._edge.points;
+		if (!Point.equal(out[0], this.initialPoint)) {
 			out.reverse();
 		}
 		return out;

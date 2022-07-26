@@ -1,7 +1,7 @@
-import JGrid, { JGridPoint } from '../Geom/JGrid';
+import Grid, { GridPoint } from '../Geom/Grid';
 import JPressureGrid from './PressureGrid';
 import InformationFilesManager from '../DataInformationLoadAndSave';
-import JPoint from '../Geom/JPoint';
+import Point from '../Geom/Point';
 import WindSimulate, { IPrecipDataGenerated } from './WindSimulator';
 import TempGrid from './TempGrid';
 import { GRAN } from '../Geom/constants';
@@ -13,10 +13,10 @@ export interface IPrecipData {
 }
 
 export default class PrecipGrid {
-	private _grid: JGrid;
+	private _grid: Grid;
 	private _precipData: IPrecipData[][] = []; // borrar asignacion
 
-	constructor(grid: JGrid, pressGrid: JPressureGrid, tempGrid: TempGrid) {
+	constructor(grid: Grid, pressGrid: JPressureGrid, tempGrid: TempGrid) {
 		this._grid = grid;
 		console.log('calculate and setting precip info')
 		console.time('set precip info')
@@ -26,7 +26,7 @@ export default class PrecipGrid {
 
 	private getPrecipData(pressGrid: JPressureGrid, tempGrid: TempGrid): IPrecipData[][] {
 		// let out: IPrecipData[][] = dataInfoManager.loadGridPrecip(this._grid._granularity);
-		let out: IPrecipData[][] = dataInfoManager.loadGridData<IPrecipData>(GRAN, 'precip');
+		let out: IPrecipData[][] = dataInfoManager.loadGridData<IPrecipData>('precip');
 		if (out.length == 0) {
 			out = [];
 			const jws: WindSimulate = new WindSimulate(this._grid, pressGrid, tempGrid);
@@ -35,7 +35,7 @@ export default class PrecipGrid {
 			ws.precip.forEach((generated: IPrecipDataGenerated[][], month: number) => {
 				generated = this.smoothDeltaTemp(generated);
 				generated = this.smoothDeltaTemp(generated);
-				this._grid.forEachPoint((_gp: JGridPoint, cidx: number, ridx: number) => {
+				this._grid.forEachPoint((_gp: GridPoint, cidx: number, ridx: number) => {
 					if (!out[cidx]) out[cidx] = [];
 					if (!out[cidx][ridx]) out[cidx][ridx] = { precip: [], deltaTemps: []/*, routes: []*/ };
 					const gen = generated[cidx][ridx];
@@ -49,18 +49,18 @@ export default class PrecipGrid {
 			out = this.smoothData(out);
 
 			let precipMax: number = 0;
-			this._grid.forEachPoint((_: JGridPoint, cidx: number, ridx: number) => {
+			this._grid.forEachPoint((_: GridPoint, cidx: number, ridx: number) => {
 				const gmax = Math.max(...out[cidx][ridx].precip);
 				if (precipMax < gmax) precipMax = gmax;
 			})
 
-			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+			this._grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
 				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => {
 					return ((r / 100) ** 1.6) * 3344.1 * (0.4 + 0.6 * Math.cos(gp.point.y * Math.PI / 180))
 				})
 			})
 
-			// dataInfoManager.saveGridData<IPrecipData>(out, GRAN, 'precip');
+			// dataInfoManager.saveGridData<IPrecipData>(out, 'precip');
 		}
 
 		return out;
@@ -69,14 +69,14 @@ export default class PrecipGrid {
 	private smoothData(din: IPrecipData[][]) {
 		let dout: IPrecipData[][] = [];
 
-		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+		this._grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
 			if (!dout[cidx]) dout[cidx] = [];
 			let precipArr: number[] = [
 				0, 0, 0, 0,
 				0, 0, 0, 0,
 				0, 0, 0, 0];
-			const neigs: JGridPoint[] = this._grid.getGridPointsInWindowGrade(gp.point, 5)
-			neigs.forEach((gpw: JGridPoint) => {
+			const neigs: GridPoint[] = this._grid.getGridPointsInWindowGrade(gp.point, 5)
+			neigs.forEach((gpw: GridPoint) => {
 				precipArr.forEach((_v: number, mi: number) => {
 					precipArr[mi] += din[gpw.colValue][gpw.rowValue].precip[mi];
 				})
@@ -93,17 +93,17 @@ export default class PrecipGrid {
 
 	private smoothDeltaTemp(dtin: IPrecipDataGenerated[][]): IPrecipDataGenerated[][] {
 		let dtout: IPrecipDataGenerated[][] = [];
-		this._grid.forEachPoint((_gp: JGridPoint, cidx: number, ridx: number) => {
+		this._grid.forEachPoint((_gp: GridPoint, cidx: number, ridx: number) => {
 			dtin[cidx][ridx].deltaTempValue = (dtin[cidx][ridx].deltaTempCant != 0)
 				? dtin[cidx][ridx].deltaTempValue / dtin[cidx][ridx].deltaTempCant
 				: 0;
 		})
 
-		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
+		this._grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
 			if (!dtout[cidx]) dtout[cidx] = [];
-			const neigs: JGridPoint[] = this._grid.getGridPointsInWindowGrade(gp.point, 5);
+			const neigs: GridPoint[] = this._grid.getGridPointsInWindowGrade(gp.point, 5);
 			let sum: number = 0;
-			neigs.forEach((gpw: JGridPoint) => {
+			neigs.forEach((gpw: GridPoint) => {
 				sum += dtin[gpw.colValue][gpw.rowValue].deltaTempValue;
 			})
 			dtout[cidx][ridx] = {
@@ -116,7 +116,7 @@ export default class PrecipGrid {
 		return dtout;
 	}
 
-	getPointInfo(p: JPoint): IPrecipData {
+	getPointInfo(p: Point): IPrecipData {
 		const indexes = this._grid.getGridPointIndexes(p);
 		return this._precipData[indexes.c][indexes.r];
 	}

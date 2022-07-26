@@ -1,25 +1,16 @@
 
 import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions';
 import * as JEdgeToDrawEntryFunctions from '../Drawer/JEdgeToDrawEntryFunctions';
-import DrawerMap, { IDrawEntry } from '../Drawer/DrawerMap'
 
-import JPoint, { IPoint } from '../Geom/JPoint';
-import JGrid, { JGridPoint } from '../Geom/JGrid';
+import Point, { IPoint } from '../Geom/Point';
 import NaturalWorld from '../NaturalWorld';
 
-
-import statesPointsLists from '../divisions/countries/statesPointsLists';
-import JCell from '../Voronoi/JCell';
 import JVertex from '../Voronoi/JVertex';
 import chroma from 'chroma-js';
 
 import RiverMap, { } from '../River/RiverMap';
 import FluxRouteMap from '../River/FluxRouteMap';
 import Shower from './Shower';
-import { switchCase } from '@babel/types';
-
-let colorScale: chroma.Scale;
-// let color: string;
 
 type TBackground = 'h' | 'l';
 
@@ -30,7 +21,7 @@ export default class ShowWater extends Shower {
 		super(world, area, folderSelected, 'river');
 	}
 
-	drawRivers(background: TBackground, zoom: number = 0, center?: JPoint) {
+	drawRivers(background: TBackground, zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 
 		// fondo
@@ -44,7 +35,7 @@ export default class ShowWater extends Shower {
 		this.d.saveDrawFile(`${this.a}rivers.png`)
 	}
 
-	drawWaterRoutes(color: string | 'random', background: TBackground, zoom: number = 0, center?: JPoint) {
+	drawWaterRoutes(color: string | 'random', background: TBackground, zoom: number = 0, center?: Point) {
 		this.d.clear(zoom, center);
 		// fondo
 		this.drawFondo(background);
@@ -52,7 +43,7 @@ export default class ShowWater extends Shower {
 		// water routes
 		this.w.fluxRoutes.forEach((fluxRoute: FluxRouteMap) => {
 			color = (color == 'random') ? chroma.random().hex() : color;
-			const points: JPoint[] = fluxRoute.vertices.map((vertex: JVertex) => vertex.point)
+			const points: Point[] = fluxRoute.vertices.map((vertex: JVertex) => vertex.point)
 			this.d.draw(points, {
 				fillColor: 'none',
 				strokeColor: color,

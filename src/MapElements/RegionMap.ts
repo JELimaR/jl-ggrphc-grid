@@ -1,5 +1,5 @@
 import JCell from '../Voronoi/JCell';
-import JPoint from '../Geom/JPoint';
+import Point from '../Geom/Point';
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 import { DivisionMaker } from '../divisions/DivisionMaker';
 import statesPointsLists from '../divisions/countries/statesPointsLists';
@@ -9,7 +9,7 @@ import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
 import LineMap from './LineMap';
 import { IDiagramContainer, ICellContainer } from '../containerInterfaces';
-import MapElement from '../IMapElement';
+import MapElement from '../MapElement';
 
 export interface IRegionMapInfo {
 	cells: number[];
@@ -72,7 +72,7 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 
 		const verticesLimits: Map<string,JVertex> = new Map<string,JVertex>(); // map para evitar agregar el mismo vertex
 		this.getLimitCells().forEach((cell: JCell) => {
-			const cellVertices = cell.voronoiVertices.map((p: JPoint) => this.diagram.vertices.get(p.id)!);
+			const cellVertices = cell.voronoiVertices.map((p: Point) => this.diagram.vertices.get(p.id)!);
 			cellVertices.forEach((v: JVertex) => {
 				this.diagram.getCellsAssociated(v).forEach((aso: JCell) => {
 					if (!this.isInRegion(aso)) verticesLimits.set(v.id, v);
@@ -92,7 +92,7 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 
 	// draw functions
 	// buscar max x y min x en vez de 2.05
-	getDrawerParameters(): {center: JPoint, XMAXDIS: number, YMAXDIS: number} {
+	getDrawerParameters(): {center: Point, XMAXDIS: number, YMAXDIS: number} {
 		let XMIN = 180, YMIN = 90;
 		let XMAX = -180, YMAX = -90;
 		this.getLimitCells().forEach((cell: JCell) => {
@@ -102,7 +102,7 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 			if (cell.center.y > YMAX) YMAX = cell.center.y;
 		})
 		return {
-			center: new JPoint((XMAX-XMIN)/2 + XMIN, (YMAX-YMIN)/2+YMIN),
+			center: new Point((XMAX-XMIN)/2 + XMIN, (YMAX-YMIN)/2+YMIN),
 			XMAXDIS: (XMAX-XMIN)+0.3,
 			YMAXDIS: (YMAX-YMIN)+0.3
 		}
@@ -193,20 +193,20 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 		})
 	}
 
-	divideInSubregions(plist: JPoint[][], landOnly: boolean = false): RegionMap[] {
+	divideInSubregions(plist: Point[][], landOnly: boolean = false): RegionMap[] {
 		if (plist.length === 0) {
 			throw new Error('plist most have points arrays')
 		}
 		let subs: RegionMap[] = [];
 		let used: Map<number, number> = new Map<number,number>(); // cambiar
 		const randFunc = RandomNumberGenerator.makeRandomFloat(plist.length);
-		plist.forEach((points: JPoint[]) => {
+		plist.forEach((points: Point[]) => {
 			if (points.length === 0) {
 				throw new Error('points most have points')
 			}
 			let newSR: RegionMap = new RegionMap(this.diagram);
 			subs.push(newSR);
-			points.forEach((p: JPoint) => {
+			points.forEach((p: Point) => {
 				const centerCell: JCell = this.diagram.getCellFromPoint(p);
 				if (landOnly && !centerCell.info.isLand) throw Error(`la celda es agua\nx: ${p.x};y: ${p.y}`)
 				if (landOnly && !this.isInRegion(centerCell)) throw new Error(`la celda ${centerCell} no esta en la region\nx: ${p.x};y: ${p.y}`)
@@ -282,7 +282,7 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 	minDistanceToCell(cell: JCell): number {
 		let out: number = Infinity;
 		this.getLimitCells().forEach((clim: JCell) => {
-			const dist = JPoint.geogDistance(clim.center, cell.center);
+			const dist = Point.geogDistance(clim.center, cell.center);
 			if (dist < out) out = dist;
 		})
 		return out;
@@ -293,7 +293,7 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 		let out: number = Infinity;
 		reg1.getLimitCells().forEach((c1: JCell) => {
 			reg2.getLimitCells().forEach((c2: JCell) => {
-				const dist = JPoint.geogDistance(c1.center, c2.center);
+				const dist = Point.geogDistance(c1.center, c2.center);
 				if (dist < out) out = dist;
 			})
 		})

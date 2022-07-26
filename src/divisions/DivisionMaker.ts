@@ -1,12 +1,3 @@
-import DrawerMap from "../Drawer/DrawerMap";
-import JPoint from "../Geom/JPoint";
-import JWorldMap, {  } from "../JWorldMap";
-import JCell from "../Voronoi/JCell";
-import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions'
-import RegionMap from "../MapElements/RegionMap";
-import chroma from "chroma-js";
-import { createICellContainer } from "../utilFunctions";
-
 
 export class DivisionMaker {
 	/*

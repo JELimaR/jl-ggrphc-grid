@@ -1,9 +1,6 @@
 import JDiagram from "../Voronoi/JDiagram";
 import InformationFilesManager from '../DataInformationLoadAndSave';
-import JCell from "../Voronoi/JCell";
 import JCellClimate from '../CellInformation/JCellClimate'
-
-import JPoint from "../Geom/JPoint";
 import JVertex from "../Voronoi/JVertex";
 import RiverMap, { IRiverMapInfo } from "./RiverMap";
 import JVertexFlux, { IJVertexFluxInfo } from "../VertexInformation/JVertexFlux";

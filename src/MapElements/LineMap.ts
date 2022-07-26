@@ -1,9 +1,10 @@
-import JPoint from '../Geom/JPoint';
+import Point from '../Geom/Point';
 
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
 import { IDiagramContainer, IEdgeContainer, IVertexContainer } from '../containerInterfaces';
+import MapElement from '../MapElement';
 
 
 export interface ILineMapInfo {
@@ -11,11 +12,11 @@ export interface ILineMapInfo {
 	length: number;
 }
 
-export default class LineMap implements IDiagramContainer, IVertexContainer, IEdgeContainer {
+export default class LineMap extends MapElement<ILineMapInfo> implements IDiagramContainer, IVertexContainer, IEdgeContainer {
 
 	private _diagram: JDiagram;
 	private _vertices: JVertex[];
-	private _allVertices: JPoint[] = [];
+	private _allVertices: Point[] = [];
 
 	private _length: number;
 	private _isClosed: boolean = false;
@@ -23,6 +24,7 @@ export default class LineMap implements IDiagramContainer, IVertexContainer, IEd
 	// constructor(diagram: JDiagram);
 	// constructor(diagram: JDiagram, info: ILineMapInfo);
 	constructor(diagram: JDiagram, info?: ILineMapInfo) {
+		super()
 		this._diagram = diagram;;
 		if (info) {
 			this._vertices = info.vertices.map((vid: string) => this.diagram.vertices.get(vid) as JVertex); // ojo, podría no estar ordenado.
@@ -136,7 +138,7 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		// if (this.ini.id === this.fin.id) this._isClosed = true;
 	}
 
-	getDrawerParameters(): { center: JPoint, XMAXDIS: number, YMAXDIS: number } {
+	getDrawerParameters(): { center: Point, XMAXDIS: number, YMAXDIS: number } {
 		let XMIN = 180, YMIN = 90;
 		let XMAX = -180, YMAX = -90;
 
@@ -148,7 +150,7 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		})
 
 		return {
-			center: new JPoint((XMAX - XMIN) / 2 + XMIN, (YMAX - YMIN) / 2 + YMIN),
+			center: new Point((XMAX - XMIN) / 2 + XMIN, (YMAX - YMIN) / 2 + YMIN),
 			XMAXDIS: (XMAX - XMIN) + 0.3,
 			YMAXDIS: (YMAX - YMIN) + 0.3
 		}

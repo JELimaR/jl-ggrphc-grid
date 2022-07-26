@@ -1,4 +1,4 @@
-import JPoint from "../Geom/JPoint";
+import Point from "../Geom/Point";
 
 export interface IPanzoom {
 	
@@ -12,9 +12,9 @@ export default class Panzoom {
 	private _zoom: number;
 	private _centerX: number;
 	private _centerY: number;
-	private _elementSize: JPoint;
+	private _elementSize: Point;
 
-	constructor(size: JPoint) {
+	constructor(size: Point) {
 		this._elementSize = size;
 		this._zoom = Math.pow(1.25, 0);
 		this._centerX = this._elementSize.x / 2;
@@ -61,47 +61,47 @@ export default class Panzoom {
 		if (this._centerY < minCenterY) this._centerY = minCenterY;
 	}
 	// convertGeoJPointToDrawerJPoint
-	convertPointToDrawer(p: JPoint): JPoint {
-		return new JPoint(
+	convertPointToDrawer(p: Point): Point {
+		return new Point(
 			p.x * this.scale + this._centerX,
 			p.y * this.scale + this._centerY
 		);
 	}
 	// convertDrawerJPointToGeoJPoint
-	convertDrawerToPoint(p: JPoint): JPoint {
-		return new JPoint(
+	convertDrawerToPoint(p: Point): Point {
+		return new Point(
 			(p.x - this._centerX) / this.scale,
 			(p.y - this._centerY) / this.scale,
 		);
 	}
 
-	get pointsBuffDrawLimits(): JPoint[] {
-		const a = this.convertDrawerToPoint(new JPoint(0, 0));
-		const b = this.convertDrawerToPoint(new JPoint(0, this._elementSize.y));
-		const c = this.convertDrawerToPoint(new JPoint(this._elementSize.x, this._elementSize.y));
-		const d = this.convertDrawerToPoint(new JPoint(this._elementSize.x, 0));
+	get pointsBuffDrawLimits(): Point[] {
+		const a = this.convertDrawerToPoint(new Point(0, 0));
+		const b = this.convertDrawerToPoint(new Point(0, this._elementSize.y));
+		const c = this.convertDrawerToPoint(new Point(this._elementSize.x, this._elementSize.y));
+		const d = this.convertDrawerToPoint(new Point(this._elementSize.x, 0));
 		return [a, b, c, d, a]
 	}
 
-	get pointsBuffCenterLimits(): JPoint[] {
+	get pointsBuffCenterLimits(): Point[] {
 		let minCenterX = this._elementSize.x / 2 * (1 - (this._zoom - 1) * (+1));
 		let maxCenterX = this._elementSize.x / 2 * (1 - (this._zoom - 1) * (-1));
 		let minCenterY = this._elementSize.y / 2 * (1 - (this._zoom - 1) * (+1));
 		let maxCenterY = this._elementSize.y / 2 * (1 - (this._zoom - 1) * (-1));
 		// drawer to point asuming center in size/2
-		const a = new JPoint(
+		const a = new Point(
 			(minCenterX - this._elementSize.x / 2) / this.scale,
 			(minCenterY - this._elementSize.y / 2) / this.scale
 		);
-		const b = new JPoint(
+		const b = new Point(
 			(minCenterX - this._elementSize.x / 2) / this.scale,
 			(maxCenterY - this._elementSize.y / 2) / this.scale
 		);
-		const c = new JPoint(
+		const c = new Point(
 			(maxCenterX - this._elementSize.x / 2) / this.scale,
 			(maxCenterY - this._elementSize.y / 2) / this.scale
 		);
-		const d = new JPoint(
+		const d = new Point(
 			(maxCenterX - this._elementSize.x / 2) / this.scale,
 			(minCenterY - this._elementSize.y / 2) / this.scale
 		);

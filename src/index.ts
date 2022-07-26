@@ -7,10 +7,9 @@ import * as JCellToDrawEntryFunctions from './Drawer/JCellToDrawEntryFunctions';
 import * as JEdgeToDrawEntryFunctions from './Drawer/JEdgeToDrawEntryFunctions';
 import DrawerMap, { IDrawEntry } from './Drawer/DrawerMap'
 
-import JPoint from './Geom/JPoint';
+import Point from './Geom/Point';
 import NaturalWorld from './NaturalWorld';
 import { DivisionMaker } from './divisions/DivisionMaker';
-
 
 import statesPointsLists from './divisions/countries/statesPointsLists';
 import RegionMap, { } from './MapElements/RegionMap';
@@ -36,7 +35,7 @@ import DrainageBasinMap from './River/DrainageBasinMap';
 import config from './config';
 
 const tam: number = 3600;
-let SIZE: JPoint = new JPoint(tam, tam / 2);
+let SIZE: Point = new Point(tam, tam / 2);
 
 const azgaarFolder: string[] = [
 	'Latiyia30', // 0
@@ -67,7 +66,7 @@ let color: string;
 
 let dm: DrawerMap = new DrawerMap(SIZE, ``); // borrar, se usa el de stest
 dm.setZoom(0);
-dm.setCenterpan(new JPoint(0, 0));
+dm.setCenterpan(new Point(0, 0));
 // navigate
 console.log('zoom: ', dm.zoomValue)
 console.log('center: ', dm.centerPoint)
@@ -99,7 +98,7 @@ const stest = showerManager.st;
  * height map
  */
 sh.drawHeight();
-sh.drawIslands();
+// sh.drawIslands();
 // sh.printMaxAndMinCellsHeight();
 
 /**
@@ -108,7 +107,7 @@ sh.drawIslands();
 // for (let month of monthArrObj[monthCant]) {	sc.drawTempMonth(month); }
 // sc.drawTempMedia()
 // for (let month of monthArrObj[monthCant]) {	sc.drawPrecipMonth(month); }
-// sc.drawPrecipMedia()
+sc.drawPrecipMedia()
 
 sc.drawKoppen();
 sc.printKoppenData();
@@ -118,7 +117,7 @@ sc.printKoppenData();
  */
 // sc.drawAltitudinalBelts();
 // sc.drawHumidityProvinces();
-sc.drawLifeZones();
+// sc.drawLifeZones();
 // sc.printLifeZonesData();
 
 /**

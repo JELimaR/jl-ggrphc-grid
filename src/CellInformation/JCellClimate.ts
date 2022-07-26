@@ -113,7 +113,8 @@ export default class JCellClimate extends JCellGeneric {
 	 */
 	koppenType(): TKoppenType | 'O' {
 		if (!this.cell.info.isLand) return 'O';
-		if (this.annualPrecip < 1.0 * this.pumbral) return 'B'; //if (this.annualPrecip < 1.2 * this.pumbral) return 'B';
+		// if (this.tmax < 10) return 'E'; // este no es el primero
+		else if (this.annualPrecip < 1.0 * this.pumbral) return 'B'; //if (this.annualPrecip < 1.2 * this.pumbral) return 'B';
 		else if (this.tmin > 18) return 'A';
 		else if (this.tmax >= 10 && this.tmin > 0) return 'C'
 		else if (this.tmax < 10) return 'E';
