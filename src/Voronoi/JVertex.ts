@@ -1,8 +1,6 @@
 import JPoint from '../Geom/JPoint';
 import JVertexInformation from '../VertexInformation/JVertexInformation';
-import JCell from "./JCell";
 import JEdge from "./JEdge";
-import JSite from './JSite';
 
 export default class JVertex {
 	_point: JPoint;

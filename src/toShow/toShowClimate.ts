@@ -9,8 +9,8 @@ import JPoint from "../Geom/JPoint";
 
 export default class ShowClimate extends Shower {
 
-	constructor(world: NaturalWorld, area: number, gran: number, folderSelected: string) {
-		super(world, area, gran, folderSelected, 'climate');
+	constructor(world: NaturalWorld, area: number, folderSelected: string) {
+		super(world, area, folderSelected, 'climate');
 	}
 
 	drawKoppen(zoom: number = 0, center?: JPoint) {

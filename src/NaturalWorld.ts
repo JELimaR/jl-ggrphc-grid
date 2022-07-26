@@ -21,9 +21,9 @@ export default class NaturalWorld {
 	private _fluxRoutes: Map<number, FluxRouteMap> = new Map<number, FluxRouteMap>();
 	private _rivers: Map<number, RiverMap> = new Map<number, RiverMap>();
 
-	constructor(AREA: number, GRAN: number) {
+	constructor(AREA: number) {
 
-		const gnw = this.generateNaturalWorld(GRAN, AREA);
+		const gnw = this.generateNaturalWorld(AREA);
 		this._diagram = gnw.d;
 		// this._heightMap = gnw.h;
 		// this._fluxRoutes = gnw.iro.fluxRoutes;
@@ -57,7 +57,7 @@ export default class NaturalWorld {
 	}
 	/**/
 
-	private generateNaturalWorld(GRAN: number, AREA: number): {
+	private generateNaturalWorld(AREA: number): {
 		d: JDiagram,
 		// h: HeightMapGenerator,
 
@@ -67,7 +67,7 @@ export default class NaturalWorld {
 	} {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
-		const iniGrid: JGrid = this.createGrid(iniDiagram, GRAN)
+		const iniGrid: JGrid = this.createGrid(iniDiagram)
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		this.generateHeightMap(diagram, iniDiagram);
 		this.generateClimateMap(diagram, iniGrid);
@@ -101,10 +101,10 @@ export default class NaturalWorld {
 		console.timeEnd('second voronoi');
 		return diagram;
 	}
-	private createGrid(diagram: JDiagram, GRAN: number): JGrid {
+	private createGrid(diagram: JDiagram): JGrid {
 		console.log('-----init grid------');
 		console.time('grid');
-		const grid: JGrid = new JGrid(GRAN, diagram);
+		const grid: JGrid = new JGrid(diagram);
 		console.timeEnd('grid');
 		return grid;
 	}

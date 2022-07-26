@@ -1,8 +1,6 @@
 import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import JPoint from "../Geom/JPoint";
 import LineMap, { ILineMapInfo } from "../MapElements/LineMap";
 import JDiagram from "../Voronoi/JDiagram";
-import JVertex from "../Voronoi/JVertex";
 
 /**
  * Un objeto FluxRouteMap representa un camino de drenaje desde un punto inicial hacia la costa

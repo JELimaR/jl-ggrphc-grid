@@ -8,20 +8,17 @@ let SIZE: JPoint = new JPoint(tam, tam / 2);
 export default abstract class Shower {
 	private _w: NaturalWorld;
 	private _a: number;
-	private _g: number;
 	private _f: string;
 	private _d: DrawerMap;
-	constructor(world: NaturalWorld, area: number, gran: number, folderSelected: string, subFolder: string) {
+	constructor(world: NaturalWorld, area: number, folderSelected: string, subFolder: string) {
 		this._w = world;
 		this._a = area;
-		this._g = gran;
 		this._f = folderSelected;
 		this._d = new DrawerMap(SIZE, `/${subFolder}`);
 	}
 
 	get w(): NaturalWorld { return this._w}
 	get a(): number { return this._a}
-	get g(): number { return this._g}
 	get f(): string { return this._f}
 	get d(): DrawerMap { return this._d }
 
@@ -32,7 +29,7 @@ export default abstract class Shower {
 // example
 class ShowExample extends Shower {
 
-	constructor(world: NaturalWorld, area: number, gran: number, folderSelected: string) {
-		super(world, area, gran, folderSelected, 'climate');
+	constructor(world: NaturalWorld, area: number, folderSelected: string) {
+		super(world, area, folderSelected, 'climate');
 	}
 }

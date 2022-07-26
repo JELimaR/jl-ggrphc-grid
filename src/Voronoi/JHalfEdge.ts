@@ -8,11 +8,12 @@ import JSite from './JSite';
 // 	edgeid: number;
 // }
 
-
 export default class JHalfEdge {
-
-	constructor(private _site: JSite, private _edge: JEdge) {
-
+	private _site: JSite;
+	private _edge: JEdge
+	constructor(site: JSite, edge: JEdge) {
+		this._site = site;
+		this._edge = edge;
 	}
 
 	get initialPoint(): JPoint {
@@ -31,7 +32,7 @@ export default class JHalfEdge {
 		}
 		return out;
 	}
-	get edge(): JEdge {return this._edge}
+	get edge(): JEdge { return this._edge }
 
 	// getInterface(): IJHalfEdgeInfo {
 	// 	return {

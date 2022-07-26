@@ -1,7 +1,7 @@
 import JCell from '../Voronoi/JCell';
 import JDiagram from '../Voronoi/JDiagram';
 import JPoint from './JPoint';
-import { GRAD2RAD, WRADIUS } from './constants'
+import { GRAD2RAD, GRAN, WRADIUS } from './constants'
 import InformationFilesManager from '../DataInformationLoadAndSave';
 const dataInfoManager = InformationFilesManager.instance;
 
@@ -11,36 +11,35 @@ export interface IJGridPointInfo {
 }
 
 export class JGridPoint {
-	private static _gran: number;
-	/*private*/ _point: JPoint;
-	/*private*/ _cell: JCell;
+	private _point: JPoint;
+	private _cell: JCell;
 	constructor(p: JPoint, cell: JCell) {
 		this._point = p;
 		this._cell = cell;
 	}
 
-	static set gran(g: number) { this._gran = g; }
-	// static get gran() { return this._gran; }
+	get cell(): JCell {return this._cell}
+	get point(): JPoint {return this._point}
 
 	get rowValue() {
 		return inRange(
-			Math.round((90 + this._point.y)/JGridPoint._gran),
+			Math.round((90 + this._point.y) / GRAN),
 			0,
-			180/JGridPoint._gran + 1
+			180 / GRAN + 1
 		);
 	}
 
 	get colValue() {
 		return inRange(
-			Math.round((180 + this._point.x)/JGridPoint._gran),
+			Math.round((180 + this._point.x) / GRAN),
 			0,
-			360/JGridPoint._gran
+			360 / GRAN
 		);
 	}
 
 	getPixelArea(): number {
-		let out = WRADIUS * (JGridPoint._gran * GRAD2RAD);
-		out *= WRADIUS * Math.cos(this._point.y * GRAD2RAD) * (JGridPoint._gran * GRAD2RAD);
+		let out = WRADIUS * (GRAN * GRAD2RAD);
+		out *= WRADIUS * Math.cos(this._point.y * GRAD2RAD) * (GRAN * GRAD2RAD);
 
 		return out;
 	}
@@ -54,16 +53,14 @@ export class JGridPoint {
 }
 
 export default class JGrid {
-	/*private*/ _points: JGridPoint[][];
-	/*private*/ _granularity: number;
+	private _points: JGridPoint[][];
 
-	constructor(gran: number, diagram: JDiagram) {
-		this._granularity = gran;
-		JGridPoint.gran = gran;
-		const loadedData = dataInfoManager.loadGridPoints(this._granularity, diagram.secAreaProm);
+	constructor(diagram: JDiagram) {
+
+		const loadedData = dataInfoManager.loadGridPoints(GRAN, diagram.secAreaProm);
 		if (loadedData.length === 0) {
 			this._points = this.createGridPoints(diagram);
-			dataInfoManager.saveGridPoints(this._points, this._granularity, diagram.secAreaProm)
+			dataInfoManager.saveGridPoints(this._points, GRAN, diagram.secAreaProm)
 		} else {
 			this._points = loadedData.map((coli: IJGridPointInfo[]) => {
 				return coli.map((info: IJGridPointInfo) => {
@@ -75,10 +72,10 @@ export default class JGrid {
 
 	private createGridPoints(diagram: JDiagram): JGridPoint[][] {
 		let out: JGridPoint[][] = [];
-		for (let i = -180; i < 180; i += this._granularity) {
+		for (let i = -180; i < 180; i += GRAN) {
 			console.log('x value:', i);
 			let col: JGridPoint[] = [];
-			for (let j = -90; j <= 90; j += this._granularity) {
+			for (let j = -90; j <= 90; j += GRAN) {
 				const point: JPoint = new JPoint(i, j);
 				const cell: JCell = diagram.getCellFromPoint(point);
 				const gp = new JGridPoint(point, cell);
@@ -101,6 +98,7 @@ export default class JGrid {
 	get colsNumber(): number {
 		return this._points.length;
 	}
+	get points(): JGridPoint[][] { return this._points }
 
 	forEachPoint(func: (gp: JGridPoint, col: number, row: number) => void) {
 		this._points.forEach((col: JGridPoint[], cidx: number) => {
@@ -114,8 +112,8 @@ export default class JGrid {
 		if (Math.abs(p.x) > 180 || Math.abs(p.y) > 90)
 			throw new Error(`el punto: ${p.toTurfPosition()} se encuentra fuera de rango`)
 		return {
-			c: inRange(Math.round((p.x + 180) / this._granularity), 0, this.colsNumber - 1),
-			r: inRange(Math.round((p.y + 90) / this._granularity), 0, this.rowsNumber - 1)
+			c: inRange(Math.round((p.x + 180) / GRAN), 0, this.colsNumber - 1),
+			r: inRange(Math.round((p.y + 90) / GRAN), 0, this.rowsNumber - 1)
 		}
 	}
 
@@ -128,7 +126,7 @@ export default class JGrid {
 		let out: JGridPoint[] = [];
 
 		this.getGridPointsInWindowGrade(point, windKm / 3).forEach((gp: JGridPoint) => {
-			if (JPoint.geogDistance(point, gp._point) <= windKm) {
+			if (JPoint.geogDistance(point, gp.point) <= windKm) {
 				out.push(gp);
 			}
 		})
@@ -138,7 +136,7 @@ export default class JGrid {
 
 	getIndexsInWindow(index: number, window: number): number[] {
 		let out: number[] = [];
-		const stepCantMed: number = Math.round(window / this._granularity);
+		const stepCantMed: number = Math.round(window / GRAN);
 		for (let j = -stepCantMed; j <= stepCantMed; j++)
 			out.push(index + j)
 		return out;
@@ -183,7 +181,7 @@ export default class JGrid {
 		let out: JPoint[] = points.map((p: JPoint, idx: number) => {
 			let val: number = 0, cant = 0;
 			let arr: number[] = [];
-			const stepCantMed: number = Math.round(10 / this._granularity);
+			const stepCantMed: number = Math.round(10 / GRAN);
 			for (let j = -stepCantMed; j <= stepCantMed; j++) arr.push(idx + j)
 			arr.forEach((n: number) => {
 				if (n >= 0 && n < this.colsNumber) {
@@ -191,13 +189,13 @@ export default class JGrid {
 					cant++;
 				}
 			})
-			return new JPoint(p.x, this._granularity * Math.round(val / cant / this._granularity));
+			return new JPoint(p.x, GRAN * Math.round(val / cant / GRAN));
 		})
-		
+
 		return out.map((point: JPoint) => {
 			const y = inRange(point.y, miny, maxy);
 			const x = point.x;
-			return this.getGridPoint(new JPoint(x,y));
+			return this.getGridPoint(new JPoint(x, y));
 		})
 	}
 }

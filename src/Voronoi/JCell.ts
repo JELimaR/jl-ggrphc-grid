@@ -3,49 +3,31 @@ import JPoint from '../Geom/JPoint';
 import JTriangle from '../Geom/JTriangle';
 import JEdge from './JEdge';
 import JHalfEdge from './JHalfEdge';
-import JSite, { IJSiteInfo } from './JSite';
+import JSite from './JSite';
 
 import * as turf from '@turf/turf';
-//import JCellInformation, { IJCellInformation } from "./JCellInformation";
 import JCellInformation from '../CellInformation/JCellInformation';
-import JCellHeight, { IJCellHeightInfo } from '../CellInformation/JCellHeight';
-import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
-// import JSubCell from './JSubCell';
 
 /**
  * En una cell:
  * 	halfedge es un borde de celda.
  */
-
-// export interface IJCellInfo {
-// 	site: IJSiteInfo;
-// 	halfedges: IJHalfEdgeInfo[];
-// }
-
 export default class JCell {
 
-	//private _cell: Cell;
 	private _site: JSite;
 	private _halfedges: JHalfEdge[] = [];
-	private /*readonly*/ _cellInformation: JCellInformation; // eliminar esto
+	private _cellInformation: JCellInformation; // eliminar esto
 	private _subCells: JCell[] = [];
 	private _subsites: JPoint[] = [];
 
-	constructor(/*c: Cell,*/ s: JSite, arrEdges: JEdge[]) {
-		//this._cell = c;
+	constructor( s: JSite, arrEdges: JEdge[]) {
+	
 		this._site = s;
 		arrEdges.forEach((je: JEdge) => {
 			const jhe: JHalfEdge = new JHalfEdge(this._site, je);
 			this._halfedges.push(jhe);
 		})
-		/*
-		c.halfedges.forEach( (he: Halfedge, idx: number) => {
-			const edge: JEdge = arrEdges[idx];
-			const Jhe: JHalfEdge = new JHalfEdge(this._site, edge);
-			this._halfedges.push(Jhe);
-		})
-		*/
-		// this._cellInformation = new JCellInformation(this, info);
+
 		this._cellInformation = new JCellInformation(this);
 	}
 
@@ -166,14 +148,8 @@ export default class JCell {
 
 	getSubSites(AREA: number): JPoint[] {
 		if (this._subsites.length == 0) {
-			// const rfunc = RandomNumberGenerator.makeRandomFloat(this.id);
 			const cantSites: number = Math.round(this.area / AREA) + 1;
-			// const bbl = this.getBBoxLongs();
 			let points: JPoint[] = [];
-			/*while (points.length < cantSites) {
-				const p = new JPoint( bbl.xlong * (rfunc() * 0.9 + 0.05) + bbl.xmin, bbl.ylong * (rfunc() * 0.9 + 0.05) + bbl.ymin );
-				if (this.isPointIn(p)) points.push(p);
-			}*/
 
 			let triangles: JTriangle[] = this.tesselate();
 			triangles = triangles.sort((a: JTriangle, b: JTriangle) => b.area - a.area); // de mayor a menor area
@@ -212,17 +188,7 @@ export default class JCell {
 
 	get info(): JCellInformation { return this._cellInformation }
 
-	/*get heightInfo(): JCellHeight {
-		return this._cellInformation.getHeightInfo()!;
-	}*/
-
-	// getInterface(): IJCellInfo {
-	// 	return {
-	// 		site: this._site.getInterface(),
-	// 		halfedges: this._halfedges.map((jhe: JHalfEdge) => {return jhe.getInterface()})
-	// 	}
-	// }
-
+	
 	/**
 	 * sub cells functions
 	 */

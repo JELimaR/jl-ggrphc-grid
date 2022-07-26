@@ -1,18 +1,15 @@
-import JWorldMap, {  } from '../JWorldMap';
 import JCell from '../Voronoi/JCell';
 import JPoint from '../Geom/JPoint';
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 import { DivisionMaker } from '../divisions/DivisionMaker';
 import statesPointsLists from '../divisions/countries/statesPointsLists';
-import InformationFilesManager from '../DataInformationLoadAndSave';
 import countriesDivision from '../divisions/countries/countriesDivision';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
 import LineMap from './LineMap';
-import { IDiagramContainer, ICellContainer } from '../generalInterfaces';
+import { IDiagramContainer, ICellContainer } from '../containerInterfaces';
 import MapElement from '../IMapElement';
-const dataFilaManager = InformationFilesManager.instance;
 
 export interface IRegionMapInfo {
 	cells: number[];

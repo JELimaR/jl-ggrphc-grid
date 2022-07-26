@@ -5,10 +5,7 @@ import JCell from "./JCell";
 import JEdge from "./JEdge";
 import JSite from './JSite';
 import JVertex from './JVertex';
-import InformationFilesManager from '../DataInformationLoadAndSave';
-import { ICellContainer, IVertexContainer } from '../generalInterfaces';
-
-const dataInfoManager = InformationFilesManager.instance;
+import { ICellContainer, IVertexContainer } from '../containerInterfaces';
 
 export default class JDiagram implements ICellContainer, IVertexContainer {
 	// private _diagram: Diagram;
@@ -47,25 +44,15 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 	get secAreaProm(): number | undefined { return this._secAreaProm }
 
 	private setDiagramValuesContructed(d: Diagram): void {
+
 		if (d.cells.length == 0) throw new Error(`no hay cells`)
 		// setear sites
-		let sites: Map<number, JSite> = new Map<number, JSite>();
+		let sitesMap: Map<number, JSite> = new Map<number, JSite>();
 		d.cells.forEach((c: Cell) => {
 			const js: JSite = new JSite(c.site);
-			sites.set(js.id, js);
+			sitesMap.set(js.id, js);
 		});
-		// crear maps de vertices
-		/*
-		let verticesMap = new Map<Vertex, JPoint>();
-		let verticesCellMap = new Map<Vertex, JEdge[]>();
-		d.vertices.forEach((v: Vertex) => {
-			const p = new JPoint(v.x, v.y);
-			this._vertices.push(p);
-			verticesMap.set(v, p);
-			verticesCellMap.set(v, []);
-		})*/
-		// setear edges
-		// JEdge.diagramSize = d.cells.length;
+
 		let edgesMap = new Map<Edge, JEdge>();
 		let verticesPointMap = new Map<string, JPoint>();
 		let verticesEdgeMap = new Map<string, JEdge[]>();
@@ -81,14 +68,10 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 				verticesPointMap.set(vbId, JPoint.fromVertex(e.vb));
 			}
 			let vb: JPoint = verticesPointMap.get(vbId) as JPoint;
-			/*
-			let va: JPoint = verticesMap.get(e.va) as JPoint;
-			let vb: JPoint = verticesMap.get(e.vb) as JPoint;
-			*/
 
 			// obtener los sites: lSite y rSite
-			const ls: JSite = sites.get(e.lSite.id) as JSite;
-			const rs: JSite | undefined = e.rSite ? sites.get(e.rSite.id) : undefined;
+			const ls: JSite = sitesMap.get(e.lSite.id) as JSite;
+			const rs: JSite | undefined = e.rSite ? sitesMap.get(e.rSite.id) : undefined;
 
 			let je = new JEdge({
 				va: va,
@@ -114,9 +97,8 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		})
 
 		// setear cells
-		// const loadedInfo: IJCellInformation[] = dataInfoManager.loadCellsInfo(d.cells.length);
 		d.cells.forEach((c: Cell) => {
-			const js: JSite = sites.get(c.site.id) as JSite;
+			const js: JSite = sitesMap.get(c.site.id) as JSite;
 			let arrEdges: JEdge[] = [];
 
 			c.halfedges.forEach((he: Halfedge) => {
@@ -130,13 +112,6 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			this._cells.set(js.id, cell);
 			this._cells2.set(js.point.id, cell);
 		});
-
-		// if (loadedInfo.length === 0) {
-		// this.smoothHeight();
-		// dataInfoManager.saveCellsInfo(this._cells, this._cells.size);
-		// }
-
-		// dataInfoManager.saveDiagram(this.getInterface(), this._cells.size);
 	}
 
 	get sites(): JSite[] {
@@ -150,9 +125,9 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 	get vertices(): Map<string, JVertex> { return this._vertices }
 
 	get cells(): Map<number, JCell> { return this._cells }
-	getCellsMapStringKey(): Map<string, JCell> {
-		return this._cells2;
-	}
+	// getCellsMapStringKey(): Map<string, JCell> {
+	// 	return this._cells2;
+	// }
 
 	forEachCell(func: (c: JCell) => void) {
 		this._cells.forEach((c: JCell) => {
@@ -301,7 +276,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			throw new Error('no se encontro cell');
 		}
 	}
-
+	/*
 	getNeighborsInWindow(cell: JCell, grades: number): JCell[] { // mejorar esta funcion
 
 		let out: JCell[] = [];
@@ -336,7 +311,8 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 
 		return out;
 	}
-
+	*/
+	/*
 	getNeighboursInRadius(cell: JCell, radiusInKm: number): JCell[] { // mejorar esta funcion
 		let out: JCell[] = [];
 		const center: JPoint = cell.center;
@@ -363,7 +339,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 
 		return out;
 	}
-
+	*/
 	getCellsInSegment(ini: JPoint, end: JPoint, condFunc: (c: JCell) => boolean = (_) => true): JCell[] { // tratar de implementar dijkstra
 		let out: JCell[] = [];
 		const iniCell: JCell = this.getCellFromPoint(ini);

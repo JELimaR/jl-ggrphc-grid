@@ -1,9 +1,6 @@
 import fs from 'fs';
-
-
 import { IPoint } from './Geom/JPoint';
 import { IJGridPointInfo, JGridPoint } from './Geom/JGrid';
-
 import MapElement from './IMapElement';
 
 // dividir esta clase
@@ -26,75 +23,6 @@ export default class InformationFilesManager {
 		fs.mkdirSync(this.instance._dirPath, { recursive: true });
 	}
 
-	/**********************************************************************************
-	 **********************************************************************************
-	 *					ELIMINAR VARIABLE DE ENTRADA: tam DE TODAS LAS FUNCIONES							*
-	 **********************************************************************************
-	 **********************************************************************************/
-
-	// voronoi diagram
-	/*
-	loadDiagram(tam: number): IJDiagramInfo | undefined {
-		let out = {
-			vertices: this.loadVertices(tam),
-			cells: this.loadCells(tam),
-			edges: this.loadEdges(tam),
-		}
-		if (out.cells.length == 0 || out.edges.length == 0 || out.vertices.length == 0) {
-			return undefined
-		}
-		return out;
-	}
-	private loadVertices(tam: number): {x: number, y:number}[]  {
-		let out: {x: number, y: number}[] = [];
-		try {
-			let pathName: string = `${this._dirPath}/VoronoiDiagram/vertices.json`;
-			out = JSON.parse(fs.readFileSync(pathName).toString());
-		} catch (e) {
-			
-		}
-		return out;	
-	}
-	private loadCells(tam: number): IJCellInfo[]  {
-		let out: IJCellInfo[] = [];
-		try {
-			let pathName: string = `${this._dirPath}/VoronoiDiagram/cells.json`;
-			out = JSON.parse(fs.readFileSync(pathName).toString());
-		} catch (e) {
-			
-		}
-		return out;	
-	}
-	private loadEdges(tam: number): IJEdgeInfo[]  {
-		let out: IJEdgeInfo[] = [];
-		try {
-			let pathName: string = `${this._dirPath}/VoronoiDiagram/edges.json`;
-			out = JSON.parse(fs.readFileSync(pathName).toString());
-		} catch (e) {
-			
-		}
-		return out;	
-	}
-	saveDiagram(diagram: IJDiagramInfo, tam: number): void {
-		let dirpathName: string = `${this._dirPath}/VoronoiDiagram`;
-		fs.mkdirSync(dirpathName, {recursive: true});
-		this.saveVertices(diagram.vertices, dirpathName);
-		this.saveCells(diagram.cells, dirpathName);
-		this.saveEdges(diagram.edges, dirpathName);
-	}
-	private saveVertices(verts: {x: number, y:number}[], dirpathName: string): void {
-		let pathName: string = `${dirpathName}/vertices.json`;
-		fs.writeFileSync(pathName, JSON.stringify(verts));
-	}
-	private saveCells(cells: IJCellInfo[], dirpathName: string): void {
-		let pathName: string = `${dirpathName}/cells.json`;
-		fs.writeFileSync(pathName, JSON.stringify(cells));
-	}
-	private saveEdges(edges: IJEdgeInfo[], dirpathName: string): void {
-		let pathName: string = `${dirpathName}/edges.json`;
-		fs.writeFileSync(pathName, JSON.stringify(edges));
-	}
-	*/
 	/**
 	 * voronoi diagram subsites
 	 */

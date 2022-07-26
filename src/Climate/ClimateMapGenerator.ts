@@ -46,7 +46,7 @@ export default class ClimateMapGenerator extends MapGenerator {
 			this.smoothData();
 			// dataInfoManager.saveCellsClimate(this.diagram.cells, this.diagram.secAreaProm);
 			const climateArr: JCellClimate[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellClimate)
-			dataInfoManager.saveMapElementData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
+			// dataInfoManager.saveMapElementData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
 		}
 
 		this.setVertexInfo();
@@ -66,18 +66,18 @@ export default class ClimateMapGenerator extends MapGenerator {
 
 		const tempGrid = new TempGrid(grid);
 		const pressGrid = new JPressureGrid(grid, tempGrid);
-		const precipGrid: PrecipGrid = new PrecipGrid(pressGrid, tempGrid)
+		const precipGrid: PrecipGrid = new PrecipGrid(grid, pressGrid, tempGrid)
 
 		let climateData: IJCellClimateInfo[] = [];
 
 		this.diagram.forEachCell((c: JCell) => {
 			//if (!c.isMarked()) {
-			const gp = tempGrid._grid.getGridPoint(c.center);
-			const cidx = gp.colValue, ridx = gp.rowValue;
-			const precData: IPrecipData = precipGrid._precipData[cidx][ridx];
-			const temps = [...tempGrid._tempData[cidx][ridx].tempMonth];
+			const gp = grid.getGridPoint(c.center);
+			// const cidx = gp.colValue, ridx = gp.rowValue;
+			const precData: IPrecipData = precipGrid.getPointInfo(gp.point);// precipGrid._precipData[cidx][ridx];
+			const temps = [...tempGrid.getPointInfo(gp.point)./*_tempData[cidx][ridx].*/tempMonth];
 			const chf = c.info.isLand ? 6.5 * c.info.cellHeight.heightInMeters / 1000 : 0;
-			const ghf = gp._cell.info.isLand ? 6.5 * gp._cell.info.cellHeight.heightInMeters / 1000 : 0;
+			const ghf = gp.cell.info.isLand ? 6.5 * gp.cell.info.cellHeight.heightInMeters / 1000 : 0;
 			climateData[c.id] = {
 				id: c.id,
 				precipMonth: [...precData.precip],

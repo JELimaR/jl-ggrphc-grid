@@ -28,48 +28,33 @@ export default class JEdge {
 	private _rSite: JSite | undefined;
 	private _vertexA: JPoint;
 	private _vertexB: JPoint;
-	
+
 	private _points: JPoint[] = [];
 	private _length: number | undefined;
-	
+
 	static _diagram: JDiagram;
 	static set diagram(d: JDiagram) { this._diagram = d; }
 
-	constructor({/*e,*/ ls, rs, va, vb}: IJEdgeConstructor) {
-		//this._edge = e;
+	constructor({ ls, rs, va, vb }: IJEdgeConstructor) {
+
 		this._lSite = ls;
 		this._rSite = rs;
 		this._vertexA = va;
 		this._vertexB = vb;
 	}
-/*
-	static calculateId(lid: number, rid: number): number {
-		let key: number = (lid + 1) * this._diagramSize + (rid + 1);
-		return key
+
+	get lSite(): JSite { return this._lSite }
+	get rSite(): JSite | undefined { return this._rSite }
+	get vertexA(): JPoint { return this._vertexA }
+	get vertexB(): JPoint { return this._vertexB }
+
+	get vertices(): JVertex[] {
+		return [
+			JEdge._diagram.vertices.get(this._vertexA.id)!,
+			JEdge._diagram.vertices.get(this._vertexB.id)!,
+		]
 	}
 
-	static set diagramSize(ds: number) {
-		this._diagramSize = ds + 1;
-	}
-*/
-	// get diagramId(): string { return this._id}
-
-	get lSite(): JSite {return this._lSite}
-	get rSite(): JSite | undefined {return this._rSite}
-	get vertexA(): JPoint { return this._vertexA}
-	get vertexB(): JPoint { return this._vertexB}
-
-	get vertices(): JVertex[] { return [
-		JEdge._diagram.vertices.get(this._vertexA.id)!,
-		JEdge._diagram.vertices.get(this._vertexB.id)!,
-	] }
-/*
-	get id(): number {
-		let out = (this._lSite.id + 1) * JEdge._diagramSize;
-		out += (this._rSite) ? this._rSite.id + 1 : 0;
-		return out;
-	}
-*/
 	get id(): string {
 		return `a${this._vertexA.id}-b${this._vertexB.id}`
 	}
@@ -92,7 +77,7 @@ export default class JEdge {
 			let out: number = 0;
 			this.points.forEach((p: JPoint, i: number, a: JPoint[]) => {
 				if (i > 0) {
-					out += JPoint.geogDistance(p, a[i-1]);
+					out += JPoint.geogDistance(p, a[i - 1]);
 				}
 			})
 			this._length = out;
@@ -111,13 +96,13 @@ export default class JEdge {
 					randf
 				);
 				pointsList.forEach((element: turf.Position) => {
-					out.push( new JPoint( element[0], element[1] ) )
+					out.push(new JPoint(element[0], element[1]))
 				})
 			} else {
 				out = [this._vertexA, this._vertexB];
 			}
 			this._points = out;
-		} 
+		}
 		return this._points;
 	}
 
@@ -136,7 +121,7 @@ export default class JEdge {
 	// 		vb: `${this._vertexB.x}_${this._vertexB.y}`,
 	// 	}
 	// }
-	
+
 }
 
 export const edgeNoisePoints = (edge: Edge): JPoint[] => {
@@ -148,10 +133,8 @@ export const edgeNoisePoints = (edge: Edge): JPoint[] => {
 			constructDiamond(edge),
 			randf
 		);
-		pointsList.forEach((element: turf.Position) => {
-			out.push( new JPoint( element[0], element[1] ) )
-		})
-	}  else {
+		pointsList.forEach((element: turf.Position) => out.push(JPoint.fromTurfPosition(element)))
+	} else {
 		out = [JPoint.fromVertex(edge.va), JPoint.fromVertex(edge.vb)];
 	}
 	return out;
@@ -173,25 +156,25 @@ export const noiseTraceLine = (pin: turf.Position[], diamond: turf.Feature<turf.
 
 	while (!ok) {
 		let aux: turf.Position[] = [[...out[0]]];
-		for (let i=0; i<out.length-1;i++) {
-			let tout = noiseMidleBetween(out[i], out[i+1], diamond, randf);
+		for (let i = 0; i < out.length - 1; i++) {
+			let tout = noiseMidleBetween(out[i], out[i + 1], diamond, randf);
 			aux = aux.concat(tout.two);
 			ok = ok || tout.ok;
 		}
-		out = [...aux];	
+		out = [...aux];
 	}
 	return out;
 }
 
-const noiseMidleBetween = (ini: turf.Position, fin: turf.Position, diamond: turf.Feature<turf.Polygon>, randf: () => number): {two: turf.Position[], ok: boolean} => {
+const noiseMidleBetween = (ini: turf.Position, fin: turf.Position, diamond: turf.Feature<turf.Polygon>, randf: () => number): { two: turf.Position[], ok: boolean } => {
 	let two: turf.Position[];
 	let ok: boolean;
 
-	let dist: number = turf.distance(ini,fin, {units: 'kilometers'})
+	let dist: number = turf.distance(ini, fin, { units: 'kilometers' })
 
 	if (dist < 1) {
 		ok = true;
-		two = [ fin];
+		two = [fin];
 	} else {
 		ok = false;
 
@@ -208,14 +191,14 @@ const noiseMidleBetween = (ini: turf.Position, fin: turf.Position, diamond: turf
 
 const generateRandomPointInDiamond = (ini: turf.Position, fin: turf.Position, diamond: turf.Feature<turf.Polygon>, degres: number, randf: () => number): turf.Position => {
 
-	let mdx: number = (ini[0]+fin[0])/2 + 0.4*degres*(randf() - 0.5); 
-	let mdy: number = (ini[1]+fin[1])/2 + 0.4*degres*(randf() - 0.5);
+	let mdx: number = (ini[0] + fin[0]) / 2 + 0.4 * degres * (randf() - 0.5);
+	let mdy: number = (ini[1] + fin[1]) / 2 + 0.4 * degres * (randf() - 0.5);
 
 	let out: turf.Position = [mdx, mdy];
 
 	while (!turf.booleanPointInPolygon(out, diamond)) {
-		mdx = (ini[0]+fin[0])/2 + 0.4*degres*(randf() - 0.5); 
-		mdy = (ini[1]+fin[1])/2 + 0.4*degres*(randf() - 0.5);
+		mdx = (ini[0] + fin[0]) / 2 + 0.4 * degres * (randf() - 0.5);
+		mdy = (ini[1] + fin[1]) / 2 + 0.4 * degres * (randf() - 0.5);
 
 		out = [mdx, mdy];
 	}

@@ -1,4 +1,4 @@
-import { ICellContainer, IVertexContainer } from "./generalInterfaces";
+import { ICellContainer, IVertexContainer } from "./containerInterfaces";
 import JCell from "./Voronoi/JCell";
 import JVertex from "./Voronoi/JVertex";
 

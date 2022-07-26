@@ -7,8 +7,8 @@ import JPoint from "../Geom/JPoint";
 
 export default class ShowHeight extends Shower {
 
-	constructor(world: NaturalWorld, area: number, gran: number, folderSelected: string) {
-		super(world, area, gran, folderSelected, 'height');
+	constructor(world: NaturalWorld, area: number, folderSelected: string) {
+		super(world, area, folderSelected, 'height');
 	}
 
 	drawHeight(zoom: number = 0, center?: JPoint) {

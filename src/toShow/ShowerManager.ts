@@ -13,37 +13,35 @@ export default class ShowerManager {
 
 	private _w: NaturalWorld;
 	private _a: number;
-	private _g: number;
 	private _f: string;
 
-	constructor(world: NaturalWorld, area: number, gran: number, folderSelected: string) {
+	constructor(world: NaturalWorld, area: number, folderSelected: string) {
 		this._w = world;
 		this._a = area;
-		this._g = gran;
 		this._f = folderSelected;
 	}
 
 	get sc(): ShowClimate {
 		if (!this._sc)
-			this._sc = new ShowClimate(this._w, this._a, this._g, this._f);
+			this._sc = new ShowClimate(this._w, this._a, this._f);
 		return this._sc;
 	}
 
 	get sh(): ShowHeight {
 		if (!this._sh)
-			this._sh = new ShowHeight(this._w, this._a, this._g, this._f);
+			this._sh = new ShowHeight(this._w, this._a, this._f);
 		return this._sh;
 	}
 
 	get sw(): ShowWater {
 		if (!this._sw)
-			this._sw = new ShowWater(this._w, this._a, this._g, this._f);
+			this._sw = new ShowWater(this._w, this._a, this._f);
 		return this._sw;
 	}
 
 	get st(): ShowTest {
 		if (!this._st)
-			this._st = new ShowTest(this._w, this._a, this._g, this._f);
+			this._st = new ShowTest(this._w, this._a, this._f);
 		return this._st;
 	}
 	

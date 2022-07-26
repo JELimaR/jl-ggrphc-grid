@@ -57,7 +57,7 @@ const azgaarFolder: string[] = [
 	'Zia20', // 15
 	'Deneia60', // 16
 ];
-const folderSelected: string = azgaarFolder[4];
+const folderSelected: string = azgaarFolder[16];
 console.log('folder:', folderSelected)
 
 config(folderSelected);
@@ -77,9 +77,8 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 4100; // 810
-const GRAN: number = 2;
-const naturalWorld: NaturalWorld = new NaturalWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
+const AREA: number = 810; // 810
+const naturalWorld: NaturalWorld = new NaturalWorld(AREA); // ver si agregar el dm para ver el hh orginal
 
 const monthArrObj = {
 	12: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -88,7 +87,7 @@ const monthArrObj = {
 }
 const monthCant: keyof typeof monthArrObj = 12;
 /* SHOWERS */
-const showerManager = new ShowerManager(naturalWorld, AREA, GRAN, folderSelected);
+const showerManager = new ShowerManager(naturalWorld, AREA, folderSelected);
 
 const sh = showerManager.sh;
 const sc = showerManager.sc;
@@ -112,7 +111,7 @@ sc.drawTempMedia()
 sc.drawPrecipMedia()
 
 sc.drawKoppen();
-// sc.printKoppenData();
+sc.printKoppenData();
 
 /**
  * LIFE ZONES
@@ -120,7 +119,7 @@ sc.drawKoppen();
 // sc.drawAltitudinalBelts();
 // sc.drawHumidityProvinces();
 sc.drawLifeZones();
-sc.printLifeZonesData();
+// sc.printLifeZonesData();
 
 /**
  * river map

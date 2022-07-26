@@ -26,8 +26,8 @@ type TBackground = 'h' | 'l';
 
 export default class ShowWater extends Shower {
 
-	constructor(world: NaturalWorld, area: number, gran: number, folderSelected: string) {
-		super(world, area, gran, folderSelected, 'river');
+	constructor(world: NaturalWorld, area: number, folderSelected: string) {
+		super(world, area, folderSelected, 'river');
 	}
 
 	drawRivers(background: TBackground, zoom: number = 0, center?: JPoint) {

@@ -1,13 +1,9 @@
-import * as turf from '@turf/turf';
-import JCell from '../Voronoi/JCell';
 import JPoint from '../Geom/JPoint';
-import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
-import InformationFilesManager from '../DataInformationLoadAndSave';
+
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
-import { IDiagramContainer, IEdgeContainer, IVertexContainer } from '../generalInterfaces';
-const dataFileManager = InformationFilesManager.instance;
+import { IDiagramContainer, IEdgeContainer, IVertexContainer } from '../containerInterfaces';
 
 
 export interface ILineMapInfo {

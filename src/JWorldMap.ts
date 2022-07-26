@@ -1,22 +1,7 @@
 
-import JCell from "./Voronoi/JCell";
-import JDiagram from "./Voronoi/JDiagram";
-import JPoint from "./Geom/JPoint";
-// import RegionMap, { IJContinentInfo, JContinentMap, JCountryMap, JStateMap } from './MapElements/RegionMap';
-
-import InformationFilesManager from './DataInformationLoadAndSave';
-import { ICellContainer } from "./generalInterfaces";
-import IslandMap, { IIslandMapInfo } from "./heightmap/IslandMap";
-const dataInfoManager = InformationFilesManager.instance;
-
 export default class JWorldMap {
 
-	private _diagram: JDiagram;
-	private _islands: IslandMap[] = [];
-	// private _continents: JContinentMap[] = [];
-
-	constructor(d: JDiagram) {
-		this._diagram = d;
+	constructor() {
 /*
 		// islands
 		console.log('calculate and setting island')

@@ -4,6 +4,7 @@ import InformationFilesManager from '../DataInformationLoadAndSave';
 import JPoint from '../Geom/JPoint';
 import WindSimulate, { IPrecipDataGenerated } from './WindSimulator';
 import TempGrid from './TempGrid';
+import { GRAN } from '../Geom/constants';
 const dataInfoManager = InformationFilesManager.instance;
 
 export interface IPrecipData {
@@ -12,11 +13,11 @@ export interface IPrecipData {
 }
 
 export default class PrecipGrid {
-	_grid: JGrid;
-	_precipData: IPrecipData[][] = []; // borrar asignacion
+	private _grid: JGrid;
+	private _precipData: IPrecipData[][] = []; // borrar asignacion
 
-	constructor(pressGrid: JPressureGrid, tempGrid: TempGrid) {
-		this._grid = pressGrid._grid;
+	constructor(grid: JGrid, pressGrid: JPressureGrid, tempGrid: TempGrid) {
+		this._grid = grid;
 		console.log('calculate and setting precip info')
 		console.time('set precip info')
 		this._precipData = this.getPrecipData(pressGrid, tempGrid);
@@ -25,10 +26,10 @@ export default class PrecipGrid {
 
 	private getPrecipData(pressGrid: JPressureGrid, tempGrid: TempGrid): IPrecipData[][] {
 		// let out: IPrecipData[][] = dataInfoManager.loadGridPrecip(this._grid._granularity);
-		let out: IPrecipData[][] = dataInfoManager.loadGridData<IPrecipData>(this._grid._granularity, 'precip');
+		let out: IPrecipData[][] = dataInfoManager.loadGridData<IPrecipData>(GRAN, 'precip');
 		if (out.length == 0) {
 			out = [];
-			const jws: WindSimulate = new WindSimulate(pressGrid, tempGrid);
+			const jws: WindSimulate = new WindSimulate(this._grid, pressGrid, tempGrid);
 			const ws = jws.windSim();
 
 			ws.precip.forEach((generated: IPrecipDataGenerated[][], month: number) => {
@@ -54,11 +55,12 @@ export default class PrecipGrid {
 			})
 
 			this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
-				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => ((r/100) ** 1.6) * 3344.1 * (0.2 + 0.8*Math.cos(gp._point.y * Math.PI/180)))
+				out[cidx][ridx].precip = out[cidx][ridx].precip.map((r: number) => {
+					return ((r / 100) ** 1.6) * 3344.1 * (0.4 + 0.6 * Math.cos(gp.point.y * Math.PI / 180))
+				})
 			})
 
-			// dataInfoManager.saveGridPrecip(out, this._grid._granularity);
-			dataInfoManager.saveGridData<IPrecipData>(out, this._grid._granularity, 'precip');
+			// dataInfoManager.saveGridData<IPrecipData>(out, GRAN, 'precip');
 		}
 
 		return out;
@@ -70,17 +72,17 @@ export default class PrecipGrid {
 		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 			if (!dout[cidx]) dout[cidx] = [];
 			let precipArr: number[] = [
-				0,0,0,0,
-				0,0,0,0,
-				0,0,0,0];
-			const neigs: JGridPoint[] = this._grid.getGridPointsInWindowGrade(gp._point, 5)
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0];
+			const neigs: JGridPoint[] = this._grid.getGridPointsInWindowGrade(gp.point, 5)
 			neigs.forEach((gpw: JGridPoint) => {
 				precipArr.forEach((_v: number, mi: number) => {
 					precipArr[mi] += din[gpw.colValue][gpw.rowValue].precip[mi];
 				})
 			})
 			dout[cidx][ridx] = {
-				precip: precipArr.map((v: number, i: number) => 0.55 * v / neigs.length + 0.45 * din[cidx][ridx].precip[i]),
+				precip: precipArr.map((v: number, i: number) => 0.65 * v / neigs.length + 0.35 * din[cidx][ridx].precip[i]),
 				deltaTemps: din[cidx][ridx].deltaTemps
 				// routes: din[cidx][ridx].routes
 			};
@@ -99,7 +101,7 @@ export default class PrecipGrid {
 
 		this._grid.forEachPoint((gp: JGridPoint, cidx: number, ridx: number) => {
 			if (!dtout[cidx]) dtout[cidx] = [];
-			const neigs: JGridPoint[] = this._grid.getGridPointsInWindowGrade(gp._point, 5);
+			const neigs: JGridPoint[] = this._grid.getGridPointsInWindowGrade(gp.point, 5);
 			let sum: number = 0;
 			neigs.forEach((gpw: JGridPoint) => {
 				sum += dtin[gpw.colValue][gpw.rowValue].deltaTempValue;
