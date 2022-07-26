@@ -1,9 +1,7 @@
 import JDiagram from "../Voronoi/JDiagram";
 import InformationFilesManager from '../DataInformationLoadAndSave';
-// import { IJCellInformation } from "../Voronoi/JCellInformation";
 import JCellHeight, { IJCellHeightInfo } from '../CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
-import RegionMap, {  } from "../MapElements/RegionMap";
 
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 import JPoint from "../Geom/JPoint";
@@ -11,8 +9,7 @@ import JVertexHeight, { IJVertexHeightInfo } from "../VertexInformation/JVertexH
 import JVertex from "../Voronoi/JVertex";
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 import MapGenerator from "../MapGenerator";
-import IslandMap, { IIslandMapInfo } from "./IslandMap";
-// import JSubCell from "../Voronoi/JSubCell";
+
 
 class JOceanMap {}
 class JLakeMap {}
@@ -40,7 +37,7 @@ export default class HeightMapGenerator extends MapGenerator {
 		console.time(`${a ? 's' : 'p'}-set height info`);
 		// ver como se debe hacer esto
 		// let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(this.diagram.secAreaProm);
-		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsData<IJCellHeightInfo, JCellHeight>(this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
+		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadMapElementData<IJCellHeightInfo, JCellHeight>(this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
 
 		const isLoaded: boolean = loadedHeightInfo.length !== 0;
 		if (!isLoaded) {
@@ -53,6 +50,9 @@ export default class HeightMapGenerator extends MapGenerator {
 		loadedHeightInfo.forEach((hinf: IJCellHeightInfo) => {
 			const cell: JCell = this.diagram.getCellById(hinf.id) as JCell;
 			cell.info.setHeightInfo(hinf);
+		})
+		this.diagram.forEachCell((c: JCell) => {
+			if (!c.info.cellHeight) console.log(c.info.cellHeight)
 		})
 
 		// other cells calcs
@@ -68,12 +68,12 @@ export default class HeightMapGenerator extends MapGenerator {
 
 			// dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
 			const heightArr: JCellHeight[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellHeight)
-			dataInfoManager.saveCellsData<IJCellHeightInfo, JCellHeight>(heightArr, this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
+			dataInfoManager.saveMapElementData<IJCellHeightInfo, JCellHeight>(heightArr, this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
 		}
 
 		// vertices
 		// let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesHeigth(this.diagram.secAreaProm);
-		let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesData<IJVertexHeightInfo, JVertexHeight>(this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
+		let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadMapElementData<IJVertexHeightInfo, JVertexHeight>(this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
 		const isVertexLoaded: boolean = loadedVertexInfo.length !== 0;
 		if (!isVertexLoaded) {
 			loadedVertexInfo = this.getVertexValues();
@@ -94,53 +94,25 @@ export default class HeightMapGenerator extends MapGenerator {
 			
 			// dataInfoManager.saveVerticesHeigth(this.diagram.vertices, this.diagram.secAreaProm);
 			const verticesArr: JVertexHeight[] = [...this.diagram.vertices.values()].map((vertex: JVertex) => vertex.info.vertexHeight)
-			dataInfoManager.saveVerticesData<IJVertexHeightInfo, JVertexHeight>(verticesArr, this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
+			dataInfoManager.saveMapElementData<IJVertexHeightInfo, JVertexHeight>(verticesArr, this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
 		}
 
 		console.timeEnd(`${a ? 's' : 'p'}-set height info`);
 
-		/*
-		 * islands
-		 */
-		/*
-		let islands: IslandMap[] = [];
-		if (!!a) {
-			console.log('calculate and setting island')
-			console.time(`set Islands`);
-			
-			let islandInfoArr: IIslandMapInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
-			if (islandInfoArr.length > 0) {
-				islandInfoArr.forEach((iii: IIslandMapInfo, i: number) => {
-					islands.push(
-						new IslandMap(i, this.diagram, iii)
-					);
-				})
-			} else {
-				islands = this.generateIslandList();
-			}
-			// guardar info
-			
-			if (islandInfoArr.length === 0) {
-				dataInfoManager.saveIslandsInfo(islands, this.diagram.secAreaProm);
-			}
-			console.timeEnd(`set Islands`);
-		}
-		return islands;
-		*/
 	}
 
 	private getCellsData(): IJCellHeightInfo[] {
 		let out: IJCellHeightInfo[] = [];
 		const azgaarHeight = ard.hs();
-		azgaarHeight.forEach((elem: { id: number, x: number, y: number, h: number }, idx: number) => {
+		azgaarHeight.forEach((elem: { id: number, x: number, y: number, h: number }) => {
 			const cellId = this.diagram.getCellFromCenter(new JPoint(elem.x, elem.y)).id;
-			out[cellId] = {
+			out.push({
 				id: cellId,
 				prevHeight: 0, // ya no se usa
 				height: elem.h,
 				heightType: 'land',
 				islandId: -1,
-			};
+			});
 		})
 		return out;
 	}
@@ -154,7 +126,7 @@ export default class HeightMapGenerator extends MapGenerator {
 				let h: number = hinf.height * (1.05 - 0.1 * randFunc());
 				if (h > 0.2 && hinf.height <= 0.2) h = hinf.height;
 				if (h <= 0.2 && hinf.height > 0.2) h = hinf.height;
-				out[sc.id] = { ...hinf, height: h, heightType: 'land' };
+				out.push({...hinf, id: sc.id, height: h, heightType: 'land' });
 			})
 		})
 		return out;
@@ -206,7 +178,6 @@ export default class HeightMapGenerator extends MapGenerator {
 			}
 		})
 		let hay = true, it: number = 0;
-		let cantHay: number = 0, cantAug: number = 0;
 		while (/*it < 100 &&*/ hay) {
 			hay = false;
 			let cantHayIt: number = 0;
@@ -224,16 +195,12 @@ export default class HeightMapGenerator extends MapGenerator {
 				}
 			})
 			it++;
-			if (cantHayIt > cantHay) cantAug++;
-			cantHay = cantHayIt;
 			if (it % 5 == 0) {
-				console.log(`hay cant: ${cantHayIt} depresiones y van: ${it} iteraciones`)
+				console.log(`hay ${cantHayIt} depresiones y van ${it} iteraciones`)
 			}
 		}
 		console.log('------------------------')
-		console.log('hay cant', cantHay)
-		console.log(`van ${it} iteraciones`)
-		console.log(`cant de veces que aumento: ${cantAug}`)
+		console.log(`iteraciones: ${it}`)
 	}
 
 	private getMinHeightVertexNeighbour(vertex: JVertex): JVertex {
@@ -256,7 +223,6 @@ export default class HeightMapGenerator extends MapGenerator {
 			}
 		})
 		let hay = true, it: number = 0;
-		let cantHay: number = 0, cantAug: number = 0;
 		while (/*it < 2000 &&*/ hay) {
 			hay = false;
 			let cantHayIt: number = 0;
@@ -269,16 +235,13 @@ export default class HeightMapGenerator extends MapGenerator {
 				}
 			})
 			it++;
-			if (cantHayIt > cantHay) cantAug++;
-			cantHay = cantHayIt;
+
 			if (it % 10 == 0) {
-				console.log(`hay cant: ${cantHayIt} depresiones y van: ${it} iteraciones`)
+				console.log(`hay ${cantHayIt} depresiones y van ${it} iteraciones`)
 			}
 		}
 		console.log('------------------------')
-		console.log('hay cant', cantHay)
-		console.log(`van ${it} iteraciones`)
-		console.log(`cant de veces que aumento: ${cantAug}`)
+		console.log(`iteraciones: ${it}`)
 	}
 
 	private getMinHeightCellNeighbour(cell: JCell): JCell {

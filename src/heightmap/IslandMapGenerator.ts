@@ -29,14 +29,14 @@ export default class IslandMapGenerator extends MapGenerator {
 	}
 
 	generate(): IslandMap[] {
-		const dataInfoManager = InformationFilesManager.instance;
+		const dim = InformationFilesManager.instance;
 
 		let out: IslandMap[] = [];
 
 		console.log('calculate and setting island')
 		console.time(`set Islands`);
 
-		let islandInfoArr: IIslandMapInfo[] = dataInfoManager.loadIslandsInfo(this.diagram.secAreaProm);
+		let islandInfoArr: IIslandMapInfo[] = dim.loadMapElementData<IIslandMapInfo, IslandMap>(this.diagram.secAreaProm, IslandMap.getTypeInformationKey());
 		if (islandInfoArr.length > 0) {
 			islandInfoArr.forEach((iii: IIslandMapInfo, i: number) => {
 				out.push(
@@ -49,7 +49,7 @@ export default class IslandMapGenerator extends MapGenerator {
 		// guardar info
 
 		if (islandInfoArr.length === 0) {
-			dataInfoManager.saveIslandsInfo(out, this.diagram.secAreaProm);
+			dim.saveMapElementData(out, this.diagram.secAreaProm, IslandMap.getTypeInformationKey());
 		}
 		console.timeEnd(`set Islands`);
 		return out;
@@ -72,9 +72,7 @@ export default class IslandMapGenerator extends MapGenerator {
 	*/
 
 	private generateIslandList(): IslandMap[] {
-		/**
-		 * no calcula bien cuando debe calcular los datos de height
-		 */
+
 		let out: IslandMap[] = [];
 		let lista: Map<number, JCell> = new Map<number, JCell>();
 		this.diagram.forEachCell((c: JCell) => {
@@ -85,15 +83,9 @@ export default class IslandMapGenerator extends MapGenerator {
 		while (lista.size > 0) {
 			currentId++;
 			const cell: JCell = lista.entries().next().value[1];
-			// cell.mark();
-			// lista.delete(cell.id);
-
 			let isl: IslandMap = new IslandMap(currentId, this.diagram);
-			// isl.addCell(cell);
-			// cell.info.islandId = isl.id; // nuevo
 
 			let nqeue: Map<number, JCell> = new Map<number, JCell>();
-			// this.diagram.getCellNeighbours(cell).forEach((ncell: JCell) => nqeue.set(ncell.id, ncell) );
 			nqeue.set(cell.id, cell)
 
 			console.log('island:', currentId);

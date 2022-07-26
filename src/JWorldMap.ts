@@ -2,7 +2,7 @@
 import JCell from "./Voronoi/JCell";
 import JDiagram from "./Voronoi/JDiagram";
 import JPoint from "./Geom/JPoint";
-import RegionMap, { IJContinentInfo, JContinentMap, JCountryMap, JStateMap } from './MapElements/RegionMap';
+// import RegionMap, { IJContinentInfo, JContinentMap, JCountryMap, JStateMap } from './MapElements/RegionMap';
 
 import InformationFilesManager from './DataInformationLoadAndSave';
 import { ICellContainer } from "./generalInterfaces";
@@ -13,11 +13,11 @@ export default class JWorldMap {
 
 	private _diagram: JDiagram;
 	private _islands: IslandMap[] = [];
-	private _continents: JContinentMap[] = [];
+	// private _continents: JContinentMap[] = [];
 
 	constructor(d: JDiagram) {
 		this._diagram = d;
-
+/*
 		// islands
 		console.log('calculate and setting island')
 		console.time('set Islands');
@@ -33,7 +33,7 @@ export default class JWorldMap {
 			dataInfoManager.saveIslandsInfo(this._islands, this.diagram.cells.size);
 		}
 		console.timeEnd('set Islands');
-
+*/
 		// continents
 
 		// console.log('calculate and setting continents')
@@ -62,57 +62,7 @@ export default class JWorldMap {
 		// console.timeEnd('set states');
 
 	}
-
-	private generateIslandList(): void {
-		let lista: Map<number, JCell> = new Map<number, JCell>();
-		this._diagram.forEachCell((c: JCell) => {
-			if (c.info.isLand) lista.set(c.id, c);
-		})
-
-		let currentId = -1;
-		while (lista.size > 0) {
-			currentId++;
-			const cell: JCell = lista.entries().next().value[1];
-			cell.mark();
-			lista.delete(cell.id);
-
-			let reg: IslandMap = new IslandMap(currentId, this.diagram);
-			reg.addCell(cell);
-
-			let qeue: Map<number, JCell> = new Map<number, JCell>();
-			this._diagram.getCellNeighbours(cell).forEach((ncell: JCell) => {
-				qeue.set(ncell.id, ncell)
-			});
-
-			console.log('island:', currentId);
-			let times: number = 0;
-			while (qeue.size > 0 && times < this._diagram.cells.size) {
-				times++;
-				const neigh: JCell = qeue.entries().next().value[1];
-				qeue.delete(neigh.id);
-				lista.delete(neigh.id);
-				neigh.mark();
-				reg.addCell(neigh);
-
-				this._diagram.getCellNeighbours(neigh).forEach((nnn: JCell) => {
-					if (nnn.info.isLand && !nnn.isMarked() && !qeue.has(nnn.id)) {
-						qeue.set(nnn.id, nnn);
-					}
-				})
-				if (reg.cells.size % 10000 == 0) console.log('island:', currentId, `hay ${reg.cells.size}`)
-			}
-
-			if (qeue.size > 0) throw new Error(`se supero el numero de cells: ${this._diagram.cells.size} en generateIslandList`)
-			console.log('area:', reg.area)
-			this._islands.push(reg);
-		}
-		// ordenar
-		console.log(`sorting island`)
-		this._islands.sort((a: IslandMap, b: IslandMap) => { return b.area - a.area });
-
-		this._diagram.forEachCell((c: JCell) => { c.dismark(); })
-	}
-
+/*
 	private generateContinentList(): void {
 		this._continents[4] = new JContinentMap(4, this._diagram);
 		this._islands.forEach((isl: IslandMap, i: number) => {
@@ -169,8 +119,8 @@ export default class JWorldMap {
 		})
 		return out;
 	}
+	*/
 }
-
 // const generatePieceList = (element: JRegionMap/*, regionGenerator: () => JRegionMap*/): JRegionMap[] => {
 // 	let out = [];
 // 	let lista: Map<number, JCell> = new Map<number, JCell>();

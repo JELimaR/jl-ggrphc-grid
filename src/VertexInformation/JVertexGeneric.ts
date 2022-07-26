@@ -1,14 +1,17 @@
 import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import IElementDataGeneric, { IIElementDataGenericInfo } from "../ElementDataGeneric";
+import MapElement from "../IMapElement";
+// import IMapElement from "../IMapElement";
 import JVertex from "../Voronoi/JVertex";
 
-export interface IJVertexGenericInfo extends IIElementDataGenericInfo {
+export interface IJVertexGenericInfo {
 	id: string;
 }
 
-export default abstract class JVertexGeneric implements IElementDataGeneric {
+// export default abstract class JVertexGeneric implements IMapElement<IJVertexGenericInfo> {
+	export default abstract class JVertexGeneric extends MapElement<IJVertexGenericInfo> {
 	private _vertex: JVertex;
 	constructor(v: JVertex) {
+		super();
 		this._vertex = v;
 	}
 
@@ -20,8 +23,5 @@ export default abstract class JVertexGeneric implements IElementDataGeneric {
 		};
 	}
 
-	static getTypeInformationKey(): TypeInformationKey {
-		throw new Error(`non implemented`);
-	}
 }
 

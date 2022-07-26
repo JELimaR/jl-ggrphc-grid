@@ -1,3 +1,4 @@
+import { TypeInformationKey } from "../DataInformationLoadAndSave";
 import JPoint from "../Geom/JPoint";
 import LineMap, { ILineMapInfo } from "../MapElements/LineMap";
 import JDiagram from "../Voronoi/JDiagram";
@@ -22,5 +23,9 @@ export default class RiverMap extends LineMap {
 			...super.getInterface(),
 			id: this._id,
 		}
+	}
+
+	static getTypeInformationKey(): TypeInformationKey {
+		return 'rivers';
 	}
 }

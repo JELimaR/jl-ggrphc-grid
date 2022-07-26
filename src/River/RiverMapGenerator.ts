@@ -26,15 +26,15 @@ export default class RiverMapGenerator extends MapGenerator {
 		const fluxRoutesMap: Map<number, FluxRouteMap> = new Map<number, FluxRouteMap>();
 		const rivers: Map<number, RiverMap> = new Map<number, RiverMap>();
 		// cargar datos
-		const dataInfoManager = InformationFilesManager.instance;
+		const dim = InformationFilesManager.instance;
 		// const fluxVerticesDataLoaded = dataInfoManager.loadVerticesFlux(this.diagram.secAreaProm);
-		const fluxVerticesDataLoaded = dataInfoManager.loadVerticesData<IJVertexFluxInfo, JVertexFlux>(this.diagram.secAreaProm, JVertexFlux.getTypeInformationKey());
-		const waterRoutesDataLoaded = dataInfoManager.loadWaterRoutesInfo(this.diagram.secAreaProm);
-		const riversDataLoaded = dataInfoManager.loadRiversInfo(this.diagram.secAreaProm);
+		const fluxVerticesDataLoaded: IJVertexFluxInfo[] = dim.loadMapElementData(this.diagram.secAreaProm, JVertexFlux.getTypeInformationKey());
+		const fluxRoutesDataLoaded: IFluxRouteMapInfo[] = dim.loadMapElementData(this.diagram.secAreaProm, FluxRouteMap.getTypeInformationKey());
+		const riversDataLoaded: IRiverMapInfo[] = dim.loadMapElementData(this.diagram.secAreaProm, RiverMap.getTypeInformationKey());
 
 		console.log(`Generating flux and water drain route`)
 		console.time(`flux and water drain route`)
-		if (fluxVerticesDataLoaded.length == 0 || waterRoutesDataLoaded.length == 0) {
+		if (fluxVerticesDataLoaded.length == 0 || fluxRoutesDataLoaded.length == 0) {
 			this.setFluxValuesAndRoads(fluxRoutesMap);
 		} else {
 			// setear vertices flux data
@@ -43,7 +43,7 @@ export default class RiverMapGenerator extends MapGenerator {
 				v.info.setFluxInfo(ivfi);
 			})
 			// setear flux routes
-			waterRoutesDataLoaded.forEach((ifri: IFluxRouteMapInfo) => {
+			fluxRoutesDataLoaded.forEach((ifri: IFluxRouteMapInfo) => {
 				const fr: FluxRouteMap = new FluxRouteMap(ifri.id, this.diagram, ifri);
 				/*this.*/fluxRoutesMap.set(fr.id, fr);
 			})
@@ -65,13 +65,13 @@ export default class RiverMapGenerator extends MapGenerator {
 		if (fluxVerticesDataLoaded.length === 0) {
 			// dataInfoManager.saveVerticesFlux(this.diagram.vertices, this.diagram.secAreaProm);
 			const verticesArr: JVertexFlux[] = [...this.diagram.vertices.values()].map((vertex: JVertex) => vertex.info.vertexFlux)
-			dataInfoManager.saveVerticesData<IJVertexFluxInfo, JVertexFlux>(verticesArr, this.diagram.secAreaProm, JVertexFlux.getTypeInformationKey());
+			dim.saveMapElementData<IJVertexFluxInfo, JVertexFlux>(verticesArr, this.diagram.secAreaProm, JVertexFlux.getTypeInformationKey());
 		}
-		if (waterRoutesDataLoaded.length === 0) {
-			dataInfoManager.saveWaterRoutesInfo(/*this.*/fluxRoutesMap, this.diagram.secAreaProm);
+		if (fluxRoutesDataLoaded.length === 0) {
+			dim.saveMapElementData([...fluxRoutesMap.values()], this.diagram.secAreaProm, FluxRouteMap.getTypeInformationKey());
 		}
 		if (riversDataLoaded.length === 0) {
-			dataInfoManager.saveRiversInfo(/*this.*/rivers, this.diagram.secAreaProm);
+			dim.saveMapElementData([...rivers.values()], this.diagram.secAreaProm, RiverMap.getTypeInformationKey());
 		}
 		console.timeEnd(`rivers`)
 

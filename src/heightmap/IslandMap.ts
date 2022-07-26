@@ -1,3 +1,4 @@
+import { TypeInformationKey } from "../DataInformationLoadAndSave";
 import RegionMap, { IRegionMapInfo } from "../MapElements/RegionMap";
 import JCell from "../Voronoi/JCell";
 import JDiagram from "../Voronoi/JDiagram";
@@ -32,5 +33,9 @@ export default class IslandMap extends RegionMap {
 			id: this._id,
 			...super.getInterface()
 		}
+	}
+
+	static getTypeInformationKey(): TypeInformationKey {
+		return 'islands';
 	}
 }

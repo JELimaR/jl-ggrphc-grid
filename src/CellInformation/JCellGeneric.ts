@@ -1,12 +1,12 @@
 import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import IElementDataGeneric, { IIElementDataGenericInfo } from "../ElementDataGeneric";
+import IMapElement from "../IMapElement";
 import JCell from "../Voronoi/JCell";
 
-export interface IJCellGenericInfo extends IIElementDataGenericInfo {
+export interface IJCellGenericInfo  {
 	id: number;
 }
 
-export default abstract class JCellGeneric implements IElementDataGeneric {
+export default abstract class JCellGeneric implements IMapElement<IJCellGenericInfo> {
 	private _cell: JCell;
 	constructor(c: JCell) {
 		this._cell = c;
@@ -20,7 +20,7 @@ export default abstract class JCellGeneric implements IElementDataGeneric {
 		}
 	}
 
-	static getTypeInformationKey(): TypeInformationKey {
+	static getTypeInformationKey(): TypeInformationKey { // borrar
 		throw new Error(`non implemented`)
 	}
 }

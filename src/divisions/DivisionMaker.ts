@@ -9,6 +9,7 @@ import { createICellContainer } from "../utilFunctions";
 
 
 export class DivisionMaker {
+	/*
 	make(jwm: JWorldMap, dm: DrawerMap, plist: JPoint[][], region: RegionMap): RegionMap[] {
 		let cellList: JCell[] = [];
 		plist.forEach((points: JPoint[]) => {
@@ -32,5 +33,5 @@ export class DivisionMaker {
 
 		return regionsArr;
 	}
-
+	*/
 }

@@ -7,7 +7,7 @@ import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 import InformationFilesManager from '../DataInformationLoadAndSave';
 import { IPoint } from '../Geom/JPoint';
 import JDiagram from './JDiagram';
-import { RandomNumberGenerator } from 'jl-utlts';
+import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
 
 
 const XDIF: number = 360;
@@ -22,10 +22,10 @@ export default class VoronoiSitesGenerator {
 	static getSecSites(jd: JDiagram, AREA: number) {
 		const dataInfoManager = InformationFilesManager._instance;
 		
-		let subSitesData: {p: IPoint, cid: number}[] = dataInfoManager.loadSites(AREA);
+		let subSitesData: {p: IPoint, cid: number}[] = dataInfoManager.loadSubSites(AREA);
 		if (subSitesData.length == 0) {
 			subSitesData = jd.getSubSites(AREA);
-			dataInfoManager.saveSites(subSitesData, AREA);
+			dataInfoManager.saveSubSites(subSitesData, AREA);
 		}
 
 

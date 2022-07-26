@@ -18,7 +18,6 @@ import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import chroma from 'chroma-js';
 
-import fs from 'fs'
 import * as turf from '@turf/turf';
 import RiverMapGenerator from './River/RiverMapGenerator';
 import RiverMap, { } from './River/RiverMap';
@@ -56,8 +55,9 @@ const azgaarFolder: string[] = [
 	'Lenzkirch50', // 13
 	'Migny90', // 14
 	'Zia20', // 15
+	'Deneia60', // 16
 ];
-const folderSelected: string = azgaarFolder[10];
+const folderSelected: string = azgaarFolder[4];
 console.log('folder:', folderSelected)
 
 config(folderSelected);
@@ -77,7 +77,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 12100; // 810
+const AREA: number = 4100; // 810
 const GRAN: number = 2;
 const naturalWorld: NaturalWorld = new NaturalWorld(AREA, GRAN); // ver si agregar el dm para ver el hh orginal
 
@@ -100,7 +100,7 @@ const stest = showerManager.st;
  * height map
  */
 sh.drawHeight();
-// sh.drawIslands();
+sh.drawIslands();
 // sh.printMaxAndMinCellsHeight();
 
 /**
@@ -119,16 +119,16 @@ sc.drawKoppen();
  */
 // sc.drawAltitudinalBelts();
 // sc.drawHumidityProvinces();
-// sc.drawLifeZones();
+sc.drawLifeZones();
 sc.printLifeZonesData();
 
 /**
  * river map
  */
-// sw.drawRivers('h');
-// sw.drawWaterRoutes('#000000', 'l')
+sw.drawRivers('h');
+sw.drawWaterRoutes('#000000', 'l')
 // sw.printRiverData();
-// sw.printRiverDataLongers(3000);
+sw.printRiverDataLongers(3000);
 // sw.printRiverDataShorters(15);
 
 console.time('test');

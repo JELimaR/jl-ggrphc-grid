@@ -11,6 +11,7 @@ import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
 import LineMap from './LineMap';
 import { IDiagramContainer, ICellContainer } from '../generalInterfaces';
+import MapElement from '../IMapElement';
 const dataFilaManager = InformationFilesManager.instance;
 
 export interface IRegionMapInfo {
@@ -25,7 +26,7 @@ export interface IJRegionTreeNode {
 	region: JRegionMap;
 }
 */
-export default class RegionMap implements IDiagramContainer, ICellContainer {
+export default class RegionMap extends MapElement<IRegionMapInfo> implements IDiagramContainer, ICellContainer  {
 
 	private _diagram: JDiagram;
 	private _cells: Map<number, JCell>;
@@ -34,6 +35,7 @@ export default class RegionMap implements IDiagramContainer, ICellContainer {
 	private _area: number;
 
 	constructor(diag: JDiagram, info?: IRegionMapInfo) {
+		super();
 		this._diagram = diag;
 		if (info) {
 			this._cells = new Map<number, JCell>();
@@ -378,7 +380,7 @@ export default class RegionMap implements IDiagramContainer, ICellContainer {
 	}
 }
 
-
+/*
 export interface IJContinentInfo extends IRegionMapInfo {
 	id: number;
 }
@@ -388,7 +390,7 @@ export class JContinentMap extends RegionMap {
 	private _countries: JCountryMap[];
 	private _states: Map<string,JStateMap>;
 
-	constructor(id: number, /*world: JWorldMap*/ diag: JDiagram, info?: IJContinentInfo | RegionMap) {
+	constructor(id: number, diag: JDiagram, info?: IJContinentInfo | RegionMap) {
 		const iri: IRegionMapInfo | undefined = (info instanceof RegionMap) ? info.getInterface() : info;
 		super(diag, iri);
 		this._id = id;
@@ -465,7 +467,7 @@ export class JCountryMap extends RegionMap {
 	private _id: string;
 	private _states: JStateMap[]
 
-	constructor(contId: number, /*world: JWorldMap*/ cont: JContinentMap, info?: IJCountryInfo | RegionMap) {
+	constructor(contId: number, cont: JContinentMap, info?: IJCountryInfo | RegionMap) {
 		const iri: IRegionMapInfo | undefined = (info instanceof RegionMap) ? info.getInterface() : info;
 		super(cont.diagram, iri);
 		this._states = [];
@@ -512,7 +514,7 @@ export class JStateMap extends RegionMap {
 	}
 	private _id: string;
 
-	constructor(contId: number, /*world: JWorldMap*/ diag: JDiagram, info?: IRegionMapInfo) {
+	constructor(contId: number, diag: JDiagram, info?: IRegionMapInfo) {
 		super(diag, info);
 		this._id = `S${(contId+1)*1000+JStateMap.getNewID()}C${contId}`;
 	}
@@ -526,3 +528,4 @@ export class JStateMap extends RegionMap {
 		}
 	}
 }
+*/
