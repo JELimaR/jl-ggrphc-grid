@@ -11,14 +11,16 @@ import JCellGeneric, { IJCellGenericInfo } from "./JCellGeneric";
  * E: ET, EF
  */
 export type TKoppenType = 'A' | 'B' | 'C' | 'D' | 'E';
+export type TKoppenTypeObject<T> = { [key in TKoppenType]: T }
 export type TKoppenSubType =
 	| 'Af' | 'AwAs' | 'Am'
 	| 'BWh' | 'BWk' | 'BSh' | 'BSk'
 	| 'Cfa' | 'Cfb' | 'Cfc' | 'Cwa' | 'Cwb' | 'Cwc' | 'Csa' | 'Csb' | 'Csc'
 	| 'Dfa' | 'Dfb' | 'Dfc' | 'Dfd' | 'Dwa' | 'Dwb' | 'Dwc' | 'Dwd' | 'Dsa' | 'Dsb' | 'Dsc' | 'Dsd'
 	| 'ET' | 'EF';
+export type TKoppenSubTypeObject<T> = { [key in TKoppenSubType]: T }
 
-export const koppenColors = {
+export const koppenColors: TKoppenSubTypeObject<string> = {
 	Af: '#0000FF', Am: '#0077FF', AwAs: '#46A9FA',
 	BWh: '#FF0000', BWk: '#FF9695', BSh: '#F5A301', BSk: '#FFDB63',
 	Csa: '#FFFF00', Csb: '#C6C700', Csc: '#969600',

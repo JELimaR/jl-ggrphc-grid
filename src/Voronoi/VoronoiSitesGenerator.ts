@@ -26,7 +26,6 @@ export default class VoronoiSitesGenerator {
 			dataInfoManager.saveSubSites(subSitesData, AREA);
 		}
 
-
 		return subSitesData;
 	}
 	/*

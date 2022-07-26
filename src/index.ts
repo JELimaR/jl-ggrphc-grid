@@ -49,7 +49,7 @@ const azgaarFolder: string[] = [
 	'Morvar100', // 7
 	'Mont100', // 8
 	'Itri100', // 9
-	'Mones5', // 10
+	'Mones10', // 10
 	'Civaland1', // 11
 	'Shauland30', // 12
 	'Lenzkirch50', // 13
@@ -57,7 +57,7 @@ const azgaarFolder: string[] = [
 	'Zia20', // 15
 	'Deneia60', // 16
 ];
-const folderSelected: string = azgaarFolder[16];
+const folderSelected: string = azgaarFolder[10];
 console.log('folder:', folderSelected)
 
 config(folderSelected);
@@ -77,7 +77,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 810; // 810
+const AREA: number = 12100; // 810
 const naturalWorld: NaturalWorld = new NaturalWorld(AREA); // ver si agregar el dm para ver el hh orginal
 
 const monthArrObj = {
@@ -106,9 +106,9 @@ sh.drawIslands();
  * climate map
  */
 // for (let month of monthArrObj[monthCant]) {	sc.drawTempMonth(month); }
-sc.drawTempMedia()
+// sc.drawTempMedia()
 // for (let month of monthArrObj[monthCant]) {	sc.drawPrecipMonth(month); }
-sc.drawPrecipMedia()
+// sc.drawPrecipMedia()
 
 sc.drawKoppen();
 sc.printKoppenData();
@@ -125,15 +125,13 @@ sc.drawLifeZones();
  * river map
  */
 sw.drawRivers('h');
-sw.drawWaterRoutes('#000000', 'l')
+// sw.drawWaterRoutes('#000000', 'l')
 // sw.printRiverData();
-sw.printRiverDataLongers(3000);
+// sw.printRiverDataLongers(3000);
 // sw.printRiverDataShorters(15);
 
 console.time('test');
 
-naturalWorld.generateRiverMaps();
-naturalWorld.generateIslandMaps();
 /*
 const isl: IslandMap = naturalWorld.islands[1];
 const lineCoast: LineMap = isl.getLimitLines()[0];

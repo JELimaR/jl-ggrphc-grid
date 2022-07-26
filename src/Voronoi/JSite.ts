@@ -15,6 +15,8 @@ export default class JSite {
 
 	constructor(s: Site) {
 		this._id = s.id;
+		if (Math.abs(s.x) > 180 || Math.abs(s.y) > 90)
+			throw new Error(`El Site ${s.id} es invalido. {x: ${s.x}, y: ${s.y}}`);
 		this._point = new JPoint(s.x, s.y);
 	}
 

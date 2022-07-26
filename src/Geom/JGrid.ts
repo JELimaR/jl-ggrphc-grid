@@ -46,7 +46,7 @@ export class JGridPoint {
 
 	getInterface(): IJGridPointInfo {
 		return {
-			point: { x: this._point.x, y: this._point.y },
+			point: this._point.getInterface(),
 			cellId: this._cell.id
 		}
 	}

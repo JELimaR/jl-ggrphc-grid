@@ -46,7 +46,7 @@ export default class ClimateMapGenerator extends MapGenerator {
 			this.smoothData();
 			// dataInfoManager.saveCellsClimate(this.diagram.cells, this.diagram.secAreaProm);
 			const climateArr: JCellClimate[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellClimate)
-			// dataInfoManager.saveMapElementData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
+			dataInfoManager.saveMapElementData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
 		}
 
 		this.setVertexInfo();

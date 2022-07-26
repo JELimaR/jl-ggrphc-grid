@@ -117,17 +117,16 @@ export default class NaturalWorld {
 		cmg.generate();
 	}
 	// se generan fuera del constructor
-	generateRiverMaps(): void {//IRiverMapGeneratorOut {
+	private generateRiverMaps(): void {//IRiverMapGeneratorOut {
 		const rmg = new RiverMapGenerator(this.diagram);
 		// return rmg.generate();
 		const iro: IRiverMapGeneratorOut = rmg.generate();
 		this._fluxRoutes = iro.fluxRoutes;
 		this._rivers = iro.rivers;
 	}
-	generateIslandMaps(): void{//IslandMap[] {
+	private generateIslandMaps(): void{
 		const img: IslandMapGenerator = new IslandMapGenerator(this.diagram);
 		this._islands = img.generate();
-		// return img.generate();
 	}
 
 	/* otras funciones genericas */

@@ -8,8 +8,8 @@ export interface ICoordInfo {
 
 export default class Coord {
 	
-	_lat: number;
-	_lon: number;
+	private _lat: number;
+	private _lon: number;
 
 	constructor(lat: number, lon: number) {
 		this._lat = lat;
