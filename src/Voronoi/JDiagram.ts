@@ -13,10 +13,8 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 	private _cells2: Map<string, JCell> = new Map<string, JCell>();
 
 	private _vertices: Map<string, JVertex> = new Map<string, JVertex>();
-	// private _edges: JEdge[] = []; //cambiar
+	private _edges: JEdge[] = []; //cambiar
 
-	// private _subDiagram: JSubDiagram | undefined;
-	// private _ancestor: JDiagram | undefined;
 	private _secAreaProm: number | undefined;
 
 	constructor(d: Diagram, ancestor?: { d: JDiagram, a: number, s: { p: IPoint, cid: number }[] }) {
@@ -25,6 +23,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		JEdge.diagram = this;
 
 		this.setDiagramValuesContructed(d);
+		// ancestor data
 		if (ancestor) {
 
 			this._secAreaProm = ancestor.a;
@@ -41,8 +40,6 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 		console.timeEnd('set JDiagram values');
 	}
 
-	get secAreaProm(): number | undefined { return this._secAreaProm }
-
 	private setDiagramValuesContructed(d: Diagram): void {
 
 		if (d.cells.length == 0) throw new Error(`no hay cells`)
@@ -53,7 +50,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			sitesMap.set(js.id, js);
 		});
 
-		let edgesMap = new Map<Edge, JEdge>();
+		let edgesMap = new Map<string, JEdge>();
 		let verticesPointMap = new Map<string, Point>();
 		let verticesEdgeMap = new Map<string, JEdge[]>();
 		d.edges.forEach((e: Edge) => {
@@ -80,8 +77,8 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 				rs: rs
 			});
 
-			// this._edges.push(je);
-			edgesMap.set(e, je);
+			this._edges.push(je);
+			edgesMap.set(je.id, je);
 			//
 			if (!verticesEdgeMap.get(vaId)) verticesEdgeMap.set(vaId, []);
 			verticesEdgeMap.get(vaId)!.push(je);
@@ -102,17 +99,18 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			let arrEdges: JEdge[] = [];
 
 			c.halfedges.forEach((he: Halfedge) => {
-				const je: JEdge = edgesMap.get(he.edge) as JEdge;
+				const jeid: string = JEdge.getId(he.edge)
+				const je: JEdge = edgesMap.get(jeid) as JEdge;
 				arrEdges.push(je)
 			})
-
-			// const info: IJCellInformation | undefined = loadedInfo[c.site.id];
 
 			const cell = new JCell(/*c,*/ js, arrEdges/*info*/);
 			this._cells.set(js.id, cell);
 			this._cells2.set(js.point.id, cell);
 		});
 	}
+
+	get secAreaProm(): number | undefined { return this._secAreaProm }
 
 	get sites(): JSite[] {
 		let out: JSite[] = [];

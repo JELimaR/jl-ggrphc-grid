@@ -10,7 +10,7 @@ import JSite from './JSite';
 
 export default class JHalfEdge {
 	private _site: JSite;
-	private _edge: JEdge
+	private _edge: JEdge;
 	constructor(site: JSite, edge: JEdge) {
 		this._site = site;
 		this._edge = edge;

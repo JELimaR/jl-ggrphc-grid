@@ -1,12 +1,12 @@
 import Point from '../Geom/Point';
-import JVertexInformation from '../VertexInformation/JVertexInformation';
+import JVertexInformation from './VertexInformation/JVertexInformation';
 import JEdge from "./JEdge";
 
 export default class JVertex {
-	_point: Point;
-	_edges: JEdge[];
+	private _point: Point;
+	private _edges: JEdge[];
 
-	_vertexInformation: JVertexInformation;
+	private _vertexInformation: JVertexInformation;
 	constructor(point: Point, edges: JEdge[]) {
 		this._point = point;
 		if (!(edges.length == 2 || edges.length == 3)) {
@@ -18,12 +18,12 @@ export default class JVertex {
 		this._edges = edges;
 
 		this._vertexInformation = new JVertexInformation(this);
-		
+
 	}
 
-	get id(): string {return this._point.id}
-	get point(): Point {return this._point}
-	get edges(): JEdge[] {return this._edges}
+	get id(): string { return this._point.id }
+	get point(): Point { return this._point }
+	get edges(): JEdge[] { return this._edges }
 	get cellIds() {
 		let list: Set<number> = new Set<number>();
 		this._edges.forEach((e: JEdge) => {
@@ -51,7 +51,7 @@ export default class JVertex {
 		})
 		if (out) return out
 		else throw Error(`los vertices ${v} y ${this} no son vecinos`)
-		
+
 	}
 
 	isNeightbour(v: JVertex) {
@@ -68,10 +68,8 @@ export default class JVertex {
 	mark(): void { this._vertexInformation.mark = true }
 	dismark(): void { this._vertexInformation.mark = false }
 	isMarked(): boolean { return this._vertexInformation.mark }
-	/*
-	 * Height or relief Information
-	 */
 
-	get info(): JVertexInformation {return this._vertexInformation}
+
+	get info(): JVertexInformation { return this._vertexInformation }
 
 }

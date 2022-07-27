@@ -1,4 +1,4 @@
-import JVertex from "../Voronoi/JVertex";
+import JVertex from "../JVertex";
 import JVertexGeneric, { IJVertexGenericInfo } from "./JVertexGeneric";
 
 export interface IJVertexClimateInfo extends IJVertexGenericInfo {

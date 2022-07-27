@@ -1,5 +1,5 @@
-import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import JVertex from "../Voronoi/JVertex";
+import { TypeInformationKey } from "../../DataInformationLoadAndSave";
+import JVertex from "../JVertex";
 import JVertexGeneric, { IJVertexGenericInfo } from "./JVertexGeneric";
 
 export interface IJVertexFluxInfo extends IJVertexGenericInfo {

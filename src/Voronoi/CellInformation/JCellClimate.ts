@@ -1,6 +1,6 @@
-import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import { inRange } from "../utilFunctions";
-import JCell from "../Voronoi/JCell";
+import { TypeInformationKey } from "../../DataInformationLoadAndSave";
+import { inRange } from "../../utilFunctions";
+import JCell from "../JCell";
 import JCellGeneric, { IJCellGenericInfo } from "./JCellGeneric";
 
 /**

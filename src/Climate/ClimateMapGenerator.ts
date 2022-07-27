@@ -5,10 +5,10 @@ import JCell from "../Voronoi/JCell";
 
 import PrecipGrid, { IPrecipData } from "./PrecipGrid";
 
-import JCellClimate, { IJCellClimateInfo } from '../CellInformation/JCellClimate'
+import JCellClimate, { IJCellClimateInfo } from '../Voronoi/CellInformation/JCellClimate'
 
-import Grid, {  } from '../Geom/Grid';
-import { IJVertexClimateInfo } from "../VertexInformation/JVertexClimate";
+import Grid, { } from '../Geom/Grid';
+import { IJVertexClimateInfo } from "../Voronoi/VertexInformation/JVertexClimate";
 import JVertex from "../Voronoi/JVertex";
 import TempGrid from "./TempGrid";
 import JPressureGrid from "./PressureGrid";
@@ -97,8 +97,8 @@ export default class ClimateMapGenerator extends MapGenerator {
 		console.time('set vertex climate data')
 		this.diagram.forEachCell((c: JCell) => {
 			let cinfo: JCellClimate = c.info.cellClimate;
-			let precipMonthProm: number[] = getArrayOfN(12,0);
-			let tempMonthProm: number[] = getArrayOfN(12,0);
+			let precipMonthProm: number[] = getArrayOfN(12, 0);
+			let tempMonthProm: number[] = getArrayOfN(12, 0);
 			let cant: number = 0;
 			this.diagram.getCellNeighbours(c).forEach((nc: JCell) => {
 				const ninfo: JCellClimate = nc.info.cellClimate;
@@ -106,8 +106,8 @@ export default class ClimateMapGenerator extends MapGenerator {
 				precipMonthProm.forEach((p: number, i: number) => precipMonthProm[i] = p + ninfo.precipMonth[i]);
 				tempMonthProm.forEach((t: number, i: number) => tempMonthProm[i] = t + ninfo.tempMonth[i]);
 			})
-			cinfo.precipMonth.forEach((p: number, i: number) => cinfo.precipMonth[i] = 0.1 * p + 0.9 * precipMonthProm[i]/cant);
-			cinfo.tempMonth.forEach((t: number, i: number) => cinfo.tempMonth[i] = 0.8 * t + 0.2 * tempMonthProm[i]/cant);
+			cinfo.precipMonth.forEach((p: number, i: number) => cinfo.precipMonth[i] = 0.1 * p + 0.9 * precipMonthProm[i] / cant);
+			cinfo.tempMonth.forEach((t: number, i: number) => cinfo.tempMonth[i] = 0.8 * t + 0.2 * tempMonthProm[i] / cant);
 		})
 		console.timeEnd('set vertex climate data')
 	}
@@ -116,8 +116,8 @@ export default class ClimateMapGenerator extends MapGenerator {
 		this.diagram.forEachVertex((vertex: JVertex) => {
 			let info: IJVertexClimateInfo = {
 				id: vertex.id,
-				tempMonth: getArrayOfN(12,0),
-				precipMonth: getArrayOfN(12,0),
+				tempMonth: getArrayOfN(12, 0),
+				precipMonth: getArrayOfN(12, 0),
 			}
 
 			const cells: JCell[] = this.diagram.getCellsAssociated(vertex);

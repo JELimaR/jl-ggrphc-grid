@@ -3,14 +3,9 @@ import Triangle from '../Geom/Triangle';
 import JEdge from './JEdge';
 import JHalfEdge from './JHalfEdge';
 import JSite from './JSite';
+import JCellInformation from './CellInformation/JCellInformation';
+import turf from '../Geom/turf';
 
-import * as turf from '@turf/turf';
-import JCellInformation from '../CellInformation/JCellInformation';
-
-/**
- * En una cell:
- * 	halfedge es un borde de celda.
- */
 export default class JCell {
 
 	private _site: JSite;
@@ -19,11 +14,11 @@ export default class JCell {
 	private _subCells: JCell[] = [];
 	private _subsites: Point[] = [];
 
-	constructor( s: JSite, arrEdges: JEdge[]) {
-	
-		this._site = s;
-		arrEdges.forEach((je: JEdge) => {
-			const jhe: JHalfEdge = new JHalfEdge(this._site, je);
+	constructor(site: JSite, arrEdges: JEdge[]) {
+
+		this._site = site;
+		arrEdges.forEach((edge: JEdge) => {
+			const jhe: JHalfEdge = new JHalfEdge(this._site, edge);
 			this._halfedges.push(jhe);
 		})
 
@@ -165,9 +160,10 @@ export default class JCell {
 				points.push(triangles[i].centroid)
 			}
 
-			if (this.id == 3545) console.log(triangles.map((t: Triangle) => t.area));
-			if (this.id == 3545) console.log(this.areaSimple)
-			if (this.id == 3545) console.log(points)
+			const isIn: boolean = this.isPointIn(new Point(-90, 8))
+			if (isIn) console.log(triangles.map((t: Triangle) => t.area));
+			if (isIn) console.log(this.areaSimple)
+			if (isIn) console.log(points)
 
 			this._subsites = points;
 		}
@@ -187,7 +183,7 @@ export default class JCell {
 
 	get info(): JCellInformation { return this._cellInformation }
 
-	
+
 	/**
 	 * sub cells functions
 	 */

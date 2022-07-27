@@ -4,7 +4,7 @@ import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions'
 
 import JCell from "../Voronoi/JCell";
 import { inRange } from "../utilFunctions";
-import { lifeZonesList, TKoppenSubType, TKoppenType } from "../CellInformation/JCellClimate";
+import { lifeZonesList, TKoppenSubType, TKoppenType } from "../Voronoi/CellInformation/JCellClimate";
 import Point from "../Geom/Point";
 
 export default class ShowClimate extends Shower {

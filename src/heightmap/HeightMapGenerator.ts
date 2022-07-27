@@ -1,11 +1,11 @@
 import JDiagram from "../Voronoi/JDiagram";
 import InformationFilesManager from '../DataInformationLoadAndSave';
-import JCellHeight, { IJCellHeightInfo } from '../CellInformation/JCellHeight';
+import JCellHeight, { IJCellHeightInfo } from '../Voronoi/CellInformation/JCellHeight';
 import JCell from "../Voronoi/JCell";
 
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 import Point from "../Geom/Point";
-import JVertexHeight, { IJVertexHeightInfo } from "../VertexInformation/JVertexHeight";
+import JVertexHeight, { IJVertexHeightInfo } from "../Voronoi/VertexInformation/JVertexHeight";
 import JVertex from "../Voronoi/JVertex";
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
 import MapGenerator from "../MapGenerator";

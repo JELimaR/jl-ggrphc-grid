@@ -26,7 +26,7 @@ export default class JEdge {
 
 	private _lSite: JSite;
 	private _rSite: JSite | undefined;
-	private _vertexA: Point;
+	private _vertexA: Point; // puede ser directamente JVertex
 	private _vertexB: Point;
 
 	private _points: Point[] = [];
@@ -34,6 +34,7 @@ export default class JEdge {
 
 	static _diagram: JDiagram;
 	static set diagram(d: JDiagram) { this._diagram = d; }
+	static getId(e: Edge): string { return `a${Point.getIdfromVertex(e.va)}-b${Point.getIdfromVertex(e.vb)}` }
 
 	constructor({ ls, rs, va, vb }: IJEdgeConstructor) {
 
@@ -87,7 +88,7 @@ export default class JEdge {
 
 	get points(): Point[] {
 		if (this._points.length === 0) {
-			let out: Point[] = [];
+			let out: Point[];
 			if (this._rSite) {
 				const randf: () => number = RandomNumberGenerator.makeRandomFloat(this._rSite.id);
 				const pointsList: turf.Position[] = noiseTraceLine(
@@ -95,9 +96,7 @@ export default class JEdge {
 					this.diamond,
 					randf
 				);
-				pointsList.forEach((element: turf.Position) => {
-					out.push(new Point(element[0], element[1]))
-				})
+				out = pointsList.map((element: turf.Position) => Point.fromTurfPosition(element));
 			} else {
 				out = [this._vertexA, this._vertexB];
 			}

@@ -1,5 +1,5 @@
 import {Site} from 'voronoijs';
-import Point from '../Geom/Point';
+import Point, {IPoint} from '../Geom/Point';
 
 /*
 export interface IJSiteInfo {

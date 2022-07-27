@@ -1,7 +1,6 @@
-import * as turf from '@turf/turf'
-
 import { Vertex } from 'voronoijs';
 import { getPointInValidCoords } from '../utilFunctions';
+import turf from './turf';
 // import Coord from './Coord';
 
 export interface IPoint {

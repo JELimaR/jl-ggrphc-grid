@@ -5,6 +5,23 @@ import VoronoiSitesGenerator from './VoronoiSitesGenerator';
 
 export default class VoronoiDiagramCreator {
 
+	static createRandomDiagram(count: number): JDiagram {
+		console.time('compute random diagram');
+		
+		let bbox: BoundingBox = { xl: -180, xr: 180, yt: -90, yb: 90 };
+		let vor = new Voronoi();
+
+		console.time('Generate Sites');
+		let sites: Site[] = VoronoiSitesGenerator.getRandomSites(count);
+		console.timeEnd('Generate Sites');
+
+		let diagram: Diagram = vor.compute(sites, bbox);
+
+		console.timeEnd('compute random diagram');
+
+		return new JDiagram(diagram);
+	}
+
 	static createAzgaarInitialDiagram(): JDiagram {
 		console.time('compute prim')
 

@@ -1,5 +1,5 @@
-import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import JCell from "../Voronoi/JCell";
+import { TypeInformationKey } from "../../DataInformationLoadAndSave";
+import JCell from "../JCell";
 import JCellGeneric, { IJCellGenericInfo } from "./JCellGeneric";
 
 export type TypeCellheight =

@@ -1,4 +1,4 @@
-import JVertex from "../Voronoi/JVertex";
+import JVertex from "../JVertex";
 import JVertexHeight, { IJVertexHeightInfo } from "./JVertexHeight";
 import JVertexClimate, { IJVertexClimateInfo } from "./JVertexClimate";
 import JVertexFlux, { IJVertexFluxInfo } from "./JVertexFlux";

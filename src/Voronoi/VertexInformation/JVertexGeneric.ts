@@ -1,5 +1,5 @@
-import MapElement from "../MapElement";
-import JVertex from "../Voronoi/JVertex";
+import MapElement from "../../MapElement";
+import JVertex from "../JVertex";
 
 export interface IJVertexGenericInfo {
 	id: string;

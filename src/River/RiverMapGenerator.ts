@@ -1,9 +1,9 @@
 import JDiagram from "../Voronoi/JDiagram";
 import InformationFilesManager from '../DataInformationLoadAndSave';
-import JCellClimate from '../CellInformation/JCellClimate'
+import JCellClimate from '../Voronoi/CellInformation/JCellClimate'
 import JVertex from "../Voronoi/JVertex";
 import RiverMap, { IRiverMapInfo } from "./RiverMap";
-import JVertexFlux, { IJVertexFluxInfo } from "../VertexInformation/JVertexFlux";
+import JVertexFlux, { IJVertexFluxInfo } from "../Voronoi/VertexInformation/JVertexFlux";
 import { getArrayOfN } from "../utilFunctions";
 import FluxRouteMap, { IFluxRouteMapInfo } from "./FluxRouteMap";
 import MapGenerator from "../MapGenerator";

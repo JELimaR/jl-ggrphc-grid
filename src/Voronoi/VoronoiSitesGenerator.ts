@@ -1,5 +1,4 @@
 import { Site } from 'voronoijs';
-import * as turf from '@turf/turf';
 import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
 import InformationFilesManager from '../DataInformationLoadAndSave';
 import { IPoint } from '../Geom/Point';
@@ -32,15 +31,15 @@ export default class VoronoiSitesGenerator {
 		const randFunc = RandomNumberGenerator.makeRandomFloat(count);
 
 		for (let i = 0; i < count; i++) {
-			let pos: turf.Position = this.randomSite(randFunc);
-			out.push({ id: i, x: pos[0], y: pos[1] });
+			let pos: IPoint = this.randomSite(randFunc);
+			out.push({ id: i, x: pos.x, y: pos.y });
 		}
 		return out;
 	}
 
-	private static randomSite(randFloat: () => number): turf.Position {
-		let xx = Math.round(randFloat() * XDIF * 1000000) / 1000000 - XDIF/2;
-		let yy = Math.round(randFloat() * YDIF * 1000000) / 1000000 - YDIF/2;
-		return [xx, yy];
+	private static randomSite(randFloat: () => number): IPoint {
+		let x = Math.round(randFloat() * XDIF * 1000000) / 1000000 - XDIF/2;
+		let y = Math.round(randFloat() * YDIF * 1000000) / 1000000 - YDIF/2;
+		return {x,y};
 	}
 }

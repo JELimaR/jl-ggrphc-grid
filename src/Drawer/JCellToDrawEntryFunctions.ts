@@ -5,7 +5,7 @@ import {
 	altitudinalBeltToNumber,
 	humidityProvinceToNumber,
 	koppenColors, TAltitudinalBelt, THumidityProvinces, TKoppenSubType
-} from '../CellInformation/JCellClimate';
+} from '../Voronoi/CellInformation/JCellClimate';
 
 import { IDrawEntry } from './DrawerMap';
 import JCell from '../Voronoi/JCell';

@@ -1,7 +1,6 @@
-import JCell from "../Voronoi/JCell";
+import JCell from "../JCell";
 import JCellHeight, {IJCellHeightInfo} from './JCellHeight';
 import JCellClimate, {IJCellClimateInfo} from './JCellClimate';
-// import JCellTemp, { IJCellTempInfo } from './JCellTemp';
 
 export default class JCellInformation {
 	_cell: JCell
