@@ -2,8 +2,8 @@ import MapGenerator from "../MapGenerator";
 import JCell from "../../Voronoi/JCell";
 import JDiagram from "../../Voronoi/JDiagram";
 import JVertex from "../../Voronoi/JVertex";
-import DrainageBasinMap from "../../MapContainersElements/DrainageBasinMap";
-import FluxRouteMap from "../../MapContainersElements/FluxRouteMap";
+import DrainageBasinMap from "../../MapContainerElements/DrainageBasinMap";
+import FluxRouteMap from "../../MapContainerElements/FluxRouteMap";
 
 export default class DrainageBasinMapGenerator extends MapGenerator {
 	private _fluxRouteMap: Map<number, FluxRouteMap>

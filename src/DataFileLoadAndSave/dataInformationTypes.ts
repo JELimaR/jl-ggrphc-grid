@@ -1,13 +1,9 @@
+import { TypeInformationKey } from "../TypeInformationKey"
 
 export interface ISaveInformation {
 	subFolder: string[];
 	file: string;
 }
-export type TypeInformationKey =
-	| 'islands' | 'rivers' | 'fluxRoutes' // Container
-	| 'cellHeight' | 'cellClimate' // cell info
-	| 'vertexHeight' | 'vertexFlux' // vertex info
-	| 'temperature' | 'precip' | 'pressure';; // grid info
 
 export type TypeInformationObject = { [key in TypeInformationKey]: ISaveInformation } // sirve para crear una constante con todo
 

@@ -6,7 +6,7 @@ import { GRAN } from "../../Geom/constants";
 import GridPoint from "../../Grid/GridPoint";
 import DataGrid from "../DataGrid";
 import turf from "../../Geom/turf";
-import { calculateTempPromPerLat, generateTempLatArrPerMonth, parametertoRealTemp } from "./TempFunctions";
+import { calculateTempPromPerLat, generateTempLatArrPerMonth, parametertoRealTemp } from "./tempGridFunctions";
 const dataInfoManager = InformationFilesManager.instance;
 
 export interface ITempDataGrid {

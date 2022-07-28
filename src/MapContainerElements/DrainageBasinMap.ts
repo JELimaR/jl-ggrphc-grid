@@ -1,3 +1,4 @@
+// import { TypeInformationKey } from "../informationTypes";
 import RegionMap, { IRegionMapInfo } from "./RegionMap";
 import JDiagram from "../Voronoi/JDiagram";
 

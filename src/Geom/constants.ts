@@ -1,5 +1,5 @@
 
-export const WRADIUS = 6371;
+// export const WRADIUS = 6371;
 export const GRAN = 2;
 export const GRAD2RAD = Math.PI / 180;
 export const RAD2GRAD = 180 / Math.PI;

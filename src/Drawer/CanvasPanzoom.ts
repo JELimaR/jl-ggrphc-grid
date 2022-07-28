@@ -1,6 +1,6 @@
 import Point from "../Geom/Point";
 
-export interface IPanzoom {
+export interface ICanvasPanzoom {
 	
   zoom: number;
   centerX: number;
@@ -8,7 +8,7 @@ export interface IPanzoom {
 
 }
 
-export default class Panzoom {
+export default class CanvasPanzoom {
 	private _zoom: number;
 	private _centerX: number;
 	private _centerY: number;

@@ -1,7 +1,6 @@
-import { TypeInformationKey } from "../informationTypes";
+import { TypeInformationKey } from "../TypeInformationKey";
 import JDiagram from "../Voronoi/JDiagram";
 import LineMap, { ILineMapInfo } from "./LineMap";
-
 
 /**
  * Un objeto FluxRouteMap representa un camino de drenaje desde un punto inicial hacia la costa

@@ -1,4 +1,4 @@
-import { TypeInformationKey } from "../../informationTypes";
+import { TypeInformationKey } from "../../TypeInformationKey";
 import JVertex from "../JVertex";
 import JVertexGeneric, { IJVertexGenericInfo } from "./JVertexGeneric";
 

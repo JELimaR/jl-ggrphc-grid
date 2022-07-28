@@ -1,52 +1,58 @@
 import { Cell, Diagram, Halfedge, Edge } from 'voronoijs';
 import Point, { IPoint } from '../Geom/Point';
-import JCell from "./JCell";
-import JEdge from "./JEdge";
+import JCell, { IJCellInfo } from "./JCell";
+import JEdge, { IJEdgeInfo } from "./JEdge";
 import JSite from './JSite';
-import JVertex from './JVertex';
-import { ICellContainer, IVertexContainer } from '../MapContainersElements/containerInterfaces';
+import JVertex, { IJVertexInfo } from './JVertex';
 import turf from '../Geom/turf';
+import { IJHalfEdgeInfo } from './JHalfEdge';
 
-interface IJDiagramInfo {}
-
-class LoaderDiagram implements IJDiagramInfo {
-
+interface IJDiagramInfo {
+	cells: IJCellInfo[];
+	edges: IJEdgeInfo[];
+	vertices: IJVertexInfo[];
 }
 
-export default class JDiagram implements ICellContainer, IVertexContainer {
+export class LoaderDiagram implements IJDiagramInfo {
+	constructor(public cells: IJCellInfo[],
+		public edges: IJEdgeInfo[],
+		public vertices: IJVertexInfo[]) { }
+}
+
+export default class JDiagram {
 	private _cells: Map<number, JCell> = new Map<number, JCell>();
-	private _cells2: Map<string, JCell> = new Map<string, JCell>(); // no es necesario sin azgaar
+	private _cells2: Map<string, JCell> = new Map<string, JCell>(); // es necesario para azgaar y ancestro
 
 	private _vertices: Map<string, JVertex> = new Map<string, JVertex>();
-	private _edges: JEdge[] = []; //cambiar
+	private _edges: Map<string, JEdge> = new Map<string, JEdge>();
 
 	private _secAreaProm: number | undefined;
 
-	constructor(d: Diagram, ancestor?: { d: JDiagram, a: number, s: { p: IPoint, cid: number }[] }) {
+	constructor(d: Diagram | LoaderDiagram, ancestor?: { d: JDiagram, a: number, s: { p: IPoint, cid: number }[] }) {
 		console.log('Setting JDiagram values');
 		console.time('set JDiagram values');
 		JEdge.diagram = this;
 
-		this.setDiagramValuesContructed(d);
+		if (d instanceof LoaderDiagram) {
+			this.setDiagramValuesLoaded(d)
+		} else {
+			this.setDiagramValuesContructed(d);
+		}
 		// ancestor data
 		if (ancestor) {
-
 			this._secAreaProm = ancestor.a;
 
 			ancestor.s.forEach((value: { p: IPoint; cid: number; }) => {
 				const subCell: JCell = this.getCellFromCenter(Point.fromInterface(value.p));
 				const ancCell: JCell = ancestor.d.cells.get(value.cid) as JCell;
-
 				ancCell.addSubCell(subCell);
 			})
-
 		}
 
 		console.timeEnd('set JDiagram values');
 	}
 
 	private setDiagramValuesContructed(d: Diagram): void {
-
 		if (d.cells.length == 0) throw new Error(`no hay cells`)
 		// setear sites
 		let sitesMap: Map<number, JSite> = new Map<number, JSite>();
@@ -54,23 +60,22 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			const js: JSite = new JSite(c.site);
 			sitesMap.set(js.id, js);
 		});
-
-		let edgesMap = new Map<string, JEdge>();
+		// 
 		let verticesPointMap = new Map<string, Point>();
 		let verticesEdgeMap = new Map<string, JEdge[]>();
+		// setear edges
 		d.edges.forEach((e: Edge) => {
 			// obtener vertices: va y vb
-			let vaId: string = Point.getIdfromVertex(e.va);
+			let vaId: string = Point.getIdfromInterface(e.va);
 			if (!verticesPointMap.get(vaId)) {
-				verticesPointMap.set(vaId, Point.fromVertex(e.va));
+				verticesPointMap.set(vaId, Point.fromInterface(e.va));
 			}
 			let va: Point = verticesPointMap.get(vaId) as Point;
-			let vbId: string = Point.getIdfromVertex(e.vb);
+			let vbId: string = Point.getIdfromInterface(e.vb);
 			if (!verticesPointMap.get(vbId)) {
-				verticesPointMap.set(vbId, Point.fromVertex(e.vb));
+				verticesPointMap.set(vbId, Point.fromInterface(e.vb));
 			}
 			let vb: Point = verticesPointMap.get(vbId) as Point;
-
 			// obtener los sites: lSite y rSite
 			const ls: JSite = sitesMap.get(e.lSite.id) as JSite;
 			const rs: JSite | undefined = e.rSite ? sitesMap.get(e.rSite.id) : undefined;
@@ -81,9 +86,7 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 				lSite: ls,
 				rSite: rs
 			});
-
-			this._edges.push(je);
-			edgesMap.set(je.id, je);
+			this._edges.set(je.id, je);
 			//
 			if (!verticesEdgeMap.get(vaId)) verticesEdgeMap.set(vaId, []);
 			verticesEdgeMap.get(vaId)!.push(je);
@@ -97,7 +100,6 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			const jv: JVertex = new JVertex(p, edges);
 			this._vertices.set(p.id, jv)
 		})
-
 		// setear cells
 		d.cells.forEach((c: Cell) => {
 			const js: JSite = sitesMap.get(c.site.id) as JSite;
@@ -105,11 +107,68 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 
 			c.halfedges.forEach((he: Halfedge) => {
 				const jeid: string = JEdge.getId(he.edge)
-				const je: JEdge = edgesMap.get(jeid) as JEdge;
+				const je: JEdge = this._edges.get(jeid) as JEdge;
 				arrEdges.push(je)
 			})
 
-			const cell = new JCell(/*c,*/ js, arrEdges/*info*/);
+			const cell = new JCell(js, arrEdges);
+			this._cells.set(js.id, cell);
+			this._cells2.set(js.point.id, cell);
+		});
+	}
+
+	private setDiagramValuesLoaded(idi: IJDiagramInfo): void {
+
+		if (idi.cells.length == 0) throw new Error(`no hay cells`)
+		// setear sites
+		let sitesMap: Map<number, JSite> = new Map<number, JSite>();
+		idi.cells.forEach((c: IJCellInfo) => {
+			const js: JSite = new JSite({ ...c.site.point, id: c.site.id });
+			sitesMap.set(js.id, js);
+		});
+
+		let verticesPointMap = new Map<string, Point>();
+		// setear vertices point map para los edges
+		idi.vertices.forEach((ivi: IJVertexInfo) => {
+			let p: Point = Point.fromInterface(ivi.point);
+			verticesPointMap.set(p.id, p);
+		})
+		// setear edges
+		idi.edges.forEach((e: IJEdgeInfo) => {
+			// obtener vertices: va y vb
+			let va: Point = verticesPointMap.get(e.vaId) as Point;
+			let vb: Point = verticesPointMap.get(e.vbId) as Point;
+			// obtener los sites: lSite y rSite
+			const ls: JSite = sitesMap.get(e.lSite.id) as JSite;
+			const rs: JSite | undefined = e.rSite ? sitesMap.get(e.rSite.id) : undefined;
+
+			let je = new JEdge({
+				vpA: va,
+				vpB: vb,
+				lSite: ls,
+				rSite: rs
+			});
+
+			this._edges.set(je.id, je);
+		})
+		// setear vertices
+		idi.vertices.forEach((ivi: IJVertexInfo) => {
+			const p: Point = verticesPointMap.get(Point.getIdfromInterface(ivi.point))!;
+			const edges: JEdge[] = ivi.edgeIds.map((eid: string) => this._edges.get(eid)!);
+			const jv: JVertex = new JVertex(p, edges);
+			this._vertices.set(p.id, jv)
+		})
+		// setear cells
+		idi.cells.forEach((c: IJCellInfo) => {
+			const js: JSite = sitesMap.get(c.site.id) as JSite;
+			let arrEdges: JEdge[] = [];
+
+			c.halfedges.forEach((he: IJHalfEdgeInfo) => {
+				const je: JEdge = this._edges.get(he.edgeid) as JEdge;
+				arrEdges.push(je)
+			})
+
+			const cell = new JCell(js, arrEdges);
 			this._cells.set(js.id, cell);
 			this._cells2.set(js.point.id, cell);
 		});
@@ -117,34 +176,22 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 
 	get secAreaProm(): number | undefined { return this._secAreaProm }
 
-	get sites(): JSite[] {
-		let out: JSite[] = [];
-		this._cells.forEach((c: JCell) => {
-			out.push(c.site);
-		})
-		return out;
-	}
-
 	get vertices(): Map<string, JVertex> { return this._vertices }
-
 	get cells(): Map<number, JCell> { return this._cells }
-	// getCellsMapStringKey(): Map<string, JCell> {
-	// 	return this._cells2;
-	// }
 
 	forEachCell(func: (c: JCell) => void) {
-		this._cells.forEach((c: JCell) => {
-			func(c);
-		})
+		this._cells.forEach((c: JCell) => func(c));
 	}
 
 	forEachVertex(func: (v: JVertex) => void) {
-		this._vertices.forEach((v: JVertex) => {
-			func(v);
-		})
+		this._vertices.forEach((v: JVertex) => func(v));
 	}
 
-	getCellNeighbours(cell: JCell): JCell[] { // cambiar a getCellNeighbours
+	forEachEdge(func: (e: JEdge) => void) {
+		this._edges.forEach((e: JEdge) => func(e));
+	}
+
+	getCellNeighbours(cell: JCell): JCell[] {
 		let out: JCell[] = [];
 		for (let id of cell.neighborsId) {
 			const n: JCell | undefined = this._cells.get(id);
@@ -427,6 +474,22 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 				out.push({ p: cell.center.getInterface(), cid: cell.id })
 		})
 		return out;
+	}
+
+	getInterface(): IJDiagramInfo {
+		const cells: IJCellInfo[] = [];
+		const edges: IJEdgeInfo[] = [];
+		const vertices: IJVertexInfo[] = [];
+
+		this.forEachCell((c: JCell) => cells.push(c.getInterface()));
+		this.forEachEdge((e: JEdge) => edges.push(e.getInterface()));
+		this.forEachVertex((v: JVertex) => vertices.push(v.getInterface()))
+
+		return {
+			cells,
+			edges,
+			vertices,
+		}
 	}
 
 }

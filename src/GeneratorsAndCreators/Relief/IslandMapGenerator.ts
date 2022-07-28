@@ -3,7 +3,7 @@ import JDiagram from "../../Voronoi/JDiagram";
 import InformationFilesManager from '../../DataFileLoadAndSave/InformationFilesManager';
 import JCell from "../../Voronoi/JCell";
 import MapGenerator from "../MapGenerator";
-import IslandMap, { IIslandMapInfo } from "../../MapContainersElements/IslandMap";
+import IslandMap, { IIslandMapInfo } from "../../MapContainerElements/IslandMap";
 
 export default class IslandMapGenerator extends MapGenerator {
 	constructor(d: JDiagram) {

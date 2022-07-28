@@ -1,15 +1,15 @@
-import NaturalWorld from "../NaturalWorld";
+import NaturalWorldMap from "../NaturalWorldMap";
 import Shower from "./Shower";
 import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions';
 
 import JCell from "../Voronoi/JCell";
-import { inRange } from "../utilFunctions";
 import { lifeZonesList, TKoppenSubType, TKoppenType } from "../Voronoi/CellInformation/JCellClimate";
 import Point from "../Geom/Point";
+import { inRange } from "../Geom/basicGeometryFunctions";
 
 export default class ShowClimate extends Shower {
 
-	constructor(world: NaturalWorld, area: number, folderSelected: string) {
+	constructor(world: NaturalWorldMap, area: number, folderSelected: string) {
 		super(world, area, folderSelected, 'climate');
 	}
 

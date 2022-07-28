@@ -23,3 +23,5 @@ Range 1 20-35 45-45 85-85
 Hill 8 10-15 15-85 20-80
 Smooth 3 0 0 0
 Mask 2 0 0 0
+Multiply 1.12 land 0 0
+Multiply 1.1 all 0 0

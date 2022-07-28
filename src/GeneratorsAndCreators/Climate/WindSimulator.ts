@@ -1,11 +1,11 @@
-import { calcCoriolisForce, calcMovementState, IMovementState } from "./PressureFieldFunctions";
+import { calcCoriolisForce, calcMovementState, IMovementState } from "./windSimulatorFunctions";
 import { GRAN } from "../../Geom/constants";
 import Point from "../../Geom/Point";
 import Grid from "../../Grid/Grid";
 import GridPoint from "../../Grid/GridPoint";
-import { getArrayOfN, getPointInValidCoords } from "../../utilFunctions";
 import PressureGrid, { PressureData } from "./PressureGrid";
 import TempGrid from "./TempGrid";
+import { getPointInValidCoords, getArrayOfN } from "../../Geom/basicGeometryFunctions";
 
 const sat: number = 8000;
 const roz = 0.71;
@@ -94,17 +94,14 @@ export default class WindSimulate {
 
 				let route: WindRoutePoint[] = [];
 				const currPos: Point = new Point(gp.point.x, gp.point.y);
-				let wsOut: { dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[] }// = { dataPrecip: [], route: [] }
+				let wsOut: { dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[] }
 				// if (pressGrid._pressureCentersLocationGrid.get(m)![gp.colValue][gp.rowValue] !== 1) {
 				wsOut = this.windSimIteration(currPos, m, dataPrecip, route);
 				dataPrecip = wsOut.dataPrecip;
 				// dataRoutes[gp.colValue][gp.rowValue] = wsOut.route;
 				//}
-
 			}
-			this._grid.forEachPoint((gp: GridPoint) => {
-				gp.cell.dismark();
-			})
+			this._grid.forEachPoint((gp: GridPoint) => gp.cell.dismark());
 			precipOut.set(m, dataPrecip);
 			routeOut.set(m, dataRoutes);
 		})

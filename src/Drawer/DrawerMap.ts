@@ -7,13 +7,13 @@ import chroma from 'chroma-js';
 import Point from '../Geom/Point';
 
 import JCell from '../Voronoi/JCell';
-import RegionMap from '../MapContainersElements/RegionMap';
-import JPanzoom from './Panzoom';
-import { inRange } from '../utilFunctions';
-import { ICellContainer, IEdgeContainer, IVertexContainer } from '../MapContainersElements/containerInterfaces';
+import RegionMap from '../MapContainerElements/RegionMap';
+import CanvasPanzoom from './CanvasPanzoom';
+import { ICellContainer, IEdgeContainer, IVertexContainer } from '../MapContainerElements/containerInterfaces';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
 import turf from '../Geom/turf';
+import { inRange } from '../Geom/basicGeometryFunctions';
 // import { Bitmap } from 'pureimage/types/bitmap';
 // import { Context } from 'pureimage/types/context';
 
@@ -31,7 +31,7 @@ export default class DrawerMap {
 	private _cnvs: Canvas;
 	// private _cnvs: Bitmap;
 
-	private _panzoom: JPanzoom;
+	private _panzoom: CanvasPanzoom;
 	private _dirPath: string;
 
 	static _srcPath: string;
@@ -41,7 +41,7 @@ export default class DrawerMap {
 		this._cnvs = createCanvas(SIZE.x, SIZE.y);
 		// this._cnvs = PImage.make(SIZE.x, SIZE.y, {});
 
-		this._panzoom = new JPanzoom(this._size);
+		this._panzoom = new CanvasPanzoom(this._size);
 		this._dirPath = DrawerMap._srcPath + `/${dirPath}`;
 		fs.mkdirSync(this._dirPath, { recursive: true });
 	}
@@ -114,7 +114,7 @@ export default class DrawerMap {
 	}
 
 	calculatePanzoomForReg(reg: RegionMap) {
-		const auxPZ: JPanzoom = new JPanzoom(this._size);
+		const auxPZ: CanvasPanzoom = new CanvasPanzoom(this._size);
 		let ok: boolean = true;
 		let zoom = 0;
 		const datDM = reg.getDrawerParameters();

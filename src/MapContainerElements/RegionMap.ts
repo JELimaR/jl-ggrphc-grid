@@ -184,11 +184,11 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 	private growingOnes(regFather?: RegionMap) {
 		if (this._neighborList.size === 0) return;
 		let list = [...this._neighborList]
-		list.forEach((e: number) => {
-			const cell: JCell = this.diagram.cells.get(e) as JCell;
-			if (!cell.info.isLand || (!(regFather && !regFather.isInRegion(e)))) {
+		list.forEach((nid: number) => {
+			const cell: JCell = this.diagram.cells.get(nid) as JCell;
+			if (!cell.info.isLand || (!(regFather && !regFather.isInRegion(nid)))) {
 				this.addCell(cell);
-				this._neighborList.delete(e);
+				this._neighborList.delete(nid);
 			}
 		})
 	}
@@ -229,7 +229,7 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 			}
 		})
 
-		this.diagram.cells.forEach((c: JCell) => {c.dismark()})
+		this.diagram.dismarkAllCells();
 
 		return subs;
 	}

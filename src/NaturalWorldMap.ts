@@ -1,92 +1,71 @@
-import VoronoiDiagramCreator from './Voronoi/VoronoiDiagramCreator';
 import JDiagram from './Voronoi/JDiagram';
-import Grid from './Grid/Grid';
-import RiverMapGenerator, { IRiverMapGeneratorOut } from './GeneratorsAndCreators/Flux/RiverMapGenerator';
-import IslandMap from './MapContainersElements/IslandMap';
-import IslandMapGenerator from './GeneratorsAndCreators/Relief/IslandMapGenerator';
-import GridCreator from './GeneratorsAndCreators/GridCreator';
-import ClimateMapGenerator from './GeneratorsAndCreators/Climate/ClimateMapGenerator';
-import HeightMapGenerator from './GeneratorsAndCreators/Relief/HeightMapGenerator';
-import RiverMap from './MapContainersElements/RiverMap';
-import FluxRouteMap from './MapContainersElements/FluxRouteMap';
+import { IRiverMapGeneratorOut } from './GeneratorsAndCreators/Flux/RiverMapGenerator';
+import IslandMap from './MapContainerElements/IslandMap';
+import RiverMap from './MapContainerElements/RiverMap';
+import FluxRouteMap from './MapContainerElements/FluxRouteMap';
+import INaturalWorldMapCreator from './INaturalWorldMapCreator';
 
-export default class NaturalWorld {
+export default class NaturalWorldMap {
 
 	private _diagram: JDiagram;
+	private _creator: INaturalWorldMapCreator
 
 	// map elements estos elementos son generados despues y no en el constructor
 	private _islands: IslandMap[] = [];
 	private _fluxRoutes: Map<number, FluxRouteMap> = new Map<number, FluxRouteMap>();
 	private _rivers: Map<number, RiverMap> = new Map<number, RiverMap>();
 
-	constructor(AREA: number) {
+	constructor(AREA: number, nwmc: INaturalWorldMapCreator) {
+		// this.generateVoronoiDiagramInfo(AREA);
+		this._creator = nwmc;
+		this._diagram = this._creator.generateVoronoiDiagramInfo(AREA)
+	}
 
-		const gnw = this.generateNaturalWorld(AREA);
-		this._diagram = gnw.d;
-		// this._heightMap = gnw.h;
-		// this._fluxRoutes = gnw.iro.fluxRoutes;
-		// this._rivers = gnw.iro.rivers;
-		// this._riverMap = gnw.r;
-		//
-		// this._islands = gnw.i;
-
+	constructor2() {
 	}
 
 	get diagram(): JDiagram { return this._diagram }
 	get islands(): IslandMap[] {
-		if (this._islands.length === 0) /*this._islands = */this.generateIslandMaps();
+		if (this._islands.length === 0) 
+			this._islands = this._creator.generateIslandMaps(this._diagram);
 		return this._islands;
 	}
 	get fluxRoutes() {
 		if (this._fluxRoutes.size === 0) {
-			/*const iro: IRiverMapGeneratorOut = */this.generateRiverMaps();
-			// this._fluxRoutes = iro.fluxRoutes;
-			// this._rivers = iro.rivers;
+			this.setFluxElements();
 		}
 		return this._fluxRoutes;
 	}
 	get rivers() {
 		if (this._rivers.size === 0) {
-			/*const iro: IRiverMapGeneratorOut = */this.generateRiverMaps();
-			// this._fluxRoutes = iro.fluxRoutes;
-			// this._rivers = iro.rivers;
+			this.setFluxElements();
 		}
 		return this._rivers;
 	}
+
+	private setFluxElements() {
+		const iro: IRiverMapGeneratorOut = this._creator.generateRiverMaps(this._diagram);
+		this._fluxRoutes = iro.fluxRoutes;
+		this._rivers = iro.rivers;
+	}
 	/**/
-
-	private generateNaturalWorld(AREA: number): {
-		d: JDiagram,
-		// h: HeightMapGenerator,
-
-		// iro: IRiverMapGeneratorOut,
-
-		// i: IslandMap[],
-	} {
+/*
+	private generateVoronoiDiagramInfo(AREA: number): JDiagram {
 		console.time('Generate Natural World')
 		const iniDiagram: JDiagram = this.createInitialVoronoiDiagram();
 		const iniGrid: Grid = this.createGrid(iniDiagram)
 		const diagram = this.createPrincipalVoronoiDiagram(iniDiagram, AREA);
 		this.generateHeightMap(diagram, iniDiagram);
 		this.generateClimateMap(diagram, iniGrid);
-
-		// const islandsArr = this.generateIslandMaps(diagram);
-		// const rmgout = this.generateRiverMaps(diagram);
 		console.timeEnd('Generate Natural World')
-		return {
-			d: diagram,
-			// h: heightMap,
-			// c: climateMap,
-			// iro: rmgout,
-
-			// i: islandsArr,
-		}
+		return diagram;
 	}
 
 	private createInitialVoronoiDiagram(): JDiagram {
 		console.log('-----init voronoi-------');
 		console.time('primary voronoi');
-		const iniDiagram: JDiagram = VoronoiDiagramCreator.createAzgaarInitialDiagram();
+		const vdc = new VoronoiDiagramCreator();
+		const iniDiagram: JDiagram = vdc.createAzgaarInitialDiagram();
 		console.timeEnd('primary voronoi');
 		return iniDiagram;
 	}
@@ -95,7 +74,8 @@ export default class NaturalWorld {
 		const inihmg = new HeightMapGenerator(initialDiagram);
 		inihmg.generate();
 		console.time('second voronoi');
-		const diagram: JDiagram = VoronoiDiagramCreator.createSubDiagram(initialDiagram, AREA);
+		const vdc = new VoronoiDiagramCreator();
+		const diagram: JDiagram = vdc.createSubDiagram(initialDiagram, AREA);
 		console.timeEnd('second voronoi');
 		return diagram;
 	}
@@ -122,7 +102,7 @@ export default class NaturalWorld {
 		this._fluxRoutes = iro.fluxRoutes;
 		this._rivers = iro.rivers;
 	}
-	private generateIslandMaps(): void{
+	private generateIslandMaps(): void {
 		const img: IslandMapGenerator = new IslandMapGenerator(this.diagram);
 		this._islands = img.generate();
 	}

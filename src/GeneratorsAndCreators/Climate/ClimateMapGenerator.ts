@@ -1,7 +1,6 @@
 import InformationFilesManager from "../../DataFileLoadAndSave/InformationFilesManager";
 import Grid from "../../Grid/Grid";
 import MapGenerator from "../MapGenerator";
-import { getArrayOfN } from "../../utilFunctions";
 import JCellClimate, { IJCellClimateInfo } from "../../Voronoi/CellInformation/JCellClimate";
 import JCell from "../../Voronoi/JCell";
 import JDiagram from "../../Voronoi/JDiagram";
@@ -10,6 +9,7 @@ import { IJVertexClimateInfo } from "../../Voronoi/VertexInformation/JVertexClim
 import PrecipGrid, { IPrecipData } from "./PrecipGrid";
 import PressureGrid from "./PressureGrid";
 import TempGrid from "./TempGrid";
+import { getArrayOfN } from "../../Geom/basicGeometryFunctions";
 
 
 export default class ClimateMapGenerator extends MapGenerator {

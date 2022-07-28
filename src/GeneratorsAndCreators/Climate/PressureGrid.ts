@@ -1,4 +1,4 @@
-import { calcFieldInPoint } from "./PressureFieldFunctions";
+import { calcFieldInPoint } from "./pressureGridFunctions";
 import InformationFilesManager from "../../DataFileLoadAndSave/InformationFilesManager";
 import Point from "../../Geom/Point";
 import Grid from "../../Grid/Grid";

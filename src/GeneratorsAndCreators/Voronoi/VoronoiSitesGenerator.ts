@@ -1,20 +1,20 @@
 import { Site } from 'voronoijs';
-import AzgaarReaderData from '../DataFileLoadAndSave/AzgaarReaderData';
-import InformationFilesManager from '../DataFileLoadAndSave/InformationFilesManager';
-import { IPoint } from '../Geom/Point';
-import JDiagram from './JDiagram';
-import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
+import AzgaarReaderData from '../../DataFileLoadAndSave/AzgaarReaderData';
+import InformationFilesManager from '../../DataFileLoadAndSave/InformationFilesManager';
+import { IPoint } from '../../Geom/Point';
+import RandomNumberGenerator from '../../Geom/RandomNumberGenerator';
+import JDiagram from '../../Voronoi/JDiagram';
 
 const XDIF = 360;
 const YDIF = 180;
 
 export default class VoronoiSitesGenerator {
-	static getAzgaarSites(): Site[] {
-		const ard: AzgaarReaderData = AzgaarReaderData.instance;
+	getAzgaarSites(): Site[] {
+		const ard = AzgaarReaderData.instance;
 		return ard.sites();
 	}
 
-	static getSecSites(jd: JDiagram, AREA: number) {
+	getSecSites(jd: JDiagram, AREA: number) {
 		const ifm = InformationFilesManager._instance;
 
 		let subSitesData: { p: IPoint, cid: number }[] = ifm.loadSubSites(AREA);
@@ -26,7 +26,7 @@ export default class VoronoiSitesGenerator {
 		return subSitesData;
 	}
 
-	static getRandomSites(count: number): Site[] {
+	getRandomSites(count: number): Site[] {
 		let out: Site[] = [];
 		const randFunc = RandomNumberGenerator.makeRandomFloat(count);
 
@@ -37,7 +37,7 @@ export default class VoronoiSitesGenerator {
 		return out;
 	}
 
-	private static randomSite(randFloat: () => number): IPoint {
+	private randomSite(randFloat: () => number): IPoint {
 		let x = Math.round(randFloat() * XDIF * 1000000) / 1000000 - XDIF/2;
 		let y = Math.round(randFloat() * YDIF * 1000000) / 1000000 - YDIF/2;
 		return {x,y};

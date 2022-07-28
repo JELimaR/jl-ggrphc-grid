@@ -3,20 +3,20 @@ import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions'
 import * as JEdgeToDrawEntryFunctions from '../Drawer/JEdgeToDrawEntryFunctions';
 
 import Point, { IPoint } from '../Geom/Point';
-import NaturalWorld from '../NaturalWorld';
+import NaturalWorldMap from '../NaturalWorldMap';
 
 import JVertex from '../Voronoi/JVertex';
 import chroma from 'chroma-js';
 import Shower from './Shower';
-import RiverMap from '../MapContainersElements/RiverMap';
-import FluxRouteMap from '../MapContainersElements/FluxRouteMap';
+import RiverMap from '../MapContainerElements/RiverMap';
+import FluxRouteMap from '../MapContainerElements/FluxRouteMap';
 
 type TBackground = 'h' | 'l';
 
 
 export default class ShowWater extends Shower {
 
-	constructor(world: NaturalWorld, area: number, folderSelected: string) {
+	constructor(world: NaturalWorldMap, area: number, folderSelected: string) {
 		super(world, area, folderSelected, 'river');
 	}
 

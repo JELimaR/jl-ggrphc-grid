@@ -1,7 +1,7 @@
-import { Vertex } from 'voronoijs';
-import { getPointInValidCoords } from '../utilFunctions';
+import { getPointInValidCoords } from './basicGeometryFunctions';
 import turf from './turf';
-// import Coord from './Coord';
+
+const PRECITION = 1000000;
 
 export interface IPoint {
 	x: number, y: number
@@ -60,13 +60,13 @@ export default class Point {
 	}
 
 	get id(): string {
-		return `x${Math.round(1000000 * this._x)}-y${Math.round(1000000 * this._y)}`;
+		return `x${Math.round(PRECITION * this._x)}-y${Math.round(PRECITION * this._y)}`;
 	}
 
 	static equal(a: Point, b: Point): boolean {
 		return (
-			Math.abs(a._x - b._x) < 1 / 1000000 &&
-			Math.abs(a._y - b._y) < 1 / 1000000
+			Math.abs(a._x - b._x) < 1 / PRECITION &&
+			Math.abs(a._y - b._y) < 1 / PRECITION
 		)
 	}
 
@@ -86,10 +86,9 @@ export default class Point {
 
 	/**
 	 * retorna el punto equivalente a b como coordenada más cercano
-		 */
+	 */
 	point2(b: Point): Point {
 		b = getPointInValidCoords(b);
-		// b = JPoint.pointToCoord(b);
 		let out: Point = b;
 		let dist: number = Point.distance(this, b);
 
@@ -102,22 +101,9 @@ export default class Point {
 		return out;
 	}
 
-	static fromTurfPosition(position: turf.Position): Point {
-		return new Point(position[0], position[1]);
+	static getIdfromInterface(ip: IPoint): string {
+		return Point.fromInterface(ip).id;
 	}
-
-	static fromVertex(v: Vertex): Point {
-		return new Point(v.x, v.y);
-	}
-
-	static getIdfromVertex(v: Vertex): string {
-		return Point.fromVertex(v).id;
-	}
-/*
-	static pointToCoord(p: JPoint): JPoint { // o modificamos el JPoint		
-		return getPointInValidCoords(p)
-	}
-*/
 
 	private toTurfPoint(): turf.Feature<turf.Point> {
 		return turf.point([this._x, this._y]);
@@ -125,6 +111,11 @@ export default class Point {
 
 	toTurfPosition(): turf.Position {
 		return [this._x, this._y];
+	}
+	getInterface(): IPoint {
+		return {
+			x: this._x, y: this._y
+		}
 	}
 
 	static geogDistance(a: Point, b: Point): number {
@@ -142,14 +133,9 @@ export default class Point {
 	static fromInterface(ip: IPoint): Point {
 		return new Point(ip.x, ip.y);
 	}
-
-	scalarprod(b: Point): number {
-		return this._x * b.x + this._y * b.y;
+	
+	static fromTurfPosition(position: turf.Position): Point {
+		return new Point(position[0], position[1]);
 	}
 
-	getInterface(): IPoint {
-		return {
-			x: this._x, y: this._y
-		}
-	}
 }

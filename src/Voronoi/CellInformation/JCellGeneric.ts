@@ -1,4 +1,4 @@
-import { TypeInformationKey } from "../../informationTypes";
+import { TypeInformationKey } from "../../TypeInformationKey";
 import IMapElement from "../../MapElement";
 import JCell from "../JCell";
 

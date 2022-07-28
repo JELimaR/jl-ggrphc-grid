@@ -20,3 +20,21 @@ export interface IEdgeContainer {
 export interface IDiagramContainer {
 	diagram: JDiagram
 }
+
+export const createICellContainer = (cells: JCell[] | Map<number, JCell>): ICellContainer => {
+	return {
+		cells: cells,
+		forEachCell: (func: (jc: JCell) => void) => {
+			cells.forEach((c: JCell) => { func(c) })
+		}
+	}
+}
+
+export const createIVertexContainer = (vertices: JVertex[] | Map<string, JVertex>): IVertexContainer => {
+	return {
+		vertices: vertices,
+		forEachVertex: (func: (jv: JVertex) => void) => {
+			vertices.forEach((v: JVertex) => { func(v) })
+		}
+	}
+}

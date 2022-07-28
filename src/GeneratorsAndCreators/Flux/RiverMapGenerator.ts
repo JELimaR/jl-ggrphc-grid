@@ -3,10 +3,10 @@ import InformationFilesManager from '../../DataFileLoadAndSave/InformationFilesM
 import JCellClimate from '../../Voronoi/CellInformation/JCellClimate'
 import JVertex from "../../Voronoi/JVertex";
 import JVertexFlux, { IJVertexFluxInfo } from "../../Voronoi/VertexInformation/JVertexFlux";
-import { getArrayOfN } from "../../utilFunctions";
 import MapGenerator from "../MapGenerator";
-import FluxRouteMap, { IFluxRouteMapInfo } from "../../MapContainersElements/FluxRouteMap";
-import RiverMap, { IRiverMapInfo } from "../../MapContainersElements/RiverMap";
+import FluxRouteMap, { IFluxRouteMapInfo } from "../../MapContainerElements/FluxRouteMap";
+import RiverMap, { IRiverMapInfo } from "../../MapContainerElements/RiverMap";
+import { getArrayOfN } from "../../Geom/basicGeometryFunctions";
 
 export interface IRiverMapGeneratorOut {
 	fluxRoutes: Map<number, FluxRouteMap>;

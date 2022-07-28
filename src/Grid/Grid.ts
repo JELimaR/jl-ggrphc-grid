@@ -1,7 +1,7 @@
 import Point from '../Geom/Point';
-import { GRAN } from '../Geom/constants'
-import { inRange } from '../utilFunctions';
 import GridPoint from './GridPoint';
+import { inRange } from '../Geom/basicGeometryFunctions';
+import { GRAN } from '../Geom/constants';
 
 export default class Grid {
 	private _points: GridPoint[][];

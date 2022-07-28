@@ -178,6 +178,12 @@ export default class JCell {
 	/*
 	 * Generic Information
 	 */
+	getInterface(): IJCellInfo {
+		return {
+			site: this._site.getInterface(),
+			halfedges: this._halfedges.map((he: JHalfEdge) => he.getInterface())
+		}
+	}
 	get info(): JCellInformation { return this._cellInformation }
 
 	mark(): void { this._cellInformation.mark = true }

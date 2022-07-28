@@ -34,7 +34,12 @@ export default class JEdge {
 
 	static _diagram: JDiagram;
 	static set diagram(d: JDiagram) { this._diagram = d; }
-	static getId(e: Edge): string { return `a${Point.getIdfromVertex(e.va)}-b${Point.getIdfromVertex(e.vb)}` }
+	static getId(e: Edge): string {
+		let partial = e.lSite.id * JEdge._diagram.cells.size;
+		let id = e.rSite ? partial + e.rSite.id : e.lSite.id * -1;
+		return JEdge.calcId(Point.fromInterface(e.va), Point.fromInterface(e.vb))
+	}
+	private static calcId(a: Point, b: Point) {	return `a${a.id}-b${b.id}`; }
 
 	constructor(iec: IJEdgeConstructor) {
 
@@ -57,7 +62,7 @@ export default class JEdge {
 	}
 
 	get id(): string {
-		return `a${this._vpA.id}-b${this._vpB.id}`
+		return JEdge.calcId(this._vpA, this._vpB);
 	}
 	get diamond(): turf.Feature<turf.Polygon> {
 		if (this._rSite) {
@@ -135,7 +140,7 @@ export const edgeNoisePoints = (edge: Edge): Point[] => {
 		);
 		pointsList.forEach((element: turf.Position) => out.push(Point.fromTurfPosition(element)))
 	} else {
-		out = [Point.fromVertex(edge.va), Point.fromVertex(edge.vb)];
+		out = [Point.fromInterface(edge.va), Point.fromInterface(edge.vb)];
 	}
 	return out;
 }

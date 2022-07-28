@@ -3,7 +3,9 @@ import { IPoint } from '../Geom/Point';
 import MapElement from '../MapElement';
 import { GRAN } from '../Geom/constants';
 import GridPoint, { IGridPointInfo } from '../Grid/GridPoint';
-import { DATA_INFORMATION, TypeInformationKey } from '../informationTypes';
+import { TypeInformationKey } from '../TypeInformationKey';
+import { DATA_INFORMATION } from './dataInformationTypes';
+import { LoaderDiagram } from '../Voronoi/JDiagram';
 
 // dividir esta clase
 export default class InformationFilesManager {
@@ -23,6 +25,25 @@ export default class InformationFilesManager {
 	static configPath(path: string): void {
 		this.instance._dirPath = path;
 		fs.mkdirSync(this.instance._dirPath, { recursive: true });
+	}
+
+	//
+	loadDiagramValues(area: number | undefined): LoaderDiagram {
+		if (this._dirPath === '') throw new Error('non configurated path');
+		let out: LoaderDiagram = new LoaderDiagram([],[],[]);
+		try {
+			let pathFile: string = `${this._dirPath}/${area}diagram.json`;
+			const data = JSON.parse(fs.readFileSync(pathFile).toString());
+			out = new LoaderDiagram(data.cells, data.edges, data.vertices);
+		} catch (e) {
+
+		}		
+		return out;
+	}
+	saveDiagramValues(info: LoaderDiagram, area: number | undefined): void {
+		fs.mkdirSync(`${this._dirPath}`, { recursive: true });
+		let pathName: string = `${this._dirPath}/${area}diagram.json`;
+		fs.writeFileSync(pathName, JSON.stringify(info));
 	}
 
 	/**

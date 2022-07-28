@@ -1,4 +1,4 @@
-import { TypeInformationKey } from "../informationTypes";
+import { TypeInformationKey } from "../TypeInformationKey";
 import RegionMap, { IRegionMapInfo } from "./RegionMap";
 import JCell from "../Voronoi/JCell";
 import JDiagram from "../Voronoi/JDiagram";
@@ -9,12 +9,12 @@ export interface IIslandMapInfo extends IRegionMapInfo {
 
 export default class IslandMap extends RegionMap {
 	private _id: number;
-	constructor(id: number, /*world: JWorldMap*/ diag: JDiagram, info?: IIslandMapInfo,) {
+	constructor(id: number, diag: JDiagram, info?: IIslandMapInfo,) {
 		super(diag, info);
 		this._id = id
 	}
 
-	get id(): number {return this._id}
+	get id(): number { return this._id }
 
 	getWaterCoastCells(): JCell[] {
 		let out: Map<number, JCell> = new Map<number, JCell>();
@@ -24,7 +24,7 @@ export default class IslandMap extends RegionMap {
 				if (!this.isInRegion(n)) out.set(n.id, n);
 			})
 		})
-		
+
 		return [...out.values()];
 	}
 

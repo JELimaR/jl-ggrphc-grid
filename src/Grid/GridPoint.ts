@@ -1,6 +1,6 @@
-import { GRAD2RAD, GRAN, WRADIUS } from "../Geom/constants";
+import { inRange } from "../Geom/basicGeometryFunctions";
+import { GRAN } from "../Geom/constants";
 import Point from "../Geom/Point";
-import { inRange } from "../utilFunctions";
 import JCell from "../Voronoi/JCell";
 
 export interface IGridPointInfo {
@@ -35,13 +35,14 @@ export default class GridPoint {
 		);
 	}
 
+	/*
 	getPixelArea(): number {
 		let out = WRADIUS * (GRAN * GRAD2RAD);
 		out *= WRADIUS * Math.cos(this._point.y * GRAD2RAD) * (GRAN * GRAD2RAD);
 
 		return out;
 	}
-
+	*/
 	getInterface(): IGridPointInfo {
 		return {
 			point: this._point.getInterface(),

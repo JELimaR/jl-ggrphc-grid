@@ -1,5 +1,5 @@
-import { TypeInformationKey } from "../../informationTypes";
-import { inRange } from "../../utilFunctions";
+import { inRange } from "../../Geom/basicGeometryFunctions";
+import { TypeInformationKey } from "../../TypeInformationKey";
 import JCell from "../JCell";
 import JCellGeneric, { IJCellGenericInfo } from "./JCellGeneric";
 

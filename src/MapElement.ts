@@ -1,4 +1,4 @@
-import { TypeInformationKey } from "./informationTypes";
+import { TypeInformationKey } from "./TypeInformationKey";
 
 export default abstract class MapElement<I> {
 	abstract getInterface(): I;
