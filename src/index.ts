@@ -33,7 +33,7 @@ import RandomNumberGenerator from './Geom/RandomNumberGenerator';
 import JDiagram, { LoaderDiagram } from './Voronoi/JDiagram';
 import VoronoiDiagramCreator from './GeneratorsAndCreators/Voronoi/VoronoiDiagramCreator';
 import InformationFilesManager from './DataFileLoadAndSave/InformationFilesManager';
-import NaturalWorldMapCreator from './NaturalWorldMapCreator';
+import NaturalWorldMapCreator from './GeneratorsAndCreators/NaturalWorldMapCreator';
 
 const tam: number = 3600;
 let SIZE: Point = new Point(tam, tam / 2);

@@ -1,12 +1,12 @@
-import JDiagram from './Voronoi/JDiagram';
-import Grid from './Grid/Grid';
-import RiverMapGenerator, { IRiverMapGeneratorOut } from './GeneratorsAndCreators/Flux/RiverMapGenerator';
-import IslandMap from './MapContainerElements/IslandMap';
-import IslandMapGenerator from './GeneratorsAndCreators/Relief/IslandMapGenerator';
-import GridCreator from './GeneratorsAndCreators/GridCreator';
-import ClimateMapGenerator from './GeneratorsAndCreators/Climate/ClimateMapGenerator';
-import HeightMapGenerator from './GeneratorsAndCreators/Relief/HeightMapGenerator';
-import VoronoiDiagramCreator from './GeneratorsAndCreators/Voronoi/VoronoiDiagramCreator';
+import JDiagram from '../Voronoi/JDiagram';
+import Grid from '../Grid/Grid';
+import RiverMapGenerator, { IRiverMapGeneratorOut } from '../GeneratorsAndCreators/Flux/RiverMapGenerator';
+import IslandMap from '../MapContainerElements/IslandMap';
+import IslandMapGenerator from '../GeneratorsAndCreators/Relief/IslandMapGenerator';
+import GridCreator from '../GeneratorsAndCreators/GridCreator';
+import ClimateMapGenerator from '../GeneratorsAndCreators/Climate/ClimateMapGenerator';
+import HeightMapGenerator from '../GeneratorsAndCreators/Relief/HeightMapGenerator';
+import VoronoiDiagramCreator from '../GeneratorsAndCreators/Voronoi/VoronoiDiagramCreator';
 
 export default class NaturalWorldMapCreator { // debe tener su diagram?
 	
