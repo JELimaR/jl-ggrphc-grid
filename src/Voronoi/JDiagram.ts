@@ -1,16 +1,21 @@
 import { Cell, Diagram, Halfedge, Edge } from 'voronoijs';
-import * as turf from '@turf/turf';
 import Point, { IPoint } from '../Geom/Point';
 import JCell from "./JCell";
 import JEdge from "./JEdge";
 import JSite from './JSite';
 import JVertex from './JVertex';
-import { ICellContainer, IVertexContainer } from '../containerInterfaces';
+import { ICellContainer, IVertexContainer } from '../MapContainersElements/containerInterfaces';
+import turf from '../Geom/turf';
+
+interface IJDiagramInfo {}
+
+class LoaderDiagram implements IJDiagramInfo {
+
+}
 
 export default class JDiagram implements ICellContainer, IVertexContainer {
-	// private _diagram: Diagram;
 	private _cells: Map<number, JCell> = new Map<number, JCell>();
-	private _cells2: Map<string, JCell> = new Map<string, JCell>();
+	private _cells2: Map<string, JCell> = new Map<string, JCell>(); // no es necesario sin azgaar
 
 	private _vertices: Map<string, JVertex> = new Map<string, JVertex>();
 	private _edges: JEdge[] = []; //cambiar
@@ -71,10 +76,10 @@ export default class JDiagram implements ICellContainer, IVertexContainer {
 			const rs: JSite | undefined = e.rSite ? sitesMap.get(e.rSite.id) : undefined;
 
 			let je = new JEdge({
-				va: va,
-				vb: vb,
-				ls: ls,
-				rs: rs
+				vpA: va,
+				vpB: vb,
+				lSite: ls,
+				rSite: rs
 			});
 
 			this._edges.push(je);

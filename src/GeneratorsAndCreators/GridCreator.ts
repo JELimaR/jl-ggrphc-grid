@@ -1,9 +1,10 @@
 import JCell from '../Voronoi/JCell';
 import JDiagram from '../Voronoi/JDiagram';
-import Point from './Point';
-import { GRAN } from './constants'
-import InformationFilesManager from '../DataInformationLoadAndSave';
-import Grid, { IGridPointInfo, GridPoint } from './Grid';
+import Point from '../Geom/Point';
+import { GRAN } from '../Geom/constants'
+import InformationFilesManager from '../DataFileLoadAndSave/InformationFilesManager';
+import Grid from '../Grid/Grid';
+import GridPoint, { IGridPointInfo } from '../Grid/GridPoint';
 
 export default class GridCreator {
 	static createGrid(diagram: JDiagram): Grid {

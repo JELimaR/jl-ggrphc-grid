@@ -1,7 +1,7 @@
-import JCell from "./Voronoi/JCell";
-import JDiagram from "./Voronoi/JDiagram";
-import JEdge from "./Voronoi/JEdge";
-import JVertex from "./Voronoi/JVertex";
+import JCell from "../Voronoi/JCell";
+import JDiagram from "../Voronoi/JDiagram";
+import JEdge from "../Voronoi/JEdge";
+import JVertex from "../Voronoi/JVertex";
 
 export interface ICellContainer {
 	cells: JCell[] | Map<number, JCell>;
@@ -11,12 +11,9 @@ export interface ICellContainer {
 export interface IVertexContainer {
 	vertices: JVertex[] | Map<string, JVertex>;
 	forEachVertex: (func: (vertex: JVertex) => void) => void;
-	// forEachEdge: (func: (edge: JEdge) => void) => void;
 }
 
 export interface IEdgeContainer {
-	// edges: JEdge[] | Map<string, JEdge>;
-	// forEachVertex: (func: (vertex: JVertex) => void) => void;
 	forEachEdge: (func: (edge: JEdge) => void) => void;
 }
 

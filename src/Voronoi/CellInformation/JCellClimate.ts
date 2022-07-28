@@ -1,4 +1,4 @@
-import { TypeInformationKey } from "../../DataInformationLoadAndSave";
+import { TypeInformationKey } from "../../informationTypes";
 import { inRange } from "../../utilFunctions";
 import JCell from "../JCell";
 import JCellGeneric, { IJCellGenericInfo } from "./JCellGeneric";

@@ -1,4 +1,4 @@
-import { ICellContainer, IVertexContainer } from "./containerInterfaces";
+import { ICellContainer, IVertexContainer } from "./MapContainersElements/containerInterfaces";
 import Point from "./Geom/Point";
 import JCell from "./Voronoi/JCell";
 import JVertex from "./Voronoi/JVertex";

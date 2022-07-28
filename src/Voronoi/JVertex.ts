@@ -1,6 +1,11 @@
-import Point from '../Geom/Point';
+import Point, { IPoint } from '../Geom/Point';
 import JVertexInformation from './VertexInformation/JVertexInformation';
 import JEdge from "./JEdge";
+
+export interface IJVertexInfo {
+	point: IPoint,
+	edgeIds: string[],
+}
 
 export default class JVertex {
 	private _point: Point;
@@ -35,8 +40,8 @@ export default class JVertex {
 	get neighborsId(): string[] {
 		let out: string[] = [];
 		this._edges.forEach((e: JEdge) => {
-			if (e.vertexA.id == this._point.id) out.push(e.vertexB.id);
-			else if (e.vertexB.id == this._point.id) out.push(e.vertexA.id);
+			if (e.vpA.id == this._point.id) out.push(e.vpB.id);
+			else if (e.vpB.id == this._point.id) out.push(e.vpA.id);
 			else throw new Error(``)
 		})
 		return out;
@@ -45,13 +50,12 @@ export default class JVertex {
 	getEdgeFromNeighbour(v: JVertex): JEdge {
 		let out: JEdge | undefined;
 		this._edges.forEach((e: JEdge) => {
-			if (e.vertexA.id == v.point.id || e.vertexB.id == v.point.id) {
+			if (e.vpA.id == v.point.id || e.vpB.id == v.point.id) {
 				out = e;
 			}
 		})
 		if (out) return out
 		else throw Error(`los vertices ${v} y ${this} no son vecinos`)
-
 	}
 
 	isNeightbour(v: JVertex) {
@@ -59,8 +63,6 @@ export default class JVertex {
 		this.neighborsId.forEach((nid: string) => out = out || nid === v.id);
 		return out;
 	}
-
-
 
 	/*
 	 * Generic Information
@@ -71,5 +73,13 @@ export default class JVertex {
 
 
 	get info(): JVertexInformation { return this._vertexInformation }
+
+	/** */
+	getInterface(): IJVertexInfo {
+		return {
+			point: this._point.getInterface(),
+			edgeIds: this._edges.map((e: JEdge) => e.id)
+		}
+	}
 
 }

@@ -1,14 +1,14 @@
 import JCell from '../Voronoi/JCell';
 import Point from '../Geom/Point';
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
-import { DivisionMaker } from '../divisions/DivisionMaker';
+// import { DivisionMaker } from '../divisions/DivisionMaker';
 import statesPointsLists from '../divisions/countries/statesPointsLists';
 import countriesDivision from '../divisions/countries/countriesDivision';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
 import LineMap from './LineMap';
-import { IDiagramContainer, ICellContainer } from '../containerInterfaces';
+import { IDiagramContainer, ICellContainer } from './containerInterfaces';
 import MapElement from '../MapElement';
 
 export interface IRegionMapInfo {
@@ -300,7 +300,7 @@ export default class RegionMap extends MapElement<IRegionMapInfo> implements IDi
 		return out;
 	}
 
-	static intersect<R extends RegionMap>(reg1: RegionMap, reg2: RegionMap): RegionMap {
+	static intersect(reg1: RegionMap, reg2: RegionMap): RegionMap {
 		let out: RegionMap = new RegionMap(reg1.diagram);
 		if (reg1.cells.size < reg2.cells.size) {
 			reg1.forEachCell((c1: JCell) => {

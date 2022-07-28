@@ -1,19 +1,19 @@
 // import * as PImage from 'pureimage';
 import { Canvas, CanvasRenderingContext2D, createCanvas } from 'canvas';
 import fs from 'fs';
-import * as turf from '@turf/turf';
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
 
 import Point from '../Geom/Point';
 
 import JCell from '../Voronoi/JCell';
-import RegionMap from '../MapElements/RegionMap';
+import RegionMap from '../MapContainersElements/RegionMap';
 import JPanzoom from './Panzoom';
 import { inRange } from '../utilFunctions';
-import { ICellContainer, IEdgeContainer, IVertexContainer } from '../containerInterfaces';
+import { ICellContainer, IEdgeContainer, IVertexContainer } from '../MapContainersElements/containerInterfaces';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
+import turf from '../Geom/turf';
 // import { Bitmap } from 'pureimage/types/bitmap';
 // import { Context } from 'pureimage/types/context';
 
@@ -152,7 +152,7 @@ export default class DrawerMap {
 		const polContainer = this.getPolygonContainer();
 		vc.forEachEdge((edge: JEdge) => {
 			if (!turf.booleanDisjoint(polContainer, edge.toTurfLineString())) {
-				const points: Point[] = (this.zoomValue < 8) ? [edge.vertexA, edge.vertexB] : edge.points;
+				const points: Point[] = (this.zoomValue < 8) ? [edge.vpA, edge.vpB] : edge.points;
 				this.draw(points, { ...func(edge), fillColor: 'none' });
 			}
 		})

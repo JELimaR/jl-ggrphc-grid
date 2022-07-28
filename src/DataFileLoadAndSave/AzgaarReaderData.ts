@@ -2,8 +2,6 @@
 import { Site } from 'voronoijs';
 import fs from 'fs';
 import {AzgaarFullData, AzgaarCell} from './FullDataTypes';
-// import {AzgaarPackData} from './PackDataTypes'
-// import {AzgaarGridData} from './GridDataTypes'
 
 export default class AzgaarReaderData {
 	static _instance: AzgaarReaderData;
@@ -51,26 +49,22 @@ export default class AzgaarReaderData {
 		return out;
 	}
 
-	heighNeighbourMedia(cell: AzgaarCell): number {
+	private heighNeighbourMedia(cell: AzgaarCell): number {
 		// const cell = this._fullData!.cells.cells.find((cell: any) => cell.i == id);
 		let out:number = 0;
 
-		cell!.c.forEach((nid: number) => {
+		cell.c.forEach((nid: number) => {
 			const ncell = this._cellsMap.get(nid) as AzgaarCell;
-			out += ncell!.h;
+			out += ncell.h;
 		})
 
-		return out/cell!.c.length;
+		return out/cell.c.length;
 	}
 
 	hs() {
 		let out: {id: number, x: number, y: number, h: number}[] = [];
-		// AzgaarReaderData.azgaarData.forEach((cell: any) => {
 		console.log(this._fullData!.cells.cells.length)
-		this._fullData!.cells.cells.forEach((cell: AzgaarCell, indx: number) => {
-			//const fc: number | FeatureClass | undefined = this._data!.cells.features.find((fc: any) => fc.i == cell.i)
-			//if (!fc) throw new Error('')
-			//if (typeof fc === 'number') throw new Error('')
+		this._fullData!.cells.cells.forEach((cell: AzgaarCell) => {
 			
 			const hmedia = this.heighNeighbourMedia(cell);
 			if (Math.abs(cell.h - hmedia)/hmedia > 0.5) {

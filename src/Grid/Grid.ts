@@ -1,54 +1,7 @@
-import JCell from '../Voronoi/JCell';
-import Point from './Point';
-import { GRAD2RAD, GRAN, WRADIUS } from './constants'
+import Point from '../Geom/Point';
+import { GRAN } from '../Geom/constants'
 import { inRange } from '../utilFunctions';
-
-export interface IGridPointInfo {
-	point: { x: number, y: number };
-	cellId: number;
-}
-
-export class GridPoint {
-	private _point: Point;
-	private _cell: JCell;
-	constructor(p: Point, cell: JCell) {
-		this._point = p;
-		this._cell = cell;
-	}
-
-	get cell(): JCell {return this._cell}
-	get point(): Point {return this._point}
-
-	get rowValue() {
-		return inRange(
-			Math.round((90 + this._point.y) / GRAN),
-			0,
-			180 / GRAN + 1
-		);
-	}
-
-	get colValue() {
-		return inRange(
-			Math.round((180 + this._point.x) / GRAN),
-			0,
-			360 / GRAN
-		);
-	}
-
-	getPixelArea(): number {
-		let out = WRADIUS * (GRAN * GRAD2RAD);
-		out *= WRADIUS * Math.cos(this._point.y * GRAD2RAD) * (GRAN * GRAD2RAD);
-
-		return out;
-	}
-
-	getInterface(): IGridPointInfo {
-		return {
-			point: this._point.getInterface(),
-			cellId: this._cell.id
-		}
-	}
-}
+import GridPoint from './GridPoint';
 
 export default class Grid {
 	private _points: GridPoint[][];
@@ -113,10 +66,9 @@ export default class Grid {
 		return out;
 	}
 
-	// obtener puntos en una ventana (en principio se cortan los bordes)
+	// obtener puntos en una ventana
 	getGridPointsInWindowGrade(point: Point, windowGrades: number): GridPoint[] {
-		// const cWindow = (windowGrades > 360) ? 360 : windowGrades;
-		// const rWindow = (windowGrades > 180) ? 180 : windowGrades;
+
 		let out: GridPoint[] = [];
 		const INDXS = this.getGridPointIndexes(point);
 

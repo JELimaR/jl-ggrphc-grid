@@ -1,10 +1,9 @@
 
-import JDiagram from "../Voronoi/JDiagram";
-import InformationFilesManager from '../DataInformationLoadAndSave';
-import JCell from "../Voronoi/JCell";
-import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
+import JDiagram from "../../Voronoi/JDiagram";
+import InformationFilesManager from '../../DataFileLoadAndSave/InformationFilesManager';
+import JCell from "../../Voronoi/JCell";
 import MapGenerator from "../MapGenerator";
-import IslandMap, { IIslandMapInfo } from "./IslandMap";
+import IslandMap, { IIslandMapInfo } from "../../MapContainersElements/IslandMap";
 
 export default class IslandMapGenerator extends MapGenerator {
 	constructor(d: JDiagram) {

@@ -1,6 +1,6 @@
 import { Site } from 'voronoijs';
-import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
-import InformationFilesManager from '../DataInformationLoadAndSave';
+import AzgaarReaderData from '../DataFileLoadAndSave/AzgaarReaderData';
+import InformationFilesManager from '../DataFileLoadAndSave/InformationFilesManager';
 import { IPoint } from '../Geom/Point';
 import JDiagram from './JDiagram';
 import RandomNumberGenerator from '../Geom/RandomNumberGenerator';

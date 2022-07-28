@@ -7,10 +7,9 @@ import NaturalWorld from '../NaturalWorld';
 
 import JVertex from '../Voronoi/JVertex';
 import chroma from 'chroma-js';
-
-import RiverMap, { } from '../River/RiverMap';
-import FluxRouteMap from '../River/FluxRouteMap';
 import Shower from './Shower';
+import RiverMap from '../MapContainersElements/RiverMap';
+import FluxRouteMap from '../MapContainersElements/FluxRouteMap';
 
 type TBackground = 'h' | 'l';
 

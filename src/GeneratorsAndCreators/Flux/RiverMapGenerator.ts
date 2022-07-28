@@ -1,12 +1,12 @@
-import JDiagram from "../Voronoi/JDiagram";
-import InformationFilesManager from '../DataInformationLoadAndSave';
-import JCellClimate from '../Voronoi/CellInformation/JCellClimate'
-import JVertex from "../Voronoi/JVertex";
-import RiverMap, { IRiverMapInfo } from "./RiverMap";
-import JVertexFlux, { IJVertexFluxInfo } from "../Voronoi/VertexInformation/JVertexFlux";
-import { getArrayOfN } from "../utilFunctions";
-import FluxRouteMap, { IFluxRouteMapInfo } from "./FluxRouteMap";
+import JDiagram from "../../Voronoi/JDiagram";
+import InformationFilesManager from '../../DataFileLoadAndSave/InformationFilesManager';
+import JCellClimate from '../../Voronoi/CellInformation/JCellClimate'
+import JVertex from "../../Voronoi/JVertex";
+import JVertexFlux, { IJVertexFluxInfo } from "../../Voronoi/VertexInformation/JVertexFlux";
+import { getArrayOfN } from "../../utilFunctions";
 import MapGenerator from "../MapGenerator";
+import FluxRouteMap, { IFluxRouteMapInfo } from "../../MapContainersElements/FluxRouteMap";
+import RiverMap, { IRiverMapInfo } from "../../MapContainersElements/RiverMap";
 
 export interface IRiverMapGeneratorOut {
 	fluxRoutes: Map<number, FluxRouteMap>;

@@ -3,7 +3,7 @@ import Point from '../Geom/Point';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';
-import { IDiagramContainer, IEdgeContainer, IVertexContainer } from '../containerInterfaces';
+import { IDiagramContainer, IEdgeContainer, IVertexContainer } from './containerInterfaces';
 import MapElement from '../MapElement';
 
 
@@ -38,9 +38,9 @@ export default class LineMap extends MapElement<ILineMapInfo> implements IDiagra
 	get diagram(): JDiagram { return this._diagram }
 	get vertices(): JVertex[] { return this._isClosed ? [...this._vertices, this._vertices[0]] : this._vertices }
 	get length(): number {
-		if (this._length == -1) {
-			this._length = this.calcLength();
-		}
+		// if (this._length == -1) {
+		// 	this._length = this.calcLength();
+		// }
 		return this._length
 	}
 
@@ -48,7 +48,7 @@ export default class LineMap extends MapElement<ILineMapInfo> implements IDiagra
 	get fin(): JVertex { return this._vertices[this._vertices.length - 1] }
 
 	close() {
-		if (this.ini.isNeightbour(this.fin)) {
+		if (this.ini.isNeightbour(this.fin) && this._vertices.length > 2) {
 			this._isClosed = true;
 		} else {
 			throw new Error(`no se puede cerrar`)
@@ -117,13 +117,16 @@ Presentes: ${this._vertices.map((vertex: JVertex) => vertex.id + ' ')}`)
 		const cant: number = this._vertices.length;
 		if (cant == 0) {
 			this._vertices.push(vertex);
+			this._length = 0;
 		} else {
 			const ini: JVertex = this.ini;
 			const fin: JVertex = this.fin;
 			if (fin.isNeightbour(vertex)) {
 				this._vertices.push(vertex);
+				this._length += fin.getEdgeFromNeighbour(vertex).length;
 			} else if (ini.isNeightbour(vertex)) {
 				this._vertices.unshift(vertex);
+				this._length += ini.getEdgeFromNeighbour(vertex).length;
 			} else {
 				console.log('-------------------------------------------')
 				console.log('ini', ini.point.getInterface())

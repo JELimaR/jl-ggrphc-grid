@@ -3,10 +3,10 @@ import Point from '../Geom/Point';
 import JEdge from './JEdge';
 import JSite from './JSite';
 
-// export interface IJHalfEdgeInfo {
-// 	siteid: number;
-// 	edgeid: number;
-// }
+export interface IJHalfEdgeInfo {
+	siteid: number;
+	edgeid: string;
+}
 
 export default class JHalfEdge {
 	private _site: JSite;
@@ -18,11 +18,11 @@ export default class JHalfEdge {
 
 	get initialPoint(): Point {
 
-		return this._edge.lSite === this._site ? this._edge.vertexA : this._edge.vertexB;
+		return this._edge.lSite === this._site ? this._edge.vpA : this._edge.vpB;
 	}
 	get finalPoint(): Point {
 
-		return this._edge.lSite === this._site ? this._edge.vertexB : this._edge.vertexA;
+		return this._edge.lSite === this._site ? this._edge.vpB : this._edge.vpA;
 	}
 
 	get points(): Point[] {
@@ -34,11 +34,10 @@ export default class JHalfEdge {
 	}
 	get edge(): JEdge { return this._edge }
 
-	// getInterface(): IJHalfEdgeInfo {
-	// 	return {
-	// 		siteid: this._site.id,
-	// 		edgeid: this._edge.id,
-	// 	}
-	// }
-
+	getInterface(): IJHalfEdgeInfo {
+		return {
+			siteid: this._site.id,
+			edgeid: this._edge.id,
+		}
+	}
 }

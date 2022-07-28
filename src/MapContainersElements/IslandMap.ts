@@ -1,5 +1,5 @@
-import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import RegionMap, { IRegionMapInfo } from "../MapElements/RegionMap";
+import { TypeInformationKey } from "../informationTypes";
+import RegionMap, { IRegionMapInfo } from "./RegionMap";
 import JCell from "../Voronoi/JCell";
 import JDiagram from "../Voronoi/JDiagram";
 

@@ -1,10 +1,4 @@
-/*
-export default interface IMapElement<I> {
-	getInterface(): I;
-}
-*/
-
-import { TypeInformationKey } from "./DataInformationLoadAndSave";
+import { TypeInformationKey } from "./informationTypes";
 
 export default abstract class MapElement<I> {
 	abstract getInterface(): I;

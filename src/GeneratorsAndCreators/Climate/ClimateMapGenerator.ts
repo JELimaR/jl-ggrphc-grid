@@ -1,19 +1,15 @@
-import JDiagram from "../Voronoi/JDiagram";
-import InformationFilesManager from '../DataInformationLoadAndSave';
-// import { IJCellInformation } from "../Voronoi/JCellInformation";
-import JCell from "../Voronoi/JCell";
-
-import PrecipGrid, { IPrecipData } from "./PrecipGrid";
-
-import JCellClimate, { IJCellClimateInfo } from '../Voronoi/CellInformation/JCellClimate'
-
-import Grid, { } from '../Geom/Grid';
-import { IJVertexClimateInfo } from "../Voronoi/VertexInformation/JVertexClimate";
-import JVertex from "../Voronoi/JVertex";
-import TempGrid from "./TempGrid";
-import JPressureGrid from "./PressureGrid";
-import { getArrayOfN } from "../utilFunctions";
+import InformationFilesManager from "../../DataFileLoadAndSave/InformationFilesManager";
+import Grid from "../../Grid/Grid";
 import MapGenerator from "../MapGenerator";
+import { getArrayOfN } from "../../utilFunctions";
+import JCellClimate, { IJCellClimateInfo } from "../../Voronoi/CellInformation/JCellClimate";
+import JCell from "../../Voronoi/JCell";
+import JDiagram from "../../Voronoi/JDiagram";
+import JVertex from "../../Voronoi/JVertex";
+import { IJVertexClimateInfo } from "../../Voronoi/VertexInformation/JVertexClimate";
+import PrecipGrid, { IPrecipData } from "./PrecipGrid";
+import PressureGrid from "./PressureGrid";
+import TempGrid from "./TempGrid";
 
 
 export default class ClimateMapGenerator extends MapGenerator {
@@ -25,11 +21,10 @@ export default class ClimateMapGenerator extends MapGenerator {
 
 	generate(): void {
 		// super.generate();
-
-		const dataInfoManager = InformationFilesManager.instance;
+		const ifm = InformationFilesManager.instance;
 
 		// let climateData: IJCellClimateInfo[] = dataInfoManager.loadCellsClimate(this.diagram.secAreaProm);
-		let climateData: IJCellClimateInfo[] = dataInfoManager.loadMapElementData<IJCellClimateInfo, JCellClimate>(this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
+		let climateData: IJCellClimateInfo[] = ifm.loadMapElementData<IJCellClimateInfo, JCellClimate>(this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
 		const isLoaded: boolean = climateData.length !== 0;
 		if (!isLoaded) {
 			climateData = this.generateClimateData(this._grid);
@@ -46,7 +41,7 @@ export default class ClimateMapGenerator extends MapGenerator {
 			this.smoothData();
 			// dataInfoManager.saveCellsClimate(this.diagram.cells, this.diagram.secAreaProm);
 			const climateArr: JCellClimate[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellClimate)
-			dataInfoManager.saveMapElementData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
+			ifm.saveMapElementData<IJCellClimateInfo, JCellClimate>(climateArr, this.diagram.secAreaProm, JCellClimate.getTypeInformationKey());
 		}
 
 		this.setVertexInfo();
@@ -65,17 +60,15 @@ export default class ClimateMapGenerator extends MapGenerator {
 	private generateClimateData(grid: Grid): IJCellClimateInfo[] {
 
 		const tempGrid = new TempGrid(grid);
-		const pressGrid = new JPressureGrid(grid, tempGrid);
+		const pressGrid = new PressureGrid(grid, tempGrid);
 		const precipGrid: PrecipGrid = new PrecipGrid(grid, pressGrid, tempGrid)
 
 		let climateData: IJCellClimateInfo[] = [];
 
 		this.diagram.forEachCell((c: JCell) => {
-			//if (!c.isMarked()) {
 			const gp = grid.getGridPoint(c.center);
-			// const cidx = gp.colValue, ridx = gp.rowValue;
-			const precData: IPrecipData = precipGrid.getPointInfo(gp.point);// precipGrid._precipData[cidx][ridx];
-			const temps = [...tempGrid.getPointInfo(gp.point)./*_tempData[cidx][ridx].*/tempMonth];
+			const precData: IPrecipData = precipGrid.getPointInfo(gp.point);
+			const temps = [...tempGrid.getPointInfo(gp.point).tempMonth];
 			const chf = c.info.isLand ? 6.5 * c.info.cellHeight.heightInMeters / 1000 : 0;
 			const ghf = gp.cell.info.isLand ? 6.5 * gp.cell.info.cellHeight.heightInMeters / 1000 : 0;
 			climateData[c.id] = {
@@ -83,7 +76,6 @@ export default class ClimateMapGenerator extends MapGenerator {
 				precipMonth: [...precData.precip],
 				tempMonth: temps.map((t: number, i: number) => t + precData.deltaTemps[i] + ghf - chf)
 			}
-			//}
 		})
 
 		this.diagram.dismarkAllCells();
@@ -130,44 +122,6 @@ export default class ClimateMapGenerator extends MapGenerator {
 			info.precipMonth = info.precipMonth.map((p: number) => p / cells.length);
 
 			vertex.info.setClimateInfo(info)
-
 		})
 	}
-
 }
-
-/*
-colorScale = chroma.scale('Spectral').domain([mmm.max, mmm.min]);
-for (let i of monthArr) {
-	dm2.clear()
-	dm2.drawFondo()
-	const month: number = i;
-	world.grid._points.forEach((col: JGridPoint[], cidx: number) => {
-		col.forEach((gp: JGridPoint, ridx: number) => {
-			let val = pressGrid.getPointInfo(gp._point).pots[month - 1];
-			// let val = pressGrid.getPointInfo(gp._point).vecs[month - 1].y * 10;
-			color = colorScale(val).hex();
-			dm2.drawDot(gp._point, {
-				strokeColor: color, fillColor: color
-			}, GRAN)
-		})
-	})
-	dm2.drawMeridianAndParallels();
-	dm2.saveDrawFile(`${GRAN}pressGrid${(month < 10 ? `0${month}` : `${month}`)}.png`);
-}
-*/
-/*******************************************/
-/*
-dm2.clear()
-// dm2.drawFondo()
-tempGrid.getPressureCenters(month).pressCenter.forEach((val: any) => {
-	color = (val.mag < 0) ? '#00FF0020' : '#FF000020';
-	dm2.drawDot(val.point, {
-		strokeColor: color, fillColor: color
-	}, GRAN)
-})
-colorScale = chroma.scale('Spectral').domain([1, 0]);
-dataPrecip = ws.precip.get(month) as { value: number; cant: number; }[][];
-// dm2.drawMeridianAndParallels();
-dm2.saveDrawFile(`tempWind.png`);
-*/

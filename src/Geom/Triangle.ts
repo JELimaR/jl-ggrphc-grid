@@ -1,5 +1,5 @@
 import Point from "./Point";
-import * as turf from '@turf/turf';
+import turf from "./turf";
 
 export default class Triangle {
 	private _a: Point;

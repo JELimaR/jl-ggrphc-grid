@@ -1,9 +1,9 @@
 import MapGenerator from "../MapGenerator";
-import JCell from "../Voronoi/JCell";
-import JDiagram from "../Voronoi/JDiagram";
-import JVertex from "../Voronoi/JVertex";
-import DrainageBasinMap from "./DrainageBasinMap";
-import FluxRouteMap from "./FluxRouteMap";
+import JCell from "../../Voronoi/JCell";
+import JDiagram from "../../Voronoi/JDiagram";
+import JVertex from "../../Voronoi/JVertex";
+import DrainageBasinMap from "../../MapContainersElements/DrainageBasinMap";
+import FluxRouteMap from "../../MapContainersElements/FluxRouteMap";
 
 export default class DrainageBasinMapGenerator extends MapGenerator {
 	private _fluxRouteMap: Map<number, FluxRouteMap>
@@ -13,7 +13,7 @@ export default class DrainageBasinMapGenerator extends MapGenerator {
 	}
 
 	generate() {
-		
+		console.log('aun no implementado');
 	}
 
 	generateIndividual(initialVertex: JVertex): DrainageBasinMap {

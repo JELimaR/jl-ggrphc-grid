@@ -1,6 +1,4 @@
 import chroma from 'chroma-js';
-//import { koppenColors, TKoppenSubType } from './CellInformation/JCellClimate';
-
 import {
 	altitudinalBeltToNumber,
 	humidityProvinceToNumber,

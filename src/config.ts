@@ -1,5 +1,5 @@
-import AzgaarReaderData from "./AzgaarData/AzgaarReaderData";
-import InformationFilesManager from "./DataInformationLoadAndSave";
+import AzgaarReaderData from "./DataFileLoadAndSave/AzgaarReaderData";
+import InformationFilesManager from "./DataFileLoadAndSave/InformationFilesManager";
 import DrawerMap from "./Drawer/DrawerMap";
 import PNGDrawsDataManager from "./PNGDrawsDataManager";
 

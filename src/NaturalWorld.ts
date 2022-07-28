@@ -1,21 +1,18 @@
 import VoronoiDiagramCreator from './Voronoi/VoronoiDiagramCreator';
 import JDiagram from './Voronoi/JDiagram';
-import HeightMapGenerator from './heightmap/HeightMapGenerator';
-import Grid from './Geom/Grid';
-import ClimateMapGenerator from './Climate/ClimateMapGenerator';
-import RiverMapGenerator, { IRiverMapGeneratorOut } from './River/RiverMapGenerator';
-import IslandMap from './heightmap/IslandMap';
-import IslandMapGenerator from './heightmap/IslandMapGenerator';
-import FluxRouteMap from './River/FluxRouteMap';
-import RiverMap from './River/RiverMap';
-import GridCreator from './Geom/GridCreator';
+import Grid from './Grid/Grid';
+import RiverMapGenerator, { IRiverMapGeneratorOut } from './GeneratorsAndCreators/Flux/RiverMapGenerator';
+import IslandMap from './MapContainersElements/IslandMap';
+import IslandMapGenerator from './GeneratorsAndCreators/Relief/IslandMapGenerator';
+import GridCreator from './GeneratorsAndCreators/GridCreator';
+import ClimateMapGenerator from './GeneratorsAndCreators/Climate/ClimateMapGenerator';
+import HeightMapGenerator from './GeneratorsAndCreators/Relief/HeightMapGenerator';
+import RiverMap from './MapContainersElements/RiverMap';
+import FluxRouteMap from './MapContainersElements/FluxRouteMap';
 
 export default class NaturalWorld {
 
 	private _diagram: JDiagram;
-	// _heightMap: HeightMapGenerator;
-	// private _climateMap: JClimateMap;
-	// _riverMap: RiverMapGenerator;
 
 	// map elements estos elementos son generados despues y no en el constructor
 	private _islands: IslandMap[] = [];

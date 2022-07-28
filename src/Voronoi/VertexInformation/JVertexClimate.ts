@@ -8,20 +8,16 @@ export interface IJVertexClimateInfo extends IJVertexGenericInfo {
 }
 
 export default class JVertexClimate extends JVertexGeneric {
-	// private _vertex: JVertex;
-
-	_tempMonth: number[];
-	_precipMonth: number[];
+	private _tempMonth: number[];
+	private _precipMonth: number[];
 
 	constructor(vertex: JVertex, info: IJVertexClimateInfo) {
 		super(vertex);
-		//this._vertex = vertex;
 		this._tempMonth = [...info.tempMonth]
 		this._precipMonth = [...info.precipMonth]
 	}
 
 	get tempMonth(): number[] { return this._tempMonth }
-	// set tempMonth(tempArr: number[]) { this._tempMonth = [...tempArr] }
 	get precipMonth(): number[] { return this._precipMonth }
 
 	// temp
@@ -66,7 +62,7 @@ export default class JVertexClimate extends JVertexGeneric {
 
 	getInterface(): IJVertexClimateInfo {
 		return {
-			id: this.vertex.id,
+			...super.getInterface(),
 			precipMonth: [...this._precipMonth],
 			tempMonth: [...this._tempMonth],
 		}

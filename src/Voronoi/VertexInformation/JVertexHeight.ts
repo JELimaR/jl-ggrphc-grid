@@ -1,4 +1,4 @@
-import { TypeInformationKey } from "../../DataInformationLoadAndSave";
+import { TypeInformationKey } from "../../informationTypes";
 import JVertex from "../JVertex";
 import JVertexGeneric, { IJVertexGenericInfo } from "./JVertexGeneric";
 
@@ -17,14 +17,11 @@ export interface IJVertexHeightInfo extends IJVertexGenericInfo {
 }
 
 export default class JVertexHeight extends JVertexGeneric {
-	// private _vertex: JVertex;
-
 	private _height: number;
 	private _heightType: TypeVertexheight;
 	// private _island: number = -1;
 	constructor(vertex: JVertex, info: IJVertexHeightInfo) {
 		super(vertex);
-		// this._vertex = vertex;
 		this._height = info.height;
 		this._heightType = info.heightType;
 	}
@@ -36,8 +33,7 @@ export default class JVertexHeight extends JVertexGeneric {
 
 	getInterface(): IJVertexHeightInfo {
 		return {
-			id: this.vertex.id,
-
+			...super.getInterface(),
 			height: this._height,
 			heightType: this._heightType
 		}

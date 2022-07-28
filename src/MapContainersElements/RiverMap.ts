@@ -1,8 +1,7 @@
-import { TypeInformationKey } from "../DataInformationLoadAndSave";
-import Point from "../Geom/Point";
-import LineMap, { ILineMapInfo } from "../MapElements/LineMap";
+import { TypeInformationKey } from "../informationTypes";
 import JDiagram from "../Voronoi/JDiagram";
-import JVertex from "../Voronoi/JVertex";
+import LineMap, { ILineMapInfo } from "./LineMap";
+
 
 export interface IRiverMapInfo extends ILineMapInfo {
   id: number;

@@ -1,10 +1,12 @@
-import Grid, { GridPoint } from "../Geom/Grid";
-import Point from "../Geom/Point";
-import * as TempFunctions from './TempFunctions';
-import * as turf from '@turf/turf'
+import Grid from "../../Grid/Grid";
+import Point from "../../Geom/Point";
 import { IPressureZone } from './PressureGrid'
-import InformationFilesManager from '../DataInformationLoadAndSave';
-import { GRAN } from "../Geom/constants";
+import InformationFilesManager from '../../DataFileLoadAndSave/InformationFilesManager';
+import { GRAN } from "../../Geom/constants";
+import GridPoint from "../../Grid/GridPoint";
+import DataGrid from "../DataGrid";
+import turf from "../../Geom/turf";
+import { calculateTempPromPerLat, generateTempLatArrPerMonth, parametertoRealTemp } from "./TempFunctions";
 const dataInfoManager = InformationFilesManager.instance;
 
 export interface ITempDataGrid {
@@ -13,25 +15,23 @@ export interface ITempDataGrid {
 	tempMonth: number[];
 }
 
-export default class TempGrid {
-	private _grid: Grid;
-	private _tempData: ITempDataGrid[][] = [];
+export default class TempGrid extends DataGrid<ITempDataGrid> {
 	private _itczPoints: Map<number, GridPoint[]> = new Map<number, GridPoint[]>();
 	private _horseLatPoints: Map<number, { n: GridPoint[], s: GridPoint[] }> = new Map<number, { n: GridPoint[], s: GridPoint[] }>();
 	private _polarFrontPoints: Map<number, { n: GridPoint[], s: GridPoint[] }> = new Map<number, { n: GridPoint[], s: GridPoint[] }>();;
 
 	constructor(grid: Grid) {
+		super(grid);
 		console.log('calculate temp grid')
 		console.time('set temp grid data');
-		this._grid = grid;
-		this._tempData = this.setTempData();
+		this.matrixData = this.setTempData();
 		for (let i = 0; i < 2; i++)
 			this.smoothTemp(5)
-		this._grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
+		this.grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
 			if (gp.cell.info.isLand) {
 				const hf = 6.5 * gp.cell.info.cellHeight.heightInMeters / 1000;
-				this._tempData[cidx][ridx].tempMonth = this._tempData[cidx][ridx].tempMonth.map((t: number, i: number) =>
-					this._tempData[cidx][ridx].tempMonth[i] = t - hf
+				this.matrixData[cidx][ridx].tempMonth = this.matrixData[cidx][ridx].tempMonth.map((t: number, i: number) =>
+					this.matrixData[cidx][ridx].tempMonth[i] = t - hf
 				)
 			}
 		})
@@ -42,14 +42,14 @@ export default class TempGrid {
 		let out: ITempDataGrid[][] = dataInfoManager.loadGridData<ITempDataGrid>('temperature');
 		if (out.length == 0) {
 			const caps: number[][] = this.calculateCapPoints();
-			this._grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
+			this.grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
 				if (!out[cidx]) out[cidx] = [];
-				const tempLatMed: number = TempFunctions.calculateTempPromPerLat(gp.point.y);
-				const tempLatMonth: number[] = TempFunctions.generateTempLatArrPerMonth(gp.point.y).map((v) => v.tempLat);
+				const tempLatMed: number = calculateTempPromPerLat(gp.point.y);
+				const tempLatMonth: number[] = generateTempLatArrPerMonth(gp.point.y).map((v) => v.tempLat);
 				let tarr: number[] = [];
 				tempLatMonth.forEach((mt: number) => {
 					let tv: number = tempLatMed + (tempLatMed - mt) * caps[cidx][ridx] * 1.1;
-					tv = TempFunctions.parametertoRealTemp(tv);
+					tv = parametertoRealTemp(tv);
 
 					tarr.push(tv);
 				})
@@ -67,18 +67,18 @@ export default class TempGrid {
 	private calculateCapPoints() {
 		let out: number[][] = [];
 
-		this._grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
+		this.grid.forEachPoint((gp: GridPoint, cidx: number, ridx: number) => {
 			if (!out[cidx]) out[cidx] = [];
 			let captotal: number = 0;
 			let areaTotal: number = 0;
-			this._grid.getGridPointsInWindowGrade(gp.point, 15).forEach((gpiw: GridPoint) => { // debe ser 20?
+			this.grid.getGridPointsInWindowGrade(gp.point, 15).forEach((gpiw: GridPoint) => { // debe ser 20?
 				const d: number = turf.lengthToDegrees(15) * 1.05 - Point.geogDistance(gpiw.point, gp.point);
 				captotal += (gpiw.cell.info.isLand ? 1.0 : 0.44) * d;
 				areaTotal += d;
 			})
 			out[cidx][ridx] = captotal / (areaTotal) * 0.75 + 0.25 * (gp.cell.info.isLand ? 1.0 : 0.44);
 
-			if (cidx % 50 == 0 && ridx == 0) console.log(`van: ${cidx} de ${this._grid.colsNumber}`)
+			if (cidx % 50 == 0 && ridx == 0) console.log(`van: ${cidx} de ${this.grid.colsNumber}`)
 		})
 
 		for (let i = 0; i < 3; i++) {
@@ -94,7 +94,7 @@ export default class TempGrid {
 			let capCol: number[] = []
 			col.forEach((capin: number, ridx: number) => {
 				let cap: number = capin, cant: number = 1;
-				this._grid.getGridPointsInWindow(this._grid.points[cidx][ridx].point, win).forEach((gpiw: GridPoint) => {
+				this.grid.getGridPointsInWindow(this.grid.points[cidx][ridx].point, win).forEach((gpiw: GridPoint) => {
 					// console.log(gpiw.point.toTurfPosition())
 					// const indexes = this._grid.getGridPointIndexes(gpiw.point);
 					cant++;
@@ -107,32 +107,38 @@ export default class TempGrid {
 		return cout;
 	}
 
-	smoothTemp(win: number) {
+	private smoothTemp(win: number) {
 		let cout: ITempDataGrid[][] = [];
-		this._tempData.forEach((col: ITempDataGrid[], cidx: number) => {
-			let dataCol: ITempDataGrid[] = [...this._tempData[cidx]];
+		this.matrixData.forEach((col: ITempDataGrid[], cidx: number) => {
+			let dataCol: ITempDataGrid[] = [...this.matrixData[cidx]];
 			col.forEach((tdg: ITempDataGrid, ridx: number) => {
 				let tmonth: number[] = [...tdg.tempMonth], cant: number = 1;
 				//this._grid.getGridPointsInWindow(this._grid.points[cidx][ridx].point, win).forEach((gpiw: JGridPoint) => {
-				this._grid.getGridPointsInWindowGrade(this._grid.points[cidx][ridx].point, win).forEach((gpiw: GridPoint) => {
-					const indexes = this._grid.getGridPointIndexes(gpiw.point);
+				this.grid.getGridPointsInWindowGrade(this.grid.points[cidx][ridx].point, win).forEach((gpiw: GridPoint) => {
+					const indexes = this.grid.getGridPointIndexes(gpiw.point);
 					cant++;
-					this._tempData[indexes.c][indexes.r].tempMonth.forEach((tv: number, i: number) => tmonth[i] += tv);
+					this.matrixData[indexes.c][indexes.r].tempMonth.forEach((tv: number, i: number) => tmonth[i] += tv);
 				})
 				dataCol[ridx] = {
-					tempCap: this._tempData[cidx][ridx].tempCap,
+					tempCap: this.matrixData[cidx][ridx].tempCap,
 					tempMonth: tmonth.map((v: number) => v / cant),
 					tempMed: tmonth.reduce((p: number, c: number) => p + c) / cant / 12
 				};
 			})
 			cout[cidx] = dataCol;
 		})
-		this._tempData = cout;
+		this.matrixData = cout;
 	}
-
-	getPointInfo(p: Point): ITempDataGrid {
-		const indexes = this._grid.getGridPointIndexes(p);
-		return this._tempData[indexes.c][indexes.r];
+	
+	private getTempValueMedia(arr: number[], month: number | 'med', col: GridPoint[], cidx: number, ridx: number) {
+		let tempValue: number = 0, cant: number = 0;
+		arr.forEach((n: number) => {
+			if (n >= 0 && n < col.length) {
+				cant++;
+				tempValue += (month == 'med') ? this.matrixData[cidx][ridx].tempMed : this.matrixData[cidx][ridx].tempMonth[month - 1];
+			}
+		})
+		return tempValue / cant;
 	}
 
 	getITCZPoints(month: number | 'med'): GridPoint[] {
@@ -144,42 +150,31 @@ export default class TempGrid {
 	}
 	private calcITCZPoints(month: number | 'med'): GridPoint[] {
 		let itczPoints: Point[] = [];
-		this._grid.points.forEach((col: GridPoint[], cidx: number) => {
+		this.grid.points.forEach((col: GridPoint[], cidx: number) => {
 			let max: number = -Infinity;
 			let id: number = -1;
 			col.forEach((_gp: GridPoint, ridx: number) => {
-				let arr: number[] = this._grid.getIndexsInWindow(ridx, 10);
-				let tempValue: number = 0, cant: number = 0;
+				let arr: number[] = this.grid.getIndexsInWindow(ridx, 10);
+				let tempValue: number = this.getTempValueMedia(arr, month, col, cidx, ridx);
+				/*let tempValue: number = 0, cant: number = 0;
 				arr.forEach((n: number) => {
 					if (n >= 0 && n < col.length) {
 						cant++;
-						tempValue += (month == 'med') ? this._tempData[cidx][ridx].tempMed : this._tempData[cidx][ridx].tempMonth[month - 1];
+						tempValue += (month == 'med') ? this.matrixData[cidx][ridx].tempMed : this.matrixData[cidx][ridx].tempMonth[month - 1];
 					}
 				})
-				tempValue = tempValue / cant;
+				tempValue = tempValue / cant;*/
 				if (tempValue > max) {
 					max = tempValue;
 					id = ridx;
 				}
 			})
-			if (id == -1) console.log(this._tempData[cidx])
+			if (id == -1) console.log(this.matrixData[cidx])
 			itczPoints.push(col[id].point);
 		})
 
 		/*  */
-		return this._grid.soft(itczPoints, -7, 7)
-	}
-
-	private getTempValueMedia(arr: number[], month: number | 'med', col: GridPoint[], cidx: number, ridx: number) {
-		let tempValue: number = 0, cant: number = 0;
-		arr.forEach((n: number) => {
-			if (n >= 0 && n < col.length) {
-				cant++;
-				tempValue += (month == 'med') ? this._tempData[cidx][ridx].tempMed : this._tempData[cidx][ridx].tempMonth[month - 1];
-			}
-		})
-		return tempValue / cant;
-
+		return this.grid.soft(itczPoints, -7, 7)
 	}
 
 	getHorseLatPoints(month: number | 'med', hemisf: 'n' | 's'): GridPoint[] {
@@ -190,12 +185,12 @@ export default class TempGrid {
 	}
 	private calcHorseLatPoints(month: number | 'med', hemisf: 'n' | 's'): GridPoint[] {
 		let outPoints: Point[] = [];
-		const RIDXmin: number = (hemisf === 'n') ? 0 : Math.round(this._grid.rowsNumber / 2) - 1;
-		this._grid.points.forEach((col: GridPoint[], cidx: number) => {
+		const RIDXmin: number = (hemisf === 'n') ? 0 : Math.round(this.grid.rowsNumber / 2) - 1;
+		this.grid.points.forEach((col: GridPoint[], cidx: number) => {
 			let min: number = Infinity;
 			let id: number = -1;
 			for (let ridx: number = RIDXmin; ridx < col.length / 2 + RIDXmin; ridx++) {
-				let arr: number[] = this._grid.getIndexsInWindow(ridx, 10);
+				let arr: number[] = this.grid.getIndexsInWindow(ridx, 10);
 				let tempValue: number = this.getTempValueMedia(arr, month, col, cidx, ridx);
 				if (Math.abs(tempValue - 20) < min) {
 					min = Math.abs(tempValue - 20);
@@ -208,7 +203,7 @@ export default class TempGrid {
 		/*  */
 		const miny = (hemisf === 'n') ? -32 : 24;
 		const maxy = (hemisf === 'n') ? -24 : 32;
-		return this._grid.soft(outPoints, miny, maxy);
+		return this.grid.soft(outPoints, miny, maxy);
 	}
 
 	getPolarFrontPoints(month: number | 'med', hemisf: 'n' | 's'): GridPoint[] {
@@ -219,12 +214,12 @@ export default class TempGrid {
 	}
 	private calcPolarFrontPoints(month: number | 'med', hemisf: 'n' | 's'): GridPoint[] {
 		let outPoints: Point[] = [];
-		const RIDXmin: number = (hemisf === 'n') ? 0 : Math.round(this._grid.rowsNumber / 2) - 1;
-		this._grid.points.forEach((col: GridPoint[], cidx: number) => {
+		const RIDXmin: number = (hemisf === 'n') ? 0 : Math.round(this.grid.rowsNumber / 2) - 1;
+		this.grid.points.forEach((col: GridPoint[], cidx: number) => {
 			let min: number = Infinity;
 			let id: number = -1;
 			for (let ridx: number = RIDXmin; ridx < col.length / 2 + RIDXmin; ridx++) {
-				let arr: number[] = this._grid.getIndexsInWindow(ridx, 10);
+				let arr: number[] = this.grid.getIndexsInWindow(ridx, 10);
 				let tempValue: number = this.getTempValueMedia(arr, month, col, cidx, ridx);
 				if (Math.abs(tempValue - 3) < min) {
 					min = Math.abs(tempValue - 3);
@@ -237,17 +232,17 @@ export default class TempGrid {
 		/*  */
 		const miny = (hemisf === 'n') ? -61 : 57;
 		const maxy = (hemisf === 'n') ? -57 : 61;
-		return this._grid.soft(outPoints, miny, maxy)
+		return this.grid.soft(outPoints, miny, maxy)
 	}
 
 	getPolarLinePoints(month: number | 'med', hemisf: 'n' | 's'): GridPoint[] {
 		let outPoints: Point[] = [];
-		const RIDXmin: number = (hemisf === 'n') ? 1 : Math.round(this._grid.rowsNumber / 2) - 1;
-		this._grid.points.forEach((col: GridPoint[], cidx: number) => {
+		const RIDXmin: number = (hemisf === 'n') ? 1 : Math.round(this.grid.rowsNumber / 2) - 1;
+		this.grid.points.forEach((col: GridPoint[], cidx: number) => {
 			let min: number = Infinity;
 			let id: number = -1;
 			for (let ridx: number = RIDXmin; ridx < (col.length / 2 - 1) + RIDXmin; ridx++) {
-				let arr: number[] = this._grid.getIndexsInWindow(ridx, 10);
+				let arr: number[] = this.grid.getIndexsInWindow(ridx, 10);
 				let tempValue: number = this.getTempValueMedia(arr, month, col, cidx, ridx);
 				if (Math.abs(tempValue + 15) < min) {
 					min = Math.abs(tempValue + 15);
@@ -258,7 +253,7 @@ export default class TempGrid {
 		})
 
 		/*  */
-		return this._grid.soft(outPoints)
+		return this.grid.soft(outPoints)
 	}
 
 	getPressureCenters(month: number): { pressCenter: IPressureZone[], locationGrid: number[][] } { // verificar tiempo total
@@ -266,7 +261,7 @@ export default class TempGrid {
 		const MAG: number = 5 * GRAN;
 		let out: IPressureZone[] = [];
 		let pressureCentersLocation: number[][] = [];
-		this._grid.forEachPoint((_: GridPoint, cidx, ridx) => {
+		this.grid.forEachPoint((_: GridPoint, cidx, ridx) => {
 			if (!pressureCentersLocation[cidx]) pressureCentersLocation[cidx] = [];
 			pressureCentersLocation[cidx][ridx] = 0;
 		})
@@ -311,7 +306,7 @@ export default class TempGrid {
 				return this.getPointInfo(b.point).tempMonth[month - 1] - this.getPointInfo(a.point).tempMonth[month - 1];
 			})
 			horseLat.forEach((gp: GridPoint, i: number) => { // ver criterio para agregar
-				const pointsInWindow = this._grid.getGridPointsInWindowGrade(gp.point, 20);
+				const pointsInWindow = this.grid.getGridPointsInWindowGrade(gp.point, 20);
 				let landCount: number = 0, totalCount: number = 0;
 				pointsInWindow.forEach((iwgp: GridPoint) => {
 					// if (iwgp.cell.info.isLand) landCount++;

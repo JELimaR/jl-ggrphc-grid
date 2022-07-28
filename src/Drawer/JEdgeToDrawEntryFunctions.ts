@@ -1,5 +1,4 @@
 import chroma from 'chroma-js';
-//import { koppenColors, TKoppenSubType } from './CellInformation/JCellClimate';
 
 import JEdge from '../Voronoi/JEdge';
 import JVertex from '../Voronoi/JVertex';

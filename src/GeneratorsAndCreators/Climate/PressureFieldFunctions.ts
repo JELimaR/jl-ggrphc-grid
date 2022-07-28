@@ -1,4 +1,4 @@
-import Point from "../Geom/Point";
+import Point from "../../Geom/Point";
 
 interface IPressureZone {
 	mag: number;

@@ -4,30 +4,30 @@ import JSite from './JSite';
 import JDiagram from './JDiagram';
 
 import RandomNumberGenerator from '../Geom/RandomNumberGenerator';
-import * as turf from '@turf/turf'
 import JVertex from './JVertex';
+import turf from '../Geom/turf';
 
-// export interface IJEdgeInfo {
-// 	lSite: {id: number};
-// 	rSite: {id: number } | undefined;
-// 	va: string;
-// 	vb: string;
-// }
+export interface IJEdgeInfo {
+	id: string;
+	lSite: {id: number};
+	rSite?: {id: number };
+	vaId: string;
+	vbId: string;
+}
 
 interface IJEdgeConstructor {
-	//e: Edge;
-	ls: JSite;
-	rs?: JSite;
-	va: Point;
-	vb: Point;
+	lSite: JSite;
+	rSite?: JSite;
+	vpA: Point;
+	vpB: Point;
 }
 
 export default class JEdge {
 
 	private _lSite: JSite;
 	private _rSite: JSite | undefined;
-	private _vertexA: Point; // puede ser directamente JVertex
-	private _vertexB: Point;
+	private _vpA: Point; // puede ser directamente JVertex
+	private _vpB: Point;
 
 	private _points: Point[] = [];
 	private _length: number | undefined;
@@ -36,37 +36,37 @@ export default class JEdge {
 	static set diagram(d: JDiagram) { this._diagram = d; }
 	static getId(e: Edge): string { return `a${Point.getIdfromVertex(e.va)}-b${Point.getIdfromVertex(e.vb)}` }
 
-	constructor({ ls, rs, va, vb }: IJEdgeConstructor) {
+	constructor(iec: IJEdgeConstructor) {
 
-		this._lSite = ls;
-		this._rSite = rs;
-		this._vertexA = va;
-		this._vertexB = vb;
+		this._lSite = iec.lSite;
+		this._rSite = iec.rSite;
+		this._vpA = iec.vpA;
+		this._vpB = iec.vpB;
 	}
 
 	get lSite(): JSite { return this._lSite }
 	get rSite(): JSite | undefined { return this._rSite }
-	get vertexA(): Point { return this._vertexA }
-	get vertexB(): Point { return this._vertexB }
+	get vpA(): Point { return this._vpA }
+	get vpB(): Point { return this._vpB }
 
 	get vertices(): JVertex[] {
 		return [
-			JEdge._diagram.vertices.get(this._vertexA.id)!,
-			JEdge._diagram.vertices.get(this._vertexB.id)!,
+			JEdge._diagram.vertices.get(this._vpA.id)!,
+			JEdge._diagram.vertices.get(this._vpB.id)!,
 		]
 	}
 
 	get id(): string {
-		return `a${this._vertexA.id}-b${this._vertexB.id}`
+		return `a${this._vpA.id}-b${this._vpB.id}`
 	}
 	get diamond(): turf.Feature<turf.Polygon> {
 		if (this._rSite) {
 			return turf.polygon([[
-				this._vertexA.toTurfPosition(),
+				this._vpA.toTurfPosition(),
 				this._lSite.point.toTurfPosition(),
-				this._vertexB.toTurfPosition(),
+				this._vpB.toTurfPosition(),
 				this._rSite.point.toTurfPosition(),
-				this._vertexA.toTurfPosition(),
+				this._vpA.toTurfPosition(),
 			]])
 		} else {
 			throw new Error('No existe diamond para un edge sin rSite');
@@ -92,13 +92,13 @@ export default class JEdge {
 			if (this._rSite) {
 				const randf: () => number = RandomNumberGenerator.makeRandomFloat(this._rSite.id);
 				const pointsList: turf.Position[] = noiseTraceLine(
-					[this._vertexA.toTurfPosition(), this._vertexB.toTurfPosition()],
+					[this._vpA.toTurfPosition(), this._vpB.toTurfPosition()],
 					this.diamond,
 					randf
 				);
 				out = pointsList.map((element: turf.Position) => Point.fromTurfPosition(element));
 			} else {
-				out = [this._vertexA, this._vertexB];
+				out = [this._vpA, this._vpB];
 			}
 			this._points = out;
 		}
@@ -107,19 +107,20 @@ export default class JEdge {
 
 	toTurfLineString(): turf.Feature<turf.LineString> {
 		return turf.lineString([
-			this._vertexA.toTurfPosition(), this._vertexB.toTurfPosition()
+			this._vpA.toTurfPosition(), this._vpB.toTurfPosition()
 		]);
 	}
 
-	// getInterface(): IJEdgeInfo {
-	// 	const rs = (this._rSite) ? {id: this._rSite.id} : undefined
-	// 	return {
-	// 		lSite: {id: this._lSite.id},
-	// 		rSite: rs,
-	// 		va: `${this._vertexA.x}_${this._vertexA.y}`,
-	// 		vb: `${this._vertexB.x}_${this._vertexB.y}`,
-	// 	}
-	// }
+	getInterface(): IJEdgeInfo {
+		const rs = (this._rSite) ? {id: this._rSite.id} : undefined
+		return {
+			id: this.id,
+			lSite: {id: this._lSite.id},
+			rSite: rs,
+			vaId: this._vpA.id,
+			vbId: this._vpB.id
+		}
+	}
 
 }
 

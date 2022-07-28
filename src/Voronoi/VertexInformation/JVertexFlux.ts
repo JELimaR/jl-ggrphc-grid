@@ -1,4 +1,4 @@
-import { TypeInformationKey } from "../../DataInformationLoadAndSave";
+import { TypeInformationKey } from "../../informationTypes";
 import JVertex from "../JVertex";
 import JVertexGeneric, { IJVertexGenericInfo } from "./JVertexGeneric";
 
@@ -11,14 +11,12 @@ export interface IJVertexFluxInfo extends IJVertexGenericInfo {
 }
 
 export default class JVertexFlux extends JVertexGeneric {
-	/// private _vertex: JVertex;
 
 	private _fluxMonth: number[];
-	_fluxRouteIds: number[] = [];
-	_riverIds: number[] = [];
+	private _fluxRouteIds: number[] = [];
+	private _riverIds: number[] = [];
 
 	constructor(vertex: JVertex, info: IJVertexFluxInfo) {
-		// this._vertex = vertex;
 		super(vertex)
 		this._fluxMonth = [...info.fluxMonth];
 		this._fluxRouteIds = [...info.fluxRouteIds];
@@ -35,7 +33,7 @@ export default class JVertexFlux extends JVertexGeneric {
 
 	getInterface(): IJVertexFluxInfo {
 		return {
-			id: this.vertex.id,
+			...super.getInterface(),
 			fluxMonth: [...this._fluxMonth],
 			fluxRouteIds: this._fluxRouteIds,
 			riverIds: this._riverIds

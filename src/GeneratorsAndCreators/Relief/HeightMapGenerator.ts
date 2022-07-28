@@ -1,20 +1,16 @@
-import JDiagram from "../Voronoi/JDiagram";
-import InformationFilesManager from '../DataInformationLoadAndSave';
-import JCellHeight, { IJCellHeightInfo } from '../Voronoi/CellInformation/JCellHeight';
-import JCell from "../Voronoi/JCell";
-
-import AzgaarReaderData from '../AzgaarData/AzgaarReaderData';
-import Point from "../Geom/Point";
-import JVertexHeight, { IJVertexHeightInfo } from "../Voronoi/VertexInformation/JVertexHeight";
-import JVertex from "../Voronoi/JVertex";
-import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
+import InformationFilesManager from "../../DataFileLoadAndSave/InformationFilesManager";
+import JCellHeight, { IJCellHeightInfo } from "../../Voronoi/CellInformation/JCellHeight";
+import JDiagram from "../../Voronoi/JDiagram";
+import JVertexHeight, { IJVertexHeightInfo } from "../../Voronoi/VertexInformation/JVertexHeight";
 import MapGenerator from "../MapGenerator";
-
+import JCell from "../../Voronoi/JCell";
+import JVertex from "../../Voronoi/JVertex";
+import RandomNumberGenerator from "../../Geom/RandomNumberGenerator";
+import Point from "../../Geom/Point";
+import AzgaarReaderData from "../../DataFileLoadAndSave/AzgaarReaderData";
 
 class JOceanMap {}
 class JLakeMap {}
-
-const ard: AzgaarReaderData = AzgaarReaderData.instance;
 
 export default class HeightMapGenerator extends MapGenerator {
 
@@ -28,7 +24,7 @@ export default class HeightMapGenerator extends MapGenerator {
 	}
 
 	generate() {
-		const dataInfoManager = InformationFilesManager.instance;
+		const ifm = InformationFilesManager.instance;
 		const a = this._ancestor;
 		/*
 		 * height cells
@@ -37,7 +33,7 @@ export default class HeightMapGenerator extends MapGenerator {
 		console.time(`${a ? 's' : 'p'}-set height info`);
 		// ver como se debe hacer esto
 		// let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadCellsHeigth(this.diagram.secAreaProm);
-		let loadedHeightInfo: IJCellHeightInfo[] = dataInfoManager.loadMapElementData<IJCellHeightInfo, JCellHeight>(this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
+		let loadedHeightInfo: IJCellHeightInfo[] = ifm.loadMapElementData<IJCellHeightInfo, JCellHeight>(this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
 
 		const isLoaded: boolean = loadedHeightInfo.length !== 0;
 		if (!isLoaded) {
@@ -68,12 +64,12 @@ export default class HeightMapGenerator extends MapGenerator {
 
 			// dataInfoManager.saveCellsHeigth(this.diagram.cells, this.diagram.secAreaProm);
 			const heightArr: JCellHeight[] = [...this.diagram.cells.values()].map((cell: JCell) => cell.info.cellHeight)
-			dataInfoManager.saveMapElementData<IJCellHeightInfo, JCellHeight>(heightArr, this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
+			ifm.saveMapElementData<IJCellHeightInfo, JCellHeight>(heightArr, this.diagram.secAreaProm, JCellHeight.getTypeInformationKey());
 		}
 
 		// vertices
 		// let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadVerticesHeigth(this.diagram.secAreaProm);
-		let loadedVertexInfo: IJVertexHeightInfo[] = dataInfoManager.loadMapElementData<IJVertexHeightInfo, JVertexHeight>(this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
+		let loadedVertexInfo: IJVertexHeightInfo[] = ifm.loadMapElementData<IJVertexHeightInfo, JVertexHeight>(this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
 		const isVertexLoaded: boolean = loadedVertexInfo.length !== 0;
 		if (!isVertexLoaded) {
 			loadedVertexInfo = this.getVertexValues();
@@ -94,7 +90,7 @@ export default class HeightMapGenerator extends MapGenerator {
 			
 			// dataInfoManager.saveVerticesHeigth(this.diagram.vertices, this.diagram.secAreaProm);
 			const verticesArr: JVertexHeight[] = [...this.diagram.vertices.values()].map((vertex: JVertex) => vertex.info.vertexHeight)
-			dataInfoManager.saveMapElementData<IJVertexHeightInfo, JVertexHeight>(verticesArr, this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
+			ifm.saveMapElementData<IJVertexHeightInfo, JVertexHeight>(verticesArr, this.diagram.secAreaProm, JVertexHeight.getTypeInformationKey());
 		}
 
 		console.timeEnd(`${a ? 's' : 'p'}-set height info`);
@@ -103,6 +99,7 @@ export default class HeightMapGenerator extends MapGenerator {
 
 	private getCellsData(): IJCellHeightInfo[] {
 		let out: IJCellHeightInfo[] = [];
+		const ard: AzgaarReaderData = AzgaarReaderData.instance;
 		const azgaarHeight = ard.hs();
 		azgaarHeight.forEach((elem: { id: number, x: number, y: number, h: number }) => {
 			const cellId = this.diagram.getCellFromCenter(new Point(elem.x, elem.y)).id;

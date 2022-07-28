@@ -1,11 +1,11 @@
 import { calcCoriolisForce, calcMovementState, IMovementState } from "./PressureFieldFunctions";
-import Grid, { GridPoint } from "../Geom/Grid";
-import Point from "../Geom/Point";
-import JPressureGrid, { IPressureZone, PressureData } from "./PressureGrid";
+import { GRAN } from "../../Geom/constants";
+import Point from "../../Geom/Point";
+import Grid from "../../Grid/Grid";
+import GridPoint from "../../Grid/GridPoint";
+import { getArrayOfN, getPointInValidCoords } from "../../utilFunctions";
+import PressureGrid, { PressureData } from "./PressureGrid";
 import TempGrid from "./TempGrid";
-import { GRAN } from "../Geom/constants";
-import { getArrayOfN, getPointInValidCoords } from "../utilFunctions";
-import ShowerManager from "../toShow/ShowerManager";
 
 const sat: number = 8000;
 const roz = 0.71;
@@ -54,10 +54,10 @@ export interface IPrecipDataGenerated {
 export default class WindSimulate {
 
 	private _grid: Grid;
-	private _pressGrid: JPressureGrid;
+	private _pressGrid: PressureGrid;
 	private _tempGrid: TempGrid;
 
-	constructor(grid: Grid, pressGrid: JPressureGrid, tempGrid: TempGrid) {
+	constructor(grid: Grid, pressGrid: PressureGrid, tempGrid: TempGrid) {
 		this._grid = grid;
 		this._pressGrid = pressGrid;
 		this._tempGrid = tempGrid;
@@ -117,7 +117,6 @@ export default class WindSimulate {
 
 	windSimIteration(initPoint: Point, month: number, dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[]): { dataPrecip: IPrecipDataGenerated[][], route: WindRoutePoint[] } {
 
-		route = [];
 		let currPos = initPoint;
 		let currVel = new Point(0, 0);
 		let acc = 0;
@@ -209,7 +208,9 @@ export default class WindSimulate {
 		if (nextHeight >= 0.84) {
 			precipOut = (nextHeight ** 0.45) * acc;
 		} else if (nextHeight >= 0.2) {
-			let exponent = (nextHeight < 0.5) ? 2 : ((nextHeight < 0.7) ? 1.5 : 0.45);
+			let exponent;
+			if (nextHeight < 0.5) exponent = 2;
+			else exponent = (nextHeight < 0.7) ? 1.5 : 0.45;
 			precipOut = ((currHeight <= nextHeight) ? 0.5 : 0.0) * (nextHeight ** exponent + pval) * acc;
 			if (precipOut > acc) precipOut = acc;
 			if (precipOut > MAXRAIN) precipOut = MAXRAIN;

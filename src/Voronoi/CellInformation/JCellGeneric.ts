@@ -1,4 +1,4 @@
-import { TypeInformationKey } from "../../DataInformationLoadAndSave";
+import { TypeInformationKey } from "../../informationTypes";
 import IMapElement from "../../MapElement";
 import JCell from "../JCell";
 

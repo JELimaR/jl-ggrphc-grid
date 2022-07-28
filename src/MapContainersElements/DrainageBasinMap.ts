@@ -1,4 +1,4 @@
-import RegionMap, { IRegionMapInfo } from "../MapElements/RegionMap";
+import RegionMap, { IRegionMapInfo } from "./RegionMap";
 import JDiagram from "../Voronoi/JDiagram";
 
 export interface IDrainageBasinMapInfo extends IRegionMapInfo {

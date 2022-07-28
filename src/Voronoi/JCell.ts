@@ -1,10 +1,15 @@
 import Point from '../Geom/Point';
 import Triangle from '../Geom/Triangle';
 import JEdge from './JEdge';
-import JHalfEdge from './JHalfEdge';
-import JSite from './JSite';
+import JHalfEdge, { IJHalfEdgeInfo } from './JHalfEdge';
+import JSite, { IJSiteInfo } from './JSite';
 import JCellInformation from './CellInformation/JCellInformation';
 import turf from '../Geom/turf';
+
+export interface IJCellInfo {
+	site: IJSiteInfo,
+	halfedges: IJHalfEdgeInfo[],
+}
 
 export default class JCell {
 
@@ -12,7 +17,7 @@ export default class JCell {
 	private _halfedges: JHalfEdge[] = [];
 	private _cellInformation: JCellInformation; // eliminar esto
 	private _subCells: JCell[] = [];
-	private _subsites: Point[] = [];
+	// private _subsites: Point[] = [];
 
 	constructor(site: JSite, arrEdges: JEdge[]) {
 
@@ -141,7 +146,7 @@ export default class JCell {
 	}
 
 	getSubSites(AREA: number): Point[] {
-		if (this._subsites.length == 0) {
+		// if (this._subsites.length == 0) {
 			const cantSites: number = Math.round(this.area / AREA) + 1;
 			let points: Point[] = [];
 
@@ -156,38 +161,32 @@ export default class JCell {
 				triangles = triangles.sort((a: Triangle, b: Triangle) => b.area - a.area); // de mayor a menor area
 			}
 
-			for (let i = 0; i < cantSites; i++) {
-				points.push(triangles[i].centroid)
-			}
+			for (let i = 0; i < cantSites; i++) points.push(triangles[i].centroid);
 
 			const isIn: boolean = this.isPointIn(new Point(-90, 8))
 			if (isIn) console.log(triangles.map((t: Triangle) => t.area));
 			if (isIn) console.log(this.areaSimple)
 			if (isIn) console.log(points)
 
-			this._subsites = points;
-		}
+			return points;
+			// this._subsites = points;
+		// }
 
-		return this._subsites;
+		// return this._subsites;
 	}
 
 	/*
 	 * Generic Information
 	 */
+	get info(): JCellInformation { return this._cellInformation }
+
 	mark(): void { this._cellInformation.mark = true }
 	dismark(): void { this._cellInformation.mark = false }
 	isMarked(): boolean { return this._cellInformation.mark }
-	/*
-	 * Height or relief Information
-	 */
-
-	get info(): JCellInformation { return this._cellInformation }
-
-
+	
 	/**
 	 * sub cells functions
 	 */
-
 	get subCells(): JCell[] { return this._subCells }
 	addSubCell(sb: JCell) { this._subCells.push(sb) }
 

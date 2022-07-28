@@ -12,26 +12,24 @@ import NaturalWorld from './NaturalWorld';
 import { DivisionMaker } from './divisions/DivisionMaker';
 
 import statesPointsLists from './divisions/countries/statesPointsLists';
-import RegionMap, { } from './MapElements/RegionMap';
+import RegionMap, { } from './MapContainersElements/RegionMap';
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import chroma from 'chroma-js';
 
 import * as turf from '@turf/turf';
-import RiverMapGenerator from './River/RiverMapGenerator';
-import RiverMap, { } from './River/RiverMap';
-import FluxRouteMap from './River/FluxRouteMap';
+import RiverMapGenerator from './GeneratorsAndCreators/Flux/RiverMapGenerator';
 import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
 import ShowClimate from './toShow/toShowClimate';
-import LineMap from './MapElements/LineMap';
+import LineMap from './MapContainersElements/LineMap';
 import JEdge from './Voronoi/JEdge';
 import ShowTest from './toShow/toShowTest';
 import ShowerManager from './toShow/ShowerManager';
 import { createICellContainer, createIVertexContainer } from './utilFunctions';
-import IslandMap from './heightmap/IslandMap';
-import DrainageBasinMapGenerator from './River/DrainageBasinMapGenerator';
-import DrainageBasinMap from './River/DrainageBasinMap';
+import IslandMap from './MapContainersElements/IslandMap';
+import DrainageBasinMapGenerator from './GeneratorsAndCreators/Flux/DrainageBasinMapGenerator';
+import DrainageBasinMap from './MapContainersElements/DrainageBasinMap';
 import config from './config';
 
 const tam: number = 3600;
@@ -55,8 +53,9 @@ const azgaarFolder: string[] = [
 	'Migny90', // 14
 	'Zia20', // 15
 	'Deneia60', // 16
+	'Ouvyia70', // 17
 ];
-const folderSelected: string = azgaarFolder[10];
+const folderSelected: string = azgaarFolder[17];
 console.log('folder:', folderSelected)
 
 config(folderSelected);
@@ -76,7 +75,7 @@ console.log(dm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(dm.getPointsBuffCenterLimits());
 
-const AREA: number = 12100; // 810
+const AREA: number = 810; // 810
 const naturalWorld: NaturalWorld = new NaturalWorld(AREA); // ver si agregar el dm para ver el hh orginal
 
 const monthArrObj = {
@@ -98,14 +97,14 @@ const stest = showerManager.st;
  * height map
  */
 sh.drawHeight();
-// sh.drawIslands();
+sh.drawIslands();
 // sh.printMaxAndMinCellsHeight();
 
 /**
  * climate map
  */
 // for (let month of monthArrObj[monthCant]) {	sc.drawTempMonth(month); }
-// sc.drawTempMedia()
+sc.drawTempMedia()
 // for (let month of monthArrObj[monthCant]) {	sc.drawPrecipMonth(month); }
 sc.drawPrecipMedia()
 
@@ -115,9 +114,9 @@ sc.printKoppenData();
 /**
  * LIFE ZONES
  */
-// sc.drawAltitudinalBelts();
-// sc.drawHumidityProvinces();
-// sc.drawLifeZones();
+sc.drawAltitudinalBelts();
+sc.drawHumidityProvinces();
+sc.drawLifeZones();
 // sc.printLifeZonesData();
 
 /**

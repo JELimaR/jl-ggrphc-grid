@@ -1,4 +1,4 @@
-import * as turf from '@turf/turf';
+import turf from "./turf";
 
 export const polInArrReg = (pol: turf.Feature<turf.Polygon>, ArrReg: turf.Feature<turf.Polygon>[]): boolean => {
     let out: boolean = false;

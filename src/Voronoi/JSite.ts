@@ -1,13 +1,12 @@
 import {Site} from 'voronoijs';
 import Point, {IPoint} from '../Geom/Point';
 
-/*
+
 export interface IJSiteInfo {
 	id: number;
-	x: number;
-	y:number;
+	point: IPoint;
 }
-*/
+
 export default class JSite {
 
 	private _id: number;
@@ -22,11 +21,11 @@ export default class JSite {
 
 	get id(): number {return this._id}
 	get point(): Point {return this._point}
-/*
+
 	getInterface(): IJSiteInfo {
 		return {
 			id: this._id,
-			x: this._point.x, y: this._point.y
+			point: this._point.getInterface()
 		}
-	}*/
+	}
 }
