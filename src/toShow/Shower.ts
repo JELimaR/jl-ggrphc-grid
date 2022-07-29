@@ -1,23 +1,24 @@
-import CanvasDrawingMap from "../Drawing/CanvasDrawingMap";
+
+import CanvasDrawingMap from "../DrawingServer/CanvasDrawingMap";
 import Point from "../Geom/Point";
-import NaturalWorldMap from "../NaturalWorldMap";
+import NaturalMap from "../NaturalMap";
 
 const tam: number = 3600;
 let SIZE: Point = new Point(tam, tam / 2);
 
 export default abstract class Shower {
-	private _w: NaturalWorldMap;
+	private _w: NaturalMap;
 	private _a: number;
 	private _f: string;
 	private _d: CanvasDrawingMap;
-	constructor(world: NaturalWorldMap, area: number, folderSelected: string, subFolder: string) {
+	constructor(world: NaturalMap, area: number, folderSelected: string, subFolder: string) {
 		this._w = world;
 		this._a = area;
 		this._f = folderSelected;
 		this._d = new CanvasDrawingMap(SIZE, `/${subFolder}`);
 	}
 
-	get w(): NaturalWorldMap { return this._w}
+	get w(): NaturalMap { return this._w}
 	get a(): number { return this._a}
 	get f(): string { return this._f}
 	get d(): CanvasDrawingMap { return this._d }
@@ -29,7 +30,7 @@ export default abstract class Shower {
 // example
 class ShowExample extends Shower {
 
-	constructor(world: NaturalWorldMap, area: number, folderSelected: string) {
+	constructor(world: NaturalMap, area: number, folderSelected: string) {
 		super(world, area, folderSelected, 'climate');
 	}
 }

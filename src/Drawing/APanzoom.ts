@@ -1,4 +1,4 @@
-import Point, { IPoint } from "../Geom/Point";
+import { IPoint } from "../Geom/Point";
 
 export interface IAPanzoom {
 	zoom: number;
@@ -9,11 +9,11 @@ export default abstract class APanzoom {
 	private _zoom: number;
 	private _centerX: number;
 	private _centerY: number;
-	private _elementSize: Point;
+	private _elementSize: IPoint;
 
 	private iap: IAPanzoom;
 
-	constructor(size: Point, iap: IAPanzoom) {
+	constructor(size: IPoint, iap: IAPanzoom) {
 		this._elementSize = size;
 		this.iap = { ...iap };
 
@@ -38,7 +38,7 @@ export default abstract class APanzoom {
 		this._centerY = this.iap.center.y;
 	}
 
-	get elementSize(): Point { return this._elementSize; }
+	get elementSize(): IPoint { return this._elementSize; }
 
 	get zoom(): number {return this._zoom}
 	get zoomValue(): number {
@@ -75,8 +75,8 @@ export default abstract class APanzoom {
 		if (this._centerY < this.minCenterY) this._centerY = this.minCenterY;
 	}
 	
-	abstract get pointsBuffDrawLimits(): Point[];
-	abstract get pointsBuffCenterLimits(): Point[];
+	abstract get pointsBuffDrawLimits(): IPoint[];
+	abstract get pointsBuffCenterLimits(): IPoint[];
 
 	getXstep(): number {
 		const a = this.pointsBuffDrawLimits[0];

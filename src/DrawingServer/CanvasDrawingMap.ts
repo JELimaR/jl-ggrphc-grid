@@ -1,11 +1,11 @@
 import { Canvas, CanvasRenderingContext2D, createCanvas } from 'canvas';
 import fs from 'fs';
+import ADrawingMap from '../Drawing/ADrawingMap';
+import IDrawEntry from '../Drawing/IDrawEntry';
 
 import Point, { IPoint } from '../Geom/Point';
 import RegionMap from '../MapContainerElements/RegionMap';
 import CanvasPanzoom from './CanvasPanzoom';
-import IDrawEntry from './IDrawEntry';
-import ADrawingMap from './ADrawingMap';
 
 export default class CanvasDrawingMap extends ADrawingMap<void, CanvasPanzoom> {
 	private _cnvs: Canvas;
@@ -16,7 +16,7 @@ export default class CanvasDrawingMap extends ADrawingMap<void, CanvasPanzoom> {
 		this._srcPath = path;
 	}
 
-	constructor(SIZE: Point, dirPath: string) {
+	constructor(SIZE: IPoint, dirPath: string) {
 		super(SIZE, new CanvasPanzoom(SIZE))
 
 		this._cnvs = createCanvas(SIZE.x, SIZE.y);
@@ -51,7 +51,7 @@ export default class CanvasDrawingMap extends ADrawingMap<void, CanvasPanzoom> {
 		context.beginPath();
 
 		for (let point of points) {
-			const pconverted: Point = this.panzoom.convertPointToDrawer(point);
+			const pconverted: IPoint = this.panzoom.convertPointToDrawer(point);
 			context.lineTo(pconverted.x, pconverted.y);
 		}
 

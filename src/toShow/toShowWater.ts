@@ -3,7 +3,7 @@ import * as JCellToDrawEntryFunctions from '../Drawing/JCellToDrawEntryFunctions
 import * as JEdgeToDrawEntryFunctions from '../Drawing/JEdgeToDrawEntryFunctions';
 
 import Point, { IPoint } from '../Geom/Point';
-import NaturalWorldMap from '../NaturalWorldMap';
+import NaturalMap from '../NaturalMap';
 
 import JVertex from '../Voronoi/JVertex';
 import chroma from 'chroma-js';
@@ -16,7 +16,7 @@ type TBackground = 'h' | 'l';
 
 export default class ShowWater extends Shower {
 
-	constructor(world: NaturalWorldMap, area: number, folderSelected: string) {
+	constructor(world: NaturalMap, area: number, folderSelected: string) {
 		super(world, area, folderSelected, 'river');
 	}
 

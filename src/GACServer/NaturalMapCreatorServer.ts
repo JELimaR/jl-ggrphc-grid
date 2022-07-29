@@ -7,9 +7,9 @@ import GridCreator from './GridCreator';
 import ClimateMapGenerator from './Climate/ClimateMapGenerator';
 import HeightMapGenerator from './Relief/HeightMapGenerator';
 import VoronoiDiagramCreator from './Voronoi/VoronoiDiagramCreator';
-import { IRiverMapGeneratorOut } from '../GACInterfaces/INaturalWorldMapCreator';
+import { IRiverMapGeneratorOut } from '../GACInterfaces/INaturalMapCreator';
 
-export default class NaturalWorldMapCreator { // debe tener su diagram?
+export default class NaturalMapCreatorServer { // debe tener su diagram?
 	
 	generateVoronoiDiagramInfo(AREA: number): JDiagram {
 		console.time('Generate Natural World')

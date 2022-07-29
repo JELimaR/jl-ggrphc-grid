@@ -1,4 +1,3 @@
-
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
 import Point, { IPoint } from '../Geom/Point';
@@ -13,22 +12,21 @@ import IDrawEntry from './IDrawEntry';
 import APanzoom, { IAPanzoom } from './APanzoom';
 
 export default abstract class ADrawingMap<I, P extends APanzoom> {
-
-	private _size: Point;
+	private _size: IPoint;
 	private _panzoom: P;
 
-	constructor(SIZE: Point, panzoom: P) {
+	constructor(SIZE: IPoint, panzoom: P) {
 		this._size = SIZE;
 		this._panzoom = panzoom;
 	}
 
-	get size(): Point	{return this._size;}
-	get panzoom(): P {return this._panzoom}
+	get size(): IPoint { return this._size; }
+	get panzoom(): P { return this._panzoom }
 
 
 	abstract getCenterPan(): IPoint;
 	abstract setCenterpan(p: IPoint): void;
-	
+
 	get zoomValue(): number { return this._panzoom.zoomValue; }
 
 	setZoomValue(n: number) {
@@ -134,7 +132,7 @@ export default abstract class ADrawingMap<I, P extends APanzoom> {
 		const polContainer = this.getPolygonContainer();
 
 		let lsin: turf.Position[] = [];
-		vc.forEachVertex((v: JVertex) => lsin.push([ v.point.x,v.point.y]));
+		vc.forEachVertex((v: JVertex) => lsin.push([v.point.x, v.point.y]));
 		const lineString: turf.Feature<turf.LineString> = turf.lineString(lsin);
 
 		if (!turf.booleanDisjoint(polContainer, lineString)) {
@@ -195,18 +193,18 @@ export default abstract class ADrawingMap<I, P extends APanzoom> {
 		color = color || chroma.scale('Spectral').domain([1, 0])(0.05).hex();
 		return this.draw(
 			[
-				{x: -200, y: -100}, {x: -200, y: 100}, {x: 200, y: 100}, {x: 200, y: -100},
+				{ x: -200, y: -100 }, { x: -200, y: 100 }, { x: 200, y: 100 }, { x: 200, y: -100 },
 			], {
-				strokeColor: color,	
-				fillColor: color
-			}
+			strokeColor: color,
+			fillColor: color
+		}
 		)
 	}
 
 	abstract draw(points: IPoint[], ent: IDrawEntry): I;
 	abstract drawDot(p: IPoint, ent: IDrawEntry, w: number): I;
 
-	clear(zoomValue: number = 0, center: IPoint = {x:0,y:0}) {
+	clear(zoomValue: number = 0, center: IPoint = { x: 0, y: 0 }) {
 		this.setZoomValue(zoomValue);
 		this.setCenterpan(center);
 	}

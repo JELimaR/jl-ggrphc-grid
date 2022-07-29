@@ -2,19 +2,19 @@ import JDiagram from './Voronoi/JDiagram';
 import IslandMap from './MapContainerElements/IslandMap';
 import RiverMap from './MapContainerElements/RiverMap';
 import FluxRouteMap from './MapContainerElements/FluxRouteMap';
-import INaturalWorldMapCreator, { IRiverMapGeneratorOut } from './GACInterfaces/INaturalWorldMapCreator';
+import INaturalMapCreator, { IRiverMapGeneratorOut } from './GACInterfaces/INaturalMapCreator';
 
-export default class NaturalWorldMap {
+export default class NaturalMap {
 
 	private _diagram: JDiagram;
-	private _creator: INaturalWorldMapCreator;
+	private _creator: INaturalMapCreator;
 
 	// map elements estos elementos son generados despues y no en el constructor
 	private _islands: IslandMap[] = [];
 	private _fluxRoutes: Map<number, FluxRouteMap> = new Map<number, FluxRouteMap>();
 	private _rivers: Map<number, RiverMap> = new Map<number, RiverMap>();
 
-	constructor(AREA: number, nwmc: INaturalWorldMapCreator) {
+	constructor(AREA: number, nwmc: INaturalMapCreator) {
 		this._creator = nwmc;
 		this._diagram = this._creator.generateVoronoiDiagramInfo(AREA)
 	}

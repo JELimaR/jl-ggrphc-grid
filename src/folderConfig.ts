@@ -1,7 +1,7 @@
 import AzgaarReaderData from "./DataFileLoadAndSave/AzgaarReaderData";
 import InformationFilesManager from "./DataFileLoadAndSave/InformationFilesManager";
 import PNGDrawsDataManager from "./DataFileLoadAndSave/PNGDrawsDataManager";
-import CanvasDrawingMap from "./Drawing/CanvasDrawingMap";
+import CanvasDrawingMap from "./DrawingServer/CanvasDrawingMap";
 
 
 // MEJORAR

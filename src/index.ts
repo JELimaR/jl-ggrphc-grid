@@ -5,10 +5,10 @@ const formatMemoryUsage = (data: number) => `${Math.round(data / 1024 / 1024 * 1
 
 import * as JCellToDrawEntryFunctions from './Drawing/JCellToDrawEntryFunctions';
 import * as JEdgeToDrawEntryFunctions from './Drawing/JEdgeToDrawEntryFunctions';
-import CanvasDrawingMap from './Drawing/CanvasDrawingMap'
+import CanvasDrawingMap from './DrawingServer/CanvasDrawingMap'
 
 import Point from './Geom/Point';
-import NaturalWorldMap from './NaturalWorldMap';
+import NaturalMap from './NaturalMap';
 import RegionMap from './MapContainerElements/RegionMap';
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
@@ -29,7 +29,7 @@ import RandomNumberGenerator from './Geom/RandomNumberGenerator';
 import JDiagram, { LoaderDiagram } from './Voronoi/JDiagram';
 import VoronoiDiagramCreator from './GACServer/Voronoi/VoronoiDiagramCreator';
 import InformationFilesManager from './DataFileLoadAndSave/InformationFilesManager';
-import NaturalWorldMapCreator from './GACServer/NaturalWorldMapCreator';
+import NaturalMapCreatorServer from './GACServer/NaturalMapCreatorServer';
 
 const tam: number = 3600;
 let SIZE: Point = new Point(tam, tam / 2);
@@ -62,21 +62,21 @@ folderConfig(folderSelected);
 let colorScale: chroma.Scale;
 let color: string;
 
-let dm: CanvasDrawingMap = new CanvasDrawingMap(SIZE, ``); // borrar, se usa el de stest
-dm.setZoomValue(0);
-dm.setCenterpan(new Point(0, 0));
+let cdm: CanvasDrawingMap = new CanvasDrawingMap(SIZE, ``); // borrar, se usa el de stest
+cdm.setZoomValue(0);
+cdm.setCenterpan(new Point(0, 0));
 // navigate
-console.log('zoom: ', dm.zoomValue)
-console.log('center: ', dm.getCenterPan())
+console.log('zoom: ', cdm.zoomValue)
+console.log('center: ', cdm.getCenterPan())
 
 console.log('draw buff');
-console.log(dm.getPointsBuffDrawLimits());
+console.log(cdm.getPointsBuffDrawLimits());
 console.log('center buff');
-console.log(dm.getPointsBuffCenterLimits());
+console.log(cdm.getPointsBuffCenterLimits());
 
 const AREA: number = 12100; // 810
-const nwmc = new NaturalWorldMapCreator();
-const naturalWorld: NaturalWorldMap = new NaturalWorldMap(AREA, nwmc);
+const nwmc = new NaturalMapCreatorServer();
+const naturalMap: NaturalMap = new NaturalMap(AREA, nwmc);
 
 const monthArrObj = {
 	12: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -85,7 +85,7 @@ const monthArrObj = {
 }
 const monthCant: keyof typeof monthArrObj = 12;
 /* SHOWERS */
-const showerManager = new ShowerManager(naturalWorld, AREA, folderSelected);
+const showerManager = new ShowerManager(naturalMap, AREA, folderSelected);
 
 const sh = showerManager.sh;
 const sc = showerManager.sc;
@@ -130,13 +130,13 @@ sc.drawLifeZones();
 
 console.time('test');
 
-const isl = naturalWorld.islands[2];
-const pzr = dm.getPanzoomForReg(isl);
-dm.setZoomValue(pzr.zoom);
-dm.setCenterpan(pzr.center);
-dm.drawCellContainer(isl, JCellToDrawEntryFunctions.heighLand(1))
-dm.drawMeridianAndParallels();
-dm.saveDrawFile('asdfsad.png');
+const isl = naturalMap.islands[2];
+const pzr = cdm.getPanzoomForReg(isl);
+cdm.setZoomValue(pzr.zoom);
+cdm.setCenterpan(pzr.center);
+cdm.drawCellContainer(isl, JCellToDrawEntryFunctions.heighLand(1))
+cdm.drawMeridianAndParallels();
+cdm.saveDrawFile('asdfsad.png');
 
 console.timeEnd('test')
 

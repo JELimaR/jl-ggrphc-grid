@@ -7,7 +7,7 @@ import MapGenerator from "../MapGenerator";
 import FluxRouteMap, { IFluxRouteMapInfo } from "../../MapContainerElements/FluxRouteMap";
 import RiverMap, { IRiverMapInfo } from "../../MapContainerElements/RiverMap";
 import { getArrayOfN } from "../../Geom/basicGeometryFunctions";
-import { IRiverMapGeneratorOut } from "../../GACInterfaces/INaturalWorldMapCreator";
+import { IRiverMapGeneratorOut } from "../../GACInterfaces/INaturalMapCreator";
 
 export default class RiverMapGenerator extends MapGenerator {
 

@@ -258,6 +258,10 @@ export default class JDiagram {
 		return this._cells.get(id);
 	}
 
+	getVertexById(id: string): JVertex | undefined {
+		return this._vertices.get(id);
+	}
+
 	getCellFromPoint(p: Point): JCell {
 		// se puede verificar si el punto se encuentra en la cell
 		let out: JCell | undefined;

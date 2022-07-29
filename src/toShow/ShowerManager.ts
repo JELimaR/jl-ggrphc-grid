@@ -1,4 +1,4 @@
-import NaturalWorldMap from "../NaturalWorldMap";
+import NaturalMap from "../NaturalMap";
 import ShowClimate from "./toShowClimate";
 import ShowHeight from "./toShowHeight";
 import ShowTest from "./toShowTest";
@@ -11,11 +11,11 @@ export default class ShowerManager {
 	private _sw: ShowWater | undefined;
 	private _st: ShowTest | undefined;
 
-	private _w: NaturalWorldMap;
+	private _w: NaturalMap;
 	private _a: number;
 	private _f: string;
 
-	constructor(world: NaturalWorldMap, area: number, folderSelected: string) {
+	constructor(world: NaturalMap, area: number, folderSelected: string) {
 		this._w = world;
 		this._a = area;
 		this._f = folderSelected;

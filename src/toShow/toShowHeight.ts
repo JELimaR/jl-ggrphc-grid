@@ -1,4 +1,4 @@
-import NaturalWorldMap from "../NaturalWorldMap";
+import NaturalMap from "../NaturalMap";
 import Shower from "./Shower";
 import * as JCellToDrawEntryFunctions from '../Drawing/JCellToDrawEntryFunctions';
 
@@ -7,7 +7,7 @@ import Point from "../Geom/Point";
 
 export default class ShowHeight extends Shower {
 
-	constructor(world: NaturalWorldMap, area: number, folderSelected: string) {
+	constructor(world: NaturalMap, area: number, folderSelected: string) {
 		super(world, area, folderSelected, 'height');
 	}
 
