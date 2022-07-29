@@ -1,6 +1,6 @@
 import NaturalWorldMap from "../NaturalWorldMap";
 import Shower from "./Shower";
-import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions';
+import * as JCellToDrawEntryFunctions from '../Drawing/JCellToDrawEntryFunctions';
 
 import JCell from "../Voronoi/JCell";
 import Point from "../Geom/Point";

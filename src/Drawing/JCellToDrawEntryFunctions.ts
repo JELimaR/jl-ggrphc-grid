@@ -5,7 +5,7 @@ import {
 	koppenColors, TAltitudinalBelt, THumidityProvinces, TKoppenSubType
 } from '../Voronoi/CellInformation/JCellClimate';
 
-import { IDrawEntry } from './DrawerMap';
+import IDrawEntry from './IDrawEntry';
 import JCell from '../Voronoi/JCell';
 
 

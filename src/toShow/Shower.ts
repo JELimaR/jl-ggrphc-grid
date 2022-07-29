@@ -1,4 +1,4 @@
-import DrawerMap from "../Drawer/DrawerMap";
+import CanvasDrawingMap from "../Drawing/CanvasDrawingMap";
 import Point from "../Geom/Point";
 import NaturalWorldMap from "../NaturalWorldMap";
 
@@ -9,18 +9,18 @@ export default abstract class Shower {
 	private _w: NaturalWorldMap;
 	private _a: number;
 	private _f: string;
-	private _d: DrawerMap;
+	private _d: CanvasDrawingMap;
 	constructor(world: NaturalWorldMap, area: number, folderSelected: string, subFolder: string) {
 		this._w = world;
 		this._a = area;
 		this._f = folderSelected;
-		this._d = new DrawerMap(SIZE, `/${subFolder}`);
+		this._d = new CanvasDrawingMap(SIZE, `/${subFolder}`);
 	}
 
 	get w(): NaturalWorldMap { return this._w}
 	get a(): number { return this._a}
 	get f(): string { return this._f}
-	get d(): DrawerMap { return this._d }
+	get d(): CanvasDrawingMap { return this._d }
 
 	printSeparator() { console.log('-----------------------------------------------') }
 	

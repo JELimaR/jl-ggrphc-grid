@@ -11,7 +11,7 @@ const YDIF = 180;
 export default class VoronoiSitesGenerator {
 	getAzgaarSites(): Site[] {
 		const ard = AzgaarReaderData.instance;
-		return ard.sites();
+		return ard.getSites();
 	}
 
 	getSecSites(jd: JDiagram, AREA: number) {

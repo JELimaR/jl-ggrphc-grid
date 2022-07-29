@@ -31,7 +31,7 @@ export default class GridCreator {
 			let col: GridPoint[] = [];
 			for (let j = -90; j <= 90; j += GRAN) {
 				const point: Point = new Point(i, j);
-				const cell: JCell = diagram.getCellFromPoint(point);
+				const cell: JCell = diagram.getCellFromPoint2(point);
 				const gp = new GridPoint(point, cell);
 				col.push(gp);
 			}

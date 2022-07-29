@@ -3,21 +3,17 @@ const newDate = new Date();
 console.log(newDate.toLocaleTimeString());
 const formatMemoryUsage = (data: number) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`
 
-import * as JCellToDrawEntryFunctions from './Drawer/JCellToDrawEntryFunctions';
-import * as JEdgeToDrawEntryFunctions from './Drawer/JEdgeToDrawEntryFunctions';
-import DrawerMap, { IDrawEntry } from './Drawer/DrawerMap'
+import * as JCellToDrawEntryFunctions from './Drawing/JCellToDrawEntryFunctions';
+import * as JEdgeToDrawEntryFunctions from './Drawing/JEdgeToDrawEntryFunctions';
+import CanvasDrawingMap from './Drawing/CanvasDrawingMap'
 
 import Point from './Geom/Point';
 import NaturalWorldMap from './NaturalWorldMap';
-import { DivisionMaker } from './divisions/DivisionMaker';
-
-import statesPointsLists from './divisions/countries/statesPointsLists';
-import RegionMap, { } from './MapContainerElements/RegionMap';
+import RegionMap from './MapContainerElements/RegionMap';
 import JCell from './Voronoi/JCell';
 import JVertex from './Voronoi/JVertex';
 import chroma from 'chroma-js';
 
-import RiverMapGenerator from './GeneratorsAndCreators/Flux/RiverMapGenerator';
 import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
 import ShowClimate from './toShow/toShowClimate';
@@ -26,14 +22,14 @@ import JEdge from './Voronoi/JEdge';
 import ShowTest from './toShow/toShowTest';
 import ShowerManager from './toShow/ShowerManager';
 import IslandMap from './MapContainerElements/IslandMap';
-import DrainageBasinMapGenerator from './GeneratorsAndCreators/Flux/DrainageBasinMapGenerator';
+import DrainageBasinMapGenerator from './GACServer/Flux/DrainageBasinMapGenerator';
 import DrainageBasinMap from './MapContainerElements/DrainageBasinMap';
-import config from './config';
+import folderConfig from './folderConfig';
 import RandomNumberGenerator from './Geom/RandomNumberGenerator';
 import JDiagram, { LoaderDiagram } from './Voronoi/JDiagram';
-import VoronoiDiagramCreator from './GeneratorsAndCreators/Voronoi/VoronoiDiagramCreator';
+import VoronoiDiagramCreator from './GACServer/Voronoi/VoronoiDiagramCreator';
 import InformationFilesManager from './DataFileLoadAndSave/InformationFilesManager';
-import NaturalWorldMapCreator from './GeneratorsAndCreators/NaturalWorldMapCreator';
+import NaturalWorldMapCreator from './GACServer/NaturalWorldMapCreator';
 
 const tam: number = 3600;
 let SIZE: Point = new Point(tam, tam / 2);
@@ -61,17 +57,17 @@ const azgaarFolder: string[] = [
 const folderSelected: string = azgaarFolder[10];
 console.log('folder:', folderSelected)
 
-config(folderSelected);
+folderConfig(folderSelected);
 
 let colorScale: chroma.Scale;
 let color: string;
 
-let dm: DrawerMap = new DrawerMap(SIZE, ``); // borrar, se usa el de stest
-dm.setZoom(0);
+let dm: CanvasDrawingMap = new CanvasDrawingMap(SIZE, ``); // borrar, se usa el de stest
+dm.setZoomValue(0);
 dm.setCenterpan(new Point(0, 0));
 // navigate
 console.log('zoom: ', dm.zoomValue)
-console.log('center: ', dm.centerPoint)
+console.log('center: ', dm.getCenterPan())
 
 console.log('draw buff');
 console.log(dm.getPointsBuffDrawLimits());
@@ -120,7 +116,7 @@ sh.drawIslands();
  */
 // sc.drawAltitudinalBelts();
 // sc.drawHumidityProvinces();
-// sc.drawLifeZones();
+sc.drawLifeZones();
 // sc.printLifeZonesData();
 
 /**
@@ -128,52 +124,21 @@ sh.drawIslands();
  */
 // sw.drawRivers('h');
 // sw.drawWaterRoutes('#000000', 'l')
-sw.printRiverData();
+// sw.printRiverData();
 // sw.printRiverDataLongers(3000);
 // sw.printRiverDataShorters(15);
 
 console.time('test');
-/*
-const seed: number = Math.round(Math.random() * 800);
-const func1 = RandomNumberGenerator.makeRandomFloat(seed);
-const func2 = RandomNumberGenerator.makeRandomFloat(seed);
-colorScale = chroma.scale('Spectral').domain([1, 0]);
 
-const diagSize = 10000;
-console.time('diagramComputed');
-const vdc = new VoronoiDiagramCreator();
-const diag1: JDiagram = vdc.createRandomDiagram(diagSize);
-console.timeEnd('diagramComputed');
+const isl = naturalWorld.islands[2];
+const pzr = dm.getPanzoomForReg(isl);
+dm.setZoomValue(pzr.zoom);
+dm.setCenterpan(pzr.center);
+dm.drawCellContainer(isl, JCellToDrawEntryFunctions.heighLand(1))
+dm.drawMeridianAndParallels();
+dm.saveDrawFile('asdfsad.png');
 
-dm.drawCellContainer(diag1, (_) => {
-	color = colorScale(func1()).hex();
-	return {
-		fillColor: color,
-		strokeColor: color
-	}
-})
-dm.saveDrawFile('diagramComputed.png')
-
-const ifm = InformationFilesManager.instance;
-ifm.saveDiagramValues(diag1.getInterface(), AREA);
-
-console.time('diagramLoaded');
-const idi = ifm.loadDiagramValues(AREA);
-const ld1: LoaderDiagram = new LoaderDiagram(idi.cells, idi.edges, idi.vertices);
-const diag2: JDiagram = new JDiagram(ld1);
-console.timeEnd('diagramLoaded');
-
-dm.drawCellContainer(diag2, (_) => {
-	color = colorScale(func2()).hex();
-	return {
-		fillColor: color,
-		strokeColor: color
-	}
-})
-dm.saveDrawFile('diagramLoaded.png')
-*/
 console.timeEnd('test')
 
-console.log(475186 * 500000 + 156784)
 
 console.timeEnd('all')

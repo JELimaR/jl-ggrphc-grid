@@ -7,11 +7,7 @@ import MapGenerator from "../MapGenerator";
 import FluxRouteMap, { IFluxRouteMapInfo } from "../../MapContainerElements/FluxRouteMap";
 import RiverMap, { IRiverMapInfo } from "../../MapContainerElements/RiverMap";
 import { getArrayOfN } from "../../Geom/basicGeometryFunctions";
-
-export interface IRiverMapGeneratorOut {
-	fluxRoutes: Map<number, FluxRouteMap>;
-	rivers: Map<number, RiverMap>;
-}
+import { IRiverMapGeneratorOut } from "../../GACInterfaces/INaturalWorldMapCreator";
 
 export default class RiverMapGenerator extends MapGenerator {
 
@@ -24,7 +20,6 @@ export default class RiverMapGenerator extends MapGenerator {
 		const rivers: Map<number, RiverMap> = new Map<number, RiverMap>();
 		// cargar datos
 		const dim = InformationFilesManager.instance;
-		// const fluxVerticesDataLoaded = dataInfoManager.loadVerticesFlux(this.diagram.secAreaProm);
 		const fluxVerticesDataLoaded: IJVertexFluxInfo[] = dim.loadMapElementData(this.diagram.secAreaProm, JVertexFlux.getTypeInformationKey());
 		const fluxRoutesDataLoaded: IFluxRouteMapInfo[] = dim.loadMapElementData(this.diagram.secAreaProm, FluxRouteMap.getTypeInformationKey());
 		const riversDataLoaded: IRiverMapInfo[] = dim.loadMapElementData(this.diagram.secAreaProm, RiverMap.getTypeInformationKey());
@@ -60,7 +55,6 @@ export default class RiverMapGenerator extends MapGenerator {
 
 		// gruardar todo
 		if (fluxVerticesDataLoaded.length === 0) {
-			// dataInfoManager.saveVerticesFlux(this.diagram.vertices, this.diagram.secAreaProm);
 			const verticesArr: JVertexFlux[] = [...this.diagram.vertices.values()].map((vertex: JVertex) => vertex.info.vertexFlux)
 			dim.saveMapElementData<IJVertexFluxInfo, JVertexFlux>(verticesArr, this.diagram.secAreaProm, JVertexFlux.getTypeInformationKey());
 		}
@@ -80,7 +74,7 @@ export default class RiverMapGenerator extends MapGenerator {
 		}
 	}
 
-	private setFluxValuesAndRoads(_fluxRoutesMap: Map<number, FluxRouteMap>) {
+	private setFluxValuesAndRoads(fluxRoutesMap: Map<number, FluxRouteMap>) {
 		let verticesArr: JVertex[] = [];
 		this.diagram.forEachVertex((v: JVertex) => {
 			if (v.info.vertexHeight.heightType == 'land') {
@@ -115,10 +109,10 @@ export default class RiverMapGenerator extends MapGenerator {
 
 						this.fluxCalcIteration(curr, currFluxArr, route);
 					} else {
-						break; // el vertex es lake?
+						break;
 					}
 				}
-        /*this.*/_fluxRoutesMap.set(id, route);
+        fluxRoutesMap.set(id, route);
 			}
 		})
 
@@ -149,9 +143,9 @@ export default class RiverMapGenerator extends MapGenerator {
 		vFlux.fluxRouteIds.push(route.id);
 	}
 
-	private setRivers(_fluxRoutesMap: Map<number, FluxRouteMap>, _rivers: Map<number, RiverMap>) {
+	private setRivers(fluxRoutesMap: Map<number, FluxRouteMap>, rivers: Map<number, RiverMap>) {
 		const FLUXLIMIT = this.diagram.vertices.size / 2000;
-		/*this.*/_fluxRoutesMap.forEach((fluxRoute: FluxRouteMap, id: number) => {
+		fluxRoutesMap.forEach((fluxRoute: FluxRouteMap, id: number) => {
 
 			let river: RiverMap = new RiverMap(id, this.diagram);
 
@@ -172,7 +166,7 @@ export default class RiverMapGenerator extends MapGenerator {
 				river.forEachVertex((v: JVertex) => {
 					v.info.vertexFlux.riverIds.push(river.id);
 				})
-				/*this.*/_rivers.set(id, river);
+				rivers.set(id, river);
 			}
 		})
 

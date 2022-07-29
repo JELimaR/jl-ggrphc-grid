@@ -3,7 +3,7 @@ import chroma from 'chroma-js';
 import JEdge from '../Voronoi/JEdge';
 import JVertex from '../Voronoi/JVertex';
 
-import { IDrawEntry } from './DrawerMap';
+import IDrawEntry from './IDrawEntry';
 
 export const fluxMedia = () => {
 	const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1, 0]);

@@ -1,5 +1,3 @@
-
-import { Site } from 'voronoijs';
 import fs from 'fs';
 import { AzgaarFullData, AzgaarCell } from './FullDataTypes';
 
@@ -38,9 +36,14 @@ export default class AzgaarReaderData {
 		}
 	}
 
+	static getDirectories(source: string): string[] {
+		return fs.readdirSync(source, { withFileTypes: true })
+			.filter(dirent => dirent.isDirectory())
+			.map(dirent => dirent.name)
+	}
 	// height drawing
-	sites(): Site[] {
-		let out: Site[] = [];
+	getSites(): {id: number, x: number, y:number}[] {
+		let out: {id: number, x: number, y:number}[] = [];
 		this._fullData!.cells.cells.forEach((cell: any) => {
 			const x = cell.p[0] / 1920 * 360 - 180;
 			const y = cell.p[1] / 880 * 180 - 90;

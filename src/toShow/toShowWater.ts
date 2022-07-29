@@ -1,6 +1,6 @@
 
-import * as JCellToDrawEntryFunctions from '../Drawer/JCellToDrawEntryFunctions';
-import * as JEdgeToDrawEntryFunctions from '../Drawer/JEdgeToDrawEntryFunctions';
+import * as JCellToDrawEntryFunctions from '../Drawing/JCellToDrawEntryFunctions';
+import * as JEdgeToDrawEntryFunctions from '../Drawing/JEdgeToDrawEntryFunctions';
 
 import Point, { IPoint } from '../Geom/Point';
 import NaturalWorldMap from '../NaturalWorldMap';

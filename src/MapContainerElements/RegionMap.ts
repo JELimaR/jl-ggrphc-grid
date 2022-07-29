@@ -1,9 +1,6 @@
 import JCell from '../Voronoi/JCell';
 import Point from '../Geom/Point';
 import RandomNumberGenerator from "../Geom/RandomNumberGenerator";
-// import { DivisionMaker } from '../divisions/DivisionMaker';
-import statesPointsLists from '../divisions/countries/statesPointsLists';
-import countriesDivision from '../divisions/countries/countriesDivision';
 import JDiagram from '../Voronoi/JDiagram';
 import JVertex from '../Voronoi/JVertex';
 import JEdge from '../Voronoi/JEdge';

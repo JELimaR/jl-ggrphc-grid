@@ -1,12 +1,13 @@
 import JDiagram from '../Voronoi/JDiagram';
 import Grid from '../Grid/Grid';
-import RiverMapGenerator, { IRiverMapGeneratorOut } from '../GeneratorsAndCreators/Flux/RiverMapGenerator';
+import RiverMapGenerator from './Flux/RiverMapGenerator';
 import IslandMap from '../MapContainerElements/IslandMap';
-import IslandMapGenerator from '../GeneratorsAndCreators/Relief/IslandMapGenerator';
-import GridCreator from '../GeneratorsAndCreators/GridCreator';
-import ClimateMapGenerator from '../GeneratorsAndCreators/Climate/ClimateMapGenerator';
-import HeightMapGenerator from '../GeneratorsAndCreators/Relief/HeightMapGenerator';
-import VoronoiDiagramCreator from '../GeneratorsAndCreators/Voronoi/VoronoiDiagramCreator';
+import IslandMapGenerator from './Relief/IslandMapGenerator';
+import GridCreator from './GridCreator';
+import ClimateMapGenerator from './Climate/ClimateMapGenerator';
+import HeightMapGenerator from './Relief/HeightMapGenerator';
+import VoronoiDiagramCreator from './Voronoi/VoronoiDiagramCreator';
+import { IRiverMapGeneratorOut } from '../GACInterfaces/INaturalWorldMapCreator';
 
 export default class NaturalWorldMapCreator { // debe tener su diagram?
 	
@@ -58,9 +59,6 @@ export default class NaturalWorldMapCreator { // debe tener su diagram?
 	generateRiverMaps(diag: JDiagram): IRiverMapGeneratorOut {
 		const rmg = new RiverMapGenerator(diag);
 		return rmg.generate();
-		/*const iro: IRiverMapGeneratorOut = rmg.generate();
-		this._fluxRoutes = iro.fluxRoutes;
-		this._rivers = iro.rivers;*/
 	}
 	generateIslandMaps(diag: JDiagram): IslandMap[] {
 		const img: IslandMapGenerator = new IslandMapGenerator(diag);
