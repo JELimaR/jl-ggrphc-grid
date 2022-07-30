@@ -1,14 +1,14 @@
 import * as JCellToDrawEntryFunctions from './JCellToDrawEntryFunctions'
 import chroma from 'chroma-js';
 import Point, { IPoint } from '../Geom/Point';
-import JCell from '../Voronoi/JCell';
-import RegionMap from '../MapContainerElements/RegionMap';
-import { ICellContainer, IEdgeContainer, IVertexContainer } from '../MapContainerElements/containerInterfaces';
-import JVertex from '../Voronoi/JVertex';
-import JEdge from '../Voronoi/JEdge';
+import JCell from '../BuildingModel/Voronoi/JCell';
+import RegionMap from '../BuildingModel/MapContainerElements/RegionMap';
+import { ICellContainer, IEdgeContainer, IVertexContainer } from '../BuildingModel/MapContainerElements/containerInterfaces';
+import JVertex from '../BuildingModel/Voronoi/JVertex';
+import JEdge from '../BuildingModel/Voronoi/JEdge';
 import turf from '../Geom/turf';
 import { inRange } from '../Geom/basicGeometryFunctions';
-import IDrawEntry from './IDrawEntry';
+import IDrawingParameters from './IDrawingParameters';
 import APanzoom, { IAPanzoom } from './APanzoom';
 
 export default abstract class ADrawingMap<I, P extends APanzoom> {
@@ -102,7 +102,7 @@ export default abstract class ADrawingMap<I, P extends APanzoom> {
 		)
 	}
 
-	drawCellContainer(cc: ICellContainer, func: (c: JCell) => IDrawEntry): I[] {
+	drawCellContainer(cc: ICellContainer, func: (c: JCell) => IDrawingParameters): I[] {
 		let out: I[] = [];
 		const polContainer = this.getPolygonContainer();
 		cc.forEachCell((c: JCell) => {
@@ -115,7 +115,7 @@ export default abstract class ADrawingMap<I, P extends APanzoom> {
 		return out;
 	}
 
-	drawEdgeContainer(vc: IEdgeContainer, func: (e: JEdge) => IDrawEntry): I[] {
+	drawEdgeContainer(vc: IEdgeContainer, func: (e: JEdge) => IDrawingParameters): I[] {
 		let out: I[] = [];
 		const polContainer = this.getPolygonContainer();
 		vc.forEachEdge((edge: JEdge) => {
@@ -128,7 +128,7 @@ export default abstract class ADrawingMap<I, P extends APanzoom> {
 		return out;
 	}
 
-	drawVertexContainer(vc: IVertexContainer, vde: /*func: (v: JVertex) =>*/ IDrawEntry): I | undefined {
+	drawVertexContainer(vc: IVertexContainer, vde: /*func: (v: JVertex) =>*/ IDrawingParameters): I | undefined {
 		const polContainer = this.getPolygonContainer();
 
 		let lsin: turf.Position[] = [];
@@ -201,8 +201,8 @@ export default abstract class ADrawingMap<I, P extends APanzoom> {
 		)
 	}
 
-	abstract draw(points: IPoint[], ent: IDrawEntry): I;
-	abstract drawDot(p: IPoint, ent: IDrawEntry, w: number): I;
+	abstract draw(points: IPoint[], ent: IDrawingParameters): I;
+	abstract drawDot(p: IPoint, ent: IDrawingParameters, w: number): I;
 
 	clear(zoomValue: number = 0, center: IPoint = { x: 0, y: 0 }) {
 		this.setZoomValue(zoomValue);

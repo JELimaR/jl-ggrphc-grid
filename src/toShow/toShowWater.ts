@@ -3,13 +3,13 @@ import * as JCellToDrawEntryFunctions from '../Drawing/JCellToDrawEntryFunctions
 import * as JEdgeToDrawEntryFunctions from '../Drawing/JEdgeToDrawEntryFunctions';
 
 import Point, { IPoint } from '../Geom/Point';
-import NaturalMap from '../NaturalMap';
+import NaturalMap from '../BuildingModel/NaturalMap';
 
-import JVertex from '../Voronoi/JVertex';
+import JVertex from '../BuildingModel/Voronoi/JVertex';
 import chroma from 'chroma-js';
 import Shower from './Shower';
-import RiverMap from '../MapContainerElements/RiverMap';
-import FluxRouteMap from '../MapContainerElements/FluxRouteMap';
+import RiverMap from '../BuildingModel/MapContainerElements/RiverMap';
+import FluxRouteMap from '../BuildingModel/MapContainerElements/FluxRouteMap';
 
 type TBackground = 'h' | 'l';
 

@@ -1,4 +1,4 @@
-import NaturalMap from "../NaturalMap";
+import NaturalMap from "../BuildingModel/NaturalMap";
 import ShowClimate from "./toShowClimate";
 import ShowHeight from "./toShowHeight";
 import ShowTest from "./toShowTest";

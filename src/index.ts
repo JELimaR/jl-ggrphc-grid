@@ -3,33 +3,36 @@ const newDate = new Date();
 console.log(newDate.toLocaleTimeString());
 const formatMemoryUsage = (data: number) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`
 
+import path from 'path';
+
 import * as JCellToDrawEntryFunctions from './Drawing/JCellToDrawEntryFunctions';
 import * as JEdgeToDrawEntryFunctions from './Drawing/JEdgeToDrawEntryFunctions';
-import CanvasDrawingMap from './DrawingServer/CanvasDrawingMap'
+import CanvasDrawingMap from './CanvasDrawing/CanvasDrawingMap'
 
 import Point from './Geom/Point';
-import NaturalMap from './NaturalMap';
-import RegionMap from './MapContainerElements/RegionMap';
-import JCell from './Voronoi/JCell';
-import JVertex from './Voronoi/JVertex';
+import NaturalMap from './BuildingModel/NaturalMap';
+import RegionMap from './BuildingModel/MapContainerElements/RegionMap';
+import JCell from './BuildingModel/Voronoi/JCell';
+import JVertex from './BuildingModel/Voronoi/JVertex';
 import chroma from 'chroma-js';
 
 import ShowWater from './toShow/toShowWater';
 import ShowHeight from './toShow/toShowHeight';
 import ShowClimate from './toShow/toShowClimate';
-import LineMap from './MapContainerElements/LineMap';
-import JEdge from './Voronoi/JEdge';
+import LineMap from './BuildingModel/MapContainerElements/LineMap';
+import JEdge from './BuildingModel/Voronoi/JEdge';
 import ShowTest from './toShow/toShowTest';
 import ShowerManager from './toShow/ShowerManager';
-import IslandMap from './MapContainerElements/IslandMap';
-import DrainageBasinMapGenerator from './GACServer/Flux/DrainageBasinMapGenerator';
-import DrainageBasinMap from './MapContainerElements/DrainageBasinMap';
-import folderConfig from './folderConfig';
+import IslandMap from './BuildingModel/MapContainerElements/IslandMap';
+import DrainageBasinMapGenerator from './GeogServer/GACServer/GACFlux/DrainageBasinMapGenerator';
+import DrainageBasinMap from './BuildingModel/MapContainerElements/DrainageBasinMap';
+import folderConfig from './GeogServer/DataFileLoadAndSave/folderConfig';
 import RandomNumberGenerator from './Geom/RandomNumberGenerator';
-import JDiagram, { LoaderDiagram } from './Voronoi/JDiagram';
-import VoronoiDiagramCreator from './GACServer/Voronoi/VoronoiDiagramCreator';
-import InformationFilesManager from './DataFileLoadAndSave/InformationFilesManager';
-import NaturalMapCreatorServer from './GACServer/NaturalMapCreatorServer';
+import JDiagram, { LoaderDiagram } from './BuildingModel/Voronoi/JDiagram';
+import VoronoiDiagramCreator from './GeogServer/GACServer/GACVoronoi/VoronoiDiagramCreator';
+import InformationFilesManager from './GeogServer/DataFileLoadAndSave/InformationFilesManager';
+import NaturalMapCreatorServer from './GeogServer/GACServer/NaturalMapCreatorServer';
+import RiverMap from './BuildingModel/MapContainerElements/RiverMap';
 
 const tam: number = 3600;
 let SIZE: Point = new Point(tam, tam / 2);
@@ -54,10 +57,12 @@ const azgaarFolder: string[] = [
 	'Deneia60', // 16
 	'Ouvyia70', // 17
 ];
-const folderSelected: string = azgaarFolder[10];
+const folderSelected: string = azgaarFolder[4];
 console.log('folder:', folderSelected)
 
-folderConfig(folderSelected);
+const rootPath = path.resolve(path.dirname('') + '/');
+console.log('root:', rootPath)
+folderConfig(rootPath, folderSelected);
 
 let colorScale: chroma.Scale;
 let color: string;
@@ -74,7 +79,7 @@ console.log(cdm.getPointsBuffDrawLimits());
 console.log('center buff');
 console.log(cdm.getPointsBuffCenterLimits());
 
-const AREA: number = 12100; // 810
+const AREA: number = 2100; // 810
 const nwmc = new NaturalMapCreatorServer();
 const naturalMap: NaturalMap = new NaturalMap(AREA, nwmc);
 
@@ -97,8 +102,8 @@ const stest = showerManager.st;
  * height map
  */
 // sh.drawHeight();
-sh.drawIslands();
-// sh.printMaxAndMinCellsHeight();
+// sh.drawIslands();
+sh.printMaxAndMinCellsHeight();
 
 /**
  * climate map
@@ -108,7 +113,7 @@ sh.drawIslands();
 // for (let month of monthArrObj[monthCant]) {	sc.drawPrecipMonth(month); }
 // sc.drawPrecipMedia()
 
-// sc.drawKoppen();
+sc.drawKoppen();
 // sc.printKoppenData();
 
 /**
@@ -130,13 +135,27 @@ sc.drawLifeZones();
 
 console.time('test');
 
-const isl = naturalMap.islands[2];
+const isl = naturalMap.islands[5];
+const coast = isl.getLimitLines()[0];
+
 const pzr = cdm.getPanzoomForReg(isl);
 cdm.setZoomValue(pzr.zoom);
 cdm.setCenterpan(pzr.center);
-cdm.drawCellContainer(isl, JCellToDrawEntryFunctions.heighLand(1))
+console.log('zoom: ', cdm.zoomValue)
+console.log('center: ', cdm.getCenterPan());
+
+cdm.drawBackground('#FFFFFF');
+cdm.drawCellContainer(isl, JCellToDrawEntryFunctions.heighLand());
+cdm.drawEdgeContainer(coast, JEdgeToDrawEntryFunctions.colors({strokeColor: chroma.random().hex(), fillColor: 'none'}))
+naturalMap.rivers.forEach((river: RiverMap) => {
+	cdm.drawEdgeContainer(river, JEdgeToDrawEntryFunctions.fluxMedia())
+})
 cdm.drawMeridianAndParallels();
 cdm.saveDrawFile('asdfsad.png');
+
+console.log('area:', isl.area.toLocaleString('de-DE'), 'km2');
+console.log('cant cells:', isl.cells.size);
+console.log('costa:', coast.length.toLocaleString('de-DE'), 'km');
 
 console.timeEnd('test')
 

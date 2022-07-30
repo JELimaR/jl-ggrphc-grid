@@ -1,7 +1,7 @@
 
-import CanvasDrawingMap from "../DrawingServer/CanvasDrawingMap";
+import CanvasDrawingMap from "../CanvasDrawing/CanvasDrawingMap";
 import Point from "../Geom/Point";
-import NaturalMap from "../NaturalMap";
+import NaturalMap from "../BuildingModel/NaturalMap";
 
 const tam: number = 3600;
 let SIZE: Point = new Point(tam, tam / 2);

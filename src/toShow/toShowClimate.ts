@@ -1,9 +1,9 @@
-import NaturalMap from "../NaturalMap";
+import NaturalMap from "../BuildingModel/NaturalMap";
 import Shower from "./Shower";
 import * as JCellToDrawEntryFunctions from '../Drawing/JCellToDrawEntryFunctions';
 
-import JCell from "../Voronoi/JCell";
-import { lifeZonesList, TKoppenSubType, TKoppenType } from "../Voronoi/CellInformation/JCellClimate";
+import JCell from "../BuildingModel/Voronoi/JCell";
+import { lifeZonesList, TKoppenSubType, TKoppenType } from "../BuildingModel/Voronoi/CellInformation/JCellClimate";
 import Point from "../Geom/Point";
 import { inRange } from "../Geom/basicGeometryFunctions";
 
@@ -34,7 +34,7 @@ export default class ShowClimate extends Shower {
 		this.d.drawBackground()
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.precipitationMonth(month))
 		this.d.drawMeridianAndParallels();
-		this.d.saveDrawFile(`${this.a}precip${(month < 10 ? `0${month}` : `${month}`)}.png`);
+		this.d.saveDrawFile(`${this.a}precip${(month < 10 ? '0' : '')}${month}.png`);
 	}
 
 	drawPrecipMedia(zoom: number = 0, center?: Point) {
@@ -50,7 +50,7 @@ export default class ShowClimate extends Shower {
 		this.d.drawBackground()
 		this.d.drawCellContainer(this.w.diagram, JCellToDrawEntryFunctions.temperatureMonth(month))
 		this.d.drawMeridianAndParallels();
-		this.d.saveDrawFile(`${this.a}temp${(month < 10 ? `0${month}` : `${month}`)}.png`);
+		this.d.saveDrawFile(`${this.a}temp${(month < 10 ? '0' : '')}${month}.png`);
 	}
 
 	drawTempMedia(zoom: number = 0, center?: Point) {

@@ -1,4 +1,4 @@
-import NaturalMap from "../NaturalMap";
+import NaturalMap from "../BuildingModel/NaturalMap";
 import Shower from "./Shower";
 
 

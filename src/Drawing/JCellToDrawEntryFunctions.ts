@@ -3,16 +3,16 @@ import {
 	altitudinalBeltToNumber,
 	humidityProvinceToNumber,
 	koppenColors, TAltitudinalBelt, THumidityProvinces, TKoppenSubType
-} from '../Voronoi/CellInformation/JCellClimate';
+} from '../BuildingModel/Voronoi/CellInformation/JCellClimate';
 
-import IDrawEntry from './IDrawEntry';
-import JCell from '../Voronoi/JCell';
+import IDrawingParameters from './IDrawingParameters';
+import JCell from '../BuildingModel/Voronoi/JCell';
 
 
 export const heigh = (alpha: number = 1) => {
 	alpha = verifyAlpha(alpha);
 	const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1, 0]);
-	return (c: JCell): IDrawEntry => {
+	return (c: JCell): IDrawingParameters => {
 		const value: number = Math.round(c.info.height * 20) / 20;
 		let color: string = colorScale(value).alpha(alpha).hex()
 		return {
@@ -25,7 +25,7 @@ export const heigh = (alpha: number = 1) => {
 export const heighLand = (alpha: number = 1) => {
 	alpha = verifyAlpha(alpha);
 	const colorScale: chroma.Scale = chroma.scale('Spectral').domain([1, 0]);
-	return (c: JCell): IDrawEntry => {
+	return (c: JCell): IDrawingParameters => {
 		const value: number = Math.round(c.info.height * 20) / 20;
 		let color: string = c.info.isLand ? colorScale(value).alpha(alpha).hex() : colorScale(0.05).alpha(alpha).hex();
 		return {
@@ -35,7 +35,7 @@ export const heighLand = (alpha: number = 1) => {
 	}
 }
 
-export const colors = (dd: IDrawEntry) => {
+export const colors = (dd: IDrawingParameters) => {
 	return (_c: JCell) => { return dd }
 }
 

@@ -1,15 +1,15 @@
-import FluxRouteMap, { IFluxRouteMapInfo } from "../MapContainerElements/FluxRouteMap";
-import IslandMap, { IIslandMapInfo } from "../MapContainerElements/IslandMap";
-import RiverMap, { IRiverMapInfo } from "../MapContainerElements/RiverMap";
-import { IJCellClimateInfo } from "../Voronoi/CellInformation/JCellClimate";
-import { IJCellHeightInfo } from "../Voronoi/CellInformation/JCellHeight";
-import JCell from "../Voronoi/JCell";
-import JDiagram, { LoaderDiagram } from "../Voronoi/JDiagram";
-import JVertex from "../Voronoi/JVertex";
-import { IJVertexClimateInfo } from "../Voronoi/VertexInformation/JVertexClimate";
-import { IJVertexFluxInfo } from "../Voronoi/VertexInformation/JVertexFlux";
-import { IJVertexHeightInfo } from "../Voronoi/VertexInformation/JVertexHeight";
-import INaturalMapCreator, { IRiverMapGeneratorOut } from "../GACInterfaces/INaturalMapCreator";
+import FluxRouteMap, { IFluxRouteMapInfo } from "../BuildingModel/MapContainerElements/FluxRouteMap";
+import IslandMap, { IIslandMapInfo } from "../BuildingModel/MapContainerElements/IslandMap";
+import RiverMap, { IRiverMapInfo } from "../BuildingModel/MapContainerElements/RiverMap";
+import { IJCellClimateInfo } from "../BuildingModel/Voronoi/CellInformation/JCellClimate";
+import { IJCellHeightInfo } from "../BuildingModel/Voronoi/CellInformation/JCellHeight";
+import JCell from "../BuildingModel/Voronoi/JCell";
+import JDiagram, { LoaderDiagram } from "../BuildingModel/Voronoi/JDiagram";
+import JVertex from "../BuildingModel/Voronoi/JVertex";
+import { IJVertexClimateInfo } from "../BuildingModel/Voronoi/VertexInformation/JVertexClimate";
+import { IJVertexFluxInfo } from "../BuildingModel/Voronoi/VertexInformation/JVertexFlux";
+import { IJVertexHeightInfo } from "../BuildingModel/Voronoi/VertexInformation/JVertexHeight";
+import INaturalMapCreator, { IRiverMapGeneratorOut } from "../BuildingModel/INaturalMapCreator";
 
 const AREA = 12100;
 

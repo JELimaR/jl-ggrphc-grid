@@ -1,8 +1,8 @@
-import NaturalMap from "../NaturalMap";
+import NaturalMap from "../BuildingModel/NaturalMap";
 import Shower from "./Shower";
 import * as JCellToDrawEntryFunctions from '../Drawing/JCellToDrawEntryFunctions';
 
-import JCell from "../Voronoi/JCell";
+import JCell from "../BuildingModel/Voronoi/JCell";
 import Point from "../Geom/Point";
 
 export default class ShowHeight extends Shower {
